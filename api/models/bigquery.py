@@ -266,4 +266,12 @@ class BigQuery:
         pass
       
     project_mdi.update(project_mfi)
+    
+    extras = {
+      "__extras__": {
+        "index_weight": index_weight
+        }
+    }
+    
+    project_mdi.update(extras)
     return project_mdi

@@ -6,7 +6,13 @@ class Conversion:
     numeric_string = value.replace("Rp", "")
     numeric_string = parse_decimal(numeric_string, locale='id_ID')
     return float(numeric_string)
-
+  
+  @classmethod
+  def unpack_usd(cls, value):
+    numeric_string = value.replace("USD", "").replace("$", "").strip()
+    numeric_string = parse_decimal(numeric_string, locale='en_US')
+    return float(numeric_string)
+  
   @classmethod
   def idr_format(cls, value):
     return format_currency(value, 'IDR', locale='id_ID')
@@ -22,8 +28,8 @@ class Conversion:
   
   @classmethod
   def get_percentage(cls, from_value, to_value):
-    if from_value == 0 or to_value == 0: 
-        return 0
+    if to_value == 0: 
+        return 100
       
-    return abs(min((from_value - to_value) / abs(to_value) * 100, 100))
+    return round(abs(min((from_value - to_value) / abs(to_value) * 100, 100)), 3)
 

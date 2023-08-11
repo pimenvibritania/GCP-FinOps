@@ -3,9 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions, serializers
 from rest_framework.decorators import api_view, permission_classes as view_permission_classes
 from rest_framework.permissions import IsAuthenticated
-from dateutil.parser import parse
 from django.http import HttpResponse 
-from rest_framework.exceptions import ValidationError
 from datetime import datetime, timedelta
 from ..models.bigquery import BigQuery
 from ..serializers import TFSerializer, IndexWeightSerializer, BQQueryParamSerializer
@@ -13,17 +11,9 @@ from home.models.tech_family import TechFamily
 from home.models.index_weight import IndexWeight
 from itertools import chain
 from django.utils import timezone
+from ..utils.date import Date
+from ..utils.validator import Validator
 
-import asyncio
-
-def validateFormat(value):
-    try:
-        parsed_date = parse(value)
-        if parsed_date.strftime('%Y-%m-%d') != value:
-            raise ValueError("Date format must be 'Y-m-d' (e.g., '2023-08-07')")
-        
-    except ValueError:
-        raise ValidationError("Invalid date format. Must be 'Y-m-d' (e.g., '2023-08-07')")
 class BigQueryViews(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
@@ -33,7 +23,9 @@ class BigQueryViews(APIView):
         if not date :
             return Response({"error": "Date parameter is required."}, status=400)
         
-        validateFormat(date)
+        validated_date = Validator.date(date)
+        if validated_date.status_code != status.HTTP_200_OK:
+            return JsonResponse({"message": validated_date.message}, status=validated_date.status_code)
         
         data = BigQuery.get_project(date)
         

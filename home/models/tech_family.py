@@ -35,7 +35,7 @@ class TechFamily(models.Model):
     return cls.objects.filter(
       Q(slug = "platform_mfi") | Q(slug = "mofi") | Q(slug = "defi_mfi")
     )
-
+    
   @staticmethod
   def included_mdi():
     return ["dana_tunai", "platform_mdi"]
