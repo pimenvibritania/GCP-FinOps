@@ -5,6 +5,7 @@ from rest_framework import status
 from django.shortcuts import render
 from ..utils.conversion import Conversion
 from ..utils.validator import Validator
+from ..utils.decorator import *
 from httpx import AsyncClient
 from django.core.mail import send_mail
 from django.http import JsonResponse
@@ -21,17 +22,11 @@ KUBECOST_PROJECT = ['moladin', 'infra_mfi', 'infra_mdi']
 MDI_PROJECT = ["dana_tunai", "platform_mdi", "defi_mdi"]
 MFI_PROJECT = ["mofi", "platform_mfi", "defi_mfi"]
 
+@date_validator
+@user_async_validator
 async def create_report(request):
-    validated_user = await Validator.async_authenticate(request=request)
-    if validated_user.status_code != status.HTTP_200_OK:
-        return JsonResponse( validated_user.message, status=validated_user.status_code)
-    
-    date = request.GET.get('date')
-    validated_date = Validator.date(date)
-    if validated_date.status_code != status.HTTP_200_OK:
-        return JsonResponse( validated_date.message, status=validated_date.status_code)
-    
     loop = asyncio.get_event_loop()
+    date = request.GET.get('date')
     
     async_tasks = [
         loop.run_in_executor(None, BigQuery.get_project, date),
@@ -55,7 +50,8 @@ async def create_report(request):
     
     return JsonResponse({
         "success": True,
-        "message": "Report email sent!"
+        "message": "Report email sent!",
+        "data": payload
         }, status=200)
 
 def get_idle_cost(idle_data, search_data, index_weight):
