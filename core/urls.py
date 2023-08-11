@@ -20,7 +20,7 @@ from api import urls as api_url
 urlpatterns = [
     path('', include('home.urls')),
     path("admin/", admin.site.urls),
-    path("material", include('theme_material_kit.urls')),
+    path("material/", include('theme_material_kit.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('api/', include(api_url)),
 ]
