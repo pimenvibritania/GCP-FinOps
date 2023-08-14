@@ -133,9 +133,12 @@ async def send_email_task(subject, to_email, template_path, context):
             os.getenv("MAILGUN_URL"),
             auth=('api', os.getenv("MAILGUN_API_KEY")),
             data={
-                'from': "pirman.abdurohman@moladin.com",
-                'to': to_email,
-                'cc': "pirman.abdurohman@moladin.com",
+                # 'from': "DevOps Engineer <noreply@moladin.com>",
+                'from': "pirman.abdurohman@moladin.com", # TODO: change from em_email
+                # 'to': to_email,
+                'to': "tjatur.permadi@moladin.com", # TODO: change to em_email
+                # 'cc': ["buyung@moladin.com", "sylvain@moladin.com", "devops-engineer@moladin.com"],
+                'cc': "pirman.abdurohman@moladin.com", # TODO: change to cc em_email
                 'subject': subject,
                 'html': email_content,
                 "o:tag": "important"
@@ -165,8 +168,7 @@ def send_report(payload_data):
             context.update(idle_cost_data) 
         
         subject = "GCP Cost Tracking Services - Important update"
-        to_email = "pimenvibritania@gmail.com" # TODO: change to em_email
-        # to_email = "tjatur.permadi@moladin.com" # TODO: change to em_email
+        to_email = kubecost_payload[data]['pic_email']
         template_path = 'email_template.html'
         em_name = kubecost_payload[data]['pic']
         project_name = f"({kubecost_payload[data]['tech_family']} - {kubecost_payload[data]['project']})"
@@ -333,8 +335,9 @@ def send_report(payload_data):
         }
         
         context.update(context_kubecost)
-        
-        tasks.append(loop.create_task(send_email_task(subject, to_email, template_path, context)))
+
+        if to_email not in ["buyung@moladin.com","devops-engineer@moladin.com"]:
+            tasks.append(loop.create_task(send_email_task(subject, to_email, template_path, context)))
         # break
     asyncio.gather(*tasks)
     # with open("out.json", "w") as out_file:
