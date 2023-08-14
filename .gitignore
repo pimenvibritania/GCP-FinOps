@@ -17,3 +17,5 @@ env
 .vscode
 out.json
 service-account.json
+
+/home/templates/temp
