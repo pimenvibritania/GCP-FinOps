@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from ..serializers import KubecostClusterSerializer, KubecostDeploymentSerializer, KubecostNamespaceSerializer, KubecostNamespaceMapSerializer
+from ..serializers import KubecostClusterSerializer, KubecostDeploymentSerializer, KubecostNamespaceMapSerializer
 from django.db import IntegrityError
 from ..models.kubecost import get_kubecost_cluster, get_namespace_map, KubecostReport, Kubecost
 # from ..models.kubecost import get

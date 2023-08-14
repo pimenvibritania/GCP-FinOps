@@ -1,17 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions, serializers
+from rest_framework import status, permissions
 from rest_framework.decorators import api_view, permission_classes as view_permission_classes
 from rest_framework.permissions import IsAuthenticated
-from django.http import HttpResponse 
-from datetime import datetime, timedelta
 from ..models.bigquery import BigQuery
-from ..serializers import TFSerializer, IndexWeightSerializer, BQQueryParamSerializer
+from ..serializers import TFSerializer, IndexWeightSerializer
 from home.models.tech_family import TechFamily
 from home.models.index_weight import IndexWeight
 from itertools import chain
-from django.utils import timezone
-from ..utils.date import Date
 from ..utils.validator import Validator
 
 class BigQueryViews(APIView):

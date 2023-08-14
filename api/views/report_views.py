@@ -1,17 +1,9 @@
-from time import perf_counter
-from django.http import HttpResponse 
 from ..models.bigquery import BigQuery
-from rest_framework import status
-from django.shortcuts import render
 from ..utils.conversion import Conversion
-from ..utils.validator import Validator
 from ..utils.decorator import *
 from httpx import AsyncClient
-from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from django.views.decorators.csrf import csrf_exempt
-from ..serializers import MailSerializer
 from ..models.kubecost import KubecostReport
 
 import json
