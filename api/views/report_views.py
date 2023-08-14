@@ -166,11 +166,12 @@ def send_report(payload_data):
         idle_cost_data = get_idle_cost(extract_idle_data['data'], data, bigquery_payload['__extras__']['index_weight']) #idle cost
         if idle_cost_data:
             context.update(idle_cost_data) 
-        
-        subject = "GCP Cost Tracking Services - Important update"
+            
+        date_time = kubecost_payload[data]['data']['date']
         to_email = kubecost_payload[data]['pic_email']
         template_path = 'email_template.html'
         em_name = kubecost_payload[data]['pic']
+        subject = f"!!! Hi {em_name}, your GCP Cost on {date_time} !!!"
         project_name = f"({kubecost_payload[data]['tech_family']} - {kubecost_payload[data]['project']})"
         
         context["em_name"] = em_name
@@ -187,6 +188,7 @@ def send_report(payload_data):
                                                        
             cost_status_gcp = ""
             if (current_total_idr_gcp > previous_total_idr_gcp):
+                subject = f"!!! Hi {em_name}, BEWARE of Your GCP Cost on {date_time} !!!"
                 cost_status_gcp = f"""<span style="color:#e74c3c">⬆ {percent_status_gcp:.2f}%</span>"""
             elif (current_total_idr_gcp < previous_total_idr_gcp):
                 cost_status_gcp = f"""<span style="color:#1abc9c">⬇ {percent_status_gcp:.2f}%</span>"""
@@ -279,8 +281,6 @@ def send_report(payload_data):
                 </thead>
                 <tbody>
         """
-
-        date_time = kubecost_payload[data]['data']['date']
         
         previous_total_usd_kubecost = kubecost_payload[data]['data']['summary']['cost_prev_week']
         current_total_usd_kubecost = kubecost_payload[data]['data']['summary']['cost_this_week']
