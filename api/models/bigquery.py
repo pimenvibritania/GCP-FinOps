@@ -1,6 +1,5 @@
 from google.cloud import bigquery
 from google.oauth2 import service_account
-from datetime import datetime, timedelta
 from rest_framework.exceptions import ValidationError
 from home.models.tech_family import TechFamily
 from home.models.index_weight import IndexWeight
@@ -266,4 +265,12 @@ class BigQuery:
         pass
       
     project_mdi.update(project_mfi)
+    
+    extras = {
+      "__extras__": {
+        "index_weight": index_weight
+        }
+    }
+    
+    project_mdi.update(extras)
     return project_mdi

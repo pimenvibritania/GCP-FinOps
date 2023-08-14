@@ -2,12 +2,12 @@ from home.models.kubecost_clusters import KubecostClusters
 from home.models.services import Services
 from home.models.tech_family import TechFamily
 from home.models.kubecost_namespaces import KubecostNamespaces, KubecostNamespacesMap
-from ..serializers import KubecostClusterSerializer, ServiceSerializer, KubecostDeployments, KubecostNamespaceSerializer, KubecostNamespaceMapSerializer
+from ..serializers import KubecostClusterSerializer, ServiceSerializer, KubecostDeployments, KubecostNamespaceMapSerializer
 from django.db.utils import IntegrityError
 from ..utils.date import Date
 from kubernetes import config
 from datetime import datetime, timedelta
-import sys, subprocess
+import subprocess
 import math
 import json
 

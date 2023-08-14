@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
-
 class Date:
+
   @classmethod
   def get_date_range(cls, input_date):
     est_date = datetime.strptime(input_date, "%Y-%m-%d")
@@ -18,4 +18,3 @@ class Date:
     previous_week_to = f_current_week_to
 
     return current_week_from, current_week_to, previous_week_from, previous_week_to
-

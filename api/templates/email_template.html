@@ -26,21 +26,51 @@
     We hope this email finds you well. <br/>
     As part of our commitment to transparency and to keep you informed about our cloud infrastructure expenses, we are pleased to share with you the summary of our Google Cloud Platform (GCP) usage and costs for the week of week.
     <br/>Please find the cost status and comparison details below:</p>
-    <p>Service Owner: {{em_name}} - {{project_name}}</p>
-    
-    <p><strong>Cost status</strong> : {{gcp_cost_status}}</p>
+    <p><strong>Service Owner</strong>: {{em_name}} - {{project_name}}</p>
+    <hr/>
+    <!-- GCP SECTION -->
+    {% if gcp_exist %}
+    <h3>GCP SERVICES</h3>
+    <p><strong>Cost status</strong> : {{cost_status_gcp}}</p>
     <strong>Summary cost comparation:</strong>
-    <p>Previous week : {{total_gcp_prev_total_idr}} | {{total_gcp_prev_total_usd}}<br/>
-    This week : {{total_gcp_current_total_idr}} | {{total_gcp_current_total_usd}}<br/>
-    Current GCP Rate IDR: {{current_rate}}</p>
-    <br/>
-    <strong>Your cost difference from previous week: {{cost_difference_idr}} | {{cost_difference_usd}}</strong>
+    <p>Previous week : {{previous_total_idr_gcp}} | {{previous_total_usd_gcp}}<br/>
+    This week : {{current_total_idr_gcp}} | {{current_total_usd_gcp}}<br/>
+    Date range : {{date_range_gcp}}<br/>
+    Current GCP Rate IDR: {{current_rate_gcp}}</p>
+    <strong>Your cost difference from previous week: {{cost_difference_idr_gcp}} | {{cost_difference_usd_gcp}}</strong>
     <br/>
     <p><strong>Detailed Cost Comparison from Previous Week - Our Services on All Environments on GCP Services:</strong></p>
     {{services_gcp}}
     <br/>
     Note: We are thrilled to share a sneak peek of an exciting new feature that will be arriving in our next update! Our development team has been hard at work to bring you enhanced cost  acuration and detailed cost breakdown per environment, providing you with unparalleled visibility into your GCP Services. Thankyou! 
+    <hr/>
+    {% endif %}
+    <!-- END GCP SECTION -->
+    <!-- KUBECOST SECTION -->
+    <h3>KUBECOST</h3>
+    <p><strong>Cost status</strong> : {{cost_status_kubecost}}</p>
+    <strong>Summary cost comparation:</strong>
+    <p>Previous week : {{previous_total_usd_kubecost}}<br/>
+    This week : {{current_total_usd_kubecost}}<br/>
+
+    <strong>Your cost difference from previous week: {{cost_summary_kubecost}}</strong>
     <br/>
+    <p><strong>Detailed Cost Comparison from Previous Week - Our Services on All Environments on Kubernetes Services (CPU & Memory Usages):</strong></p>
+    {{services_kubecost}}
+    <hr/>
+    <!-- END KUBECOST SECTION -->
+    <!-- IDLE COST -->
+    {% if table_idle_cost %}
+    <h3>IDLE COST</h3>
+    <strong>Cost status this week :</strong> {{cost_total_status_idle}}<br/>
+    <strong>Total idle cost this week :</strong> {{total_current_idle_cost}} USD<br/>
+    <strong>Total idle cost previous week :</strong> {{total_previous_idle_cost}} USD
+    <br/>
+    <p><strong>Idle cost comparison from Previous Week - on Kubernetes Services (CPU & Memory Usages):</strong></p>
+    {{table_idle_cost}}
+    <hr/>
+    {% endif %}
+    <!-- END IDLE COST -->
     <p>We understand the significance of cost management and aim to keep you informed about any fluctuations to ensure transparency and accountability. 
     As part of our efforts to offer better insights, we have integrated a weighted analysis of our services. 
     This weighting mechanism, based on the parameters provided in the spreadsheet <a href="https://docs.google.com/spreadsheets/d/1L9XDJa4yDsSSEy26RwbNQEOFvvf6t43VuC74VRZctkA/edit#gid=0" target="_blank" rel="noopener noreferrer">Living Documents - Moladin Service List</a> helps us identify key cost drivers and understand their impact on the overall cost structure. 
