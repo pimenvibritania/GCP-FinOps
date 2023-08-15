@@ -26,20 +26,21 @@
     <p><strong>Trial</strong> - Cost reminder</p>
     <p>Dear all,<br />
     We hope this email finds you well. <br/>
-    As part of our commitment to transparency and to keep you informed about our cloud infrastructure expenses, we are pleased to share with you the summary of our Google Cloud Platform (GCP) usage and costs for the week of week.
+    As part of our commitment to transparency and to keep you informed about our cloud infrastructure expenses. <br/>
+    We are pleased to share with you the summary of our Google Cloud Platform (GCP) usage and costs for the week of week.
     <br/>Please find the cost status and comparison details below:</p>
     <p><strong>Service Owner</strong>: {{em_name}} - {{project_name}}</p>
     <hr/>
     <!-- GCP SECTION -->
     {% if gcp_exist %}
-    <h3>GCP SERVICES</h3>
+    <u><h3>GCP SERVICES</h3></u>
     <p><strong>Cost status</strong> : {{cost_status_gcp}}</p>
     <strong>Summary cost comparation:</strong>
-    <p>Previous week : {{previous_total_idr_gcp}} | {{previous_total_usd_gcp}}<br/>
-    This week : {{current_total_idr_gcp}} | {{current_total_usd_gcp}}<br/>
-    Date range : {{date_range_gcp}}<br/>
+    <p>Previous week : {{previous_total_idr_gcp}} | {{previous_total_usd_gcp}} USD<br/>
+    <strong>This week : {{current_total_idr_gcp}} | {{current_total_usd_gcp}} USD</strong><br/>
+    <br/>Date range : {{date_range_gcp}}<br/>
     Current GCP Rate IDR: {{current_rate_gcp}}</p>
-    <strong>Your cost difference from previous week: {{cost_difference_idr_gcp}} | {{cost_difference_usd_gcp}}</strong>
+    <strong>Your cost difference from previous week: {{cost_difference_idr_gcp}} | {{cost_difference_usd_gcp}} USD</strong>
     <br/>
     <p><strong>Detailed Cost Comparison from Previous Week - Our Services on All Environments on GCP Services:</strong></p>
     {{services_gcp}}
@@ -49,27 +50,31 @@
     {% endif %}
     <!-- END GCP SECTION -->
     <!-- KUBECOST SECTION -->
-    <h3>KUBECOST</h3>
+    <u><h3>KUBECOST</h3></u>
     <p><strong>Cost status</strong> : {{cost_status_kubecost}}</p>
     <strong>Summary cost comparation:</strong>
-    <p>Previous week : {{previous_total_usd_kubecost}}<br/>
-    This week : {{current_total_usd_kubecost}}<br/>
+    <p>Previous week : {{previous_total_usd_kubecost}} USD<br/>
+    <strong>This week : {{current_total_usd_kubecost}} USD</strong><br/>
 
-    <strong>Your cost difference from previous week: {{cost_summary_kubecost}}</strong>
+    <strong>Your cost difference from previous week: {{cost_summary_kubecost}} USD</strong>
     <br/>
     <p><strong>Detailed Cost Comparison from Previous Week - Our Services on All Environments on Kubernetes Services (CPU & Memory Usages):</strong></p>
     {{services_kubecost}}
+    <br/>
+    Note: We are thrilled to share a sneak peek of an exciting new feature that will be arriving in our next update! Our development team has been hard at work to bring you enhanced cost  acuration and detailed cost breakdown per environment, providing you with unparalleled visibility into your GCP Services. Thankyou! 
     <hr/>
     <!-- END KUBECOST SECTION -->
     <!-- IDLE COST -->
     {% if table_idle_cost %}
-    <h3>IDLE COST</h3>
+    <u><h3>IDLE COST</h3></u>
     <strong>Cost status this week :</strong> {{cost_total_status_idle}}<br/>
-    <strong>Total idle cost this week :</strong> {{total_current_idle_cost}} USD<br/>
-    <strong>Total idle cost previous week :</strong> {{total_previous_idle_cost}} USD
-    <br/>
+    
+    <br><strong>Summary cost comparation:</strong><br/><strong>Total idle cost this week: {{total_current_idle_cost}} USD </strong><br/>
+    Total idle cost previous week: {{total_previous_idle_cost}} USD </p>
     <p><strong>Idle cost comparison from Previous Week - on Kubernetes Services (CPU & Memory Usages):</strong></p>
     {{table_idle_cost}}
+    <br/>
+    Note: We are thrilled to share a sneak peek of an exciting new feature that will be arriving in our next update! Our development team has been hard at work to bring you enhanced cost  acuration and detailed cost breakdown per environment, providing you with unparalleled visibility into your GCP Services. Thankyou! 
     <hr/>
     {% endif %}
     <!-- END IDLE COST -->

@@ -316,9 +316,9 @@ def send_report(payload_data):
                 <tr>
                     <td>{item["service_name"].upper()}</td>
                     <td>{item["environment"]}</td>
-                    <td>{item["cost_this_week"]} USD</td>
+                    <td>{Conversion.usd_format(item["cost_this_week"])} USD</td>
                     <td>{date_time}</td>
-                    <td>{item["cost_prev_week"]} USD</td>
+                    <td>{Conversion.usd_format(item["cost_prev_week"])} USD</td>
                     <td>{cost_status_service_kubecost}</td>
                 </tr>
             '''    
@@ -327,8 +327,8 @@ def send_report(payload_data):
         '''
         
         context_kubecost = {
-            "previous_total_usd_kubecost": previous_total_usd_kubecost,
-            "current_total_usd_kubecost": current_total_usd_kubecost,
+            "previous_total_usd_kubecost": Conversion.usd_format(previous_total_usd_kubecost),
+            "current_total_usd_kubecost": Conversion.usd_format(current_total_usd_kubecost),
             "cost_summary_kubecost": Conversion.usd_format(cost_summary_kubecost),
             "services_kubecost": table_template_kubecost,
             "cost_status_kubecost": cost_status_kubecost
