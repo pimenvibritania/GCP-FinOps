@@ -112,9 +112,9 @@ def get_idle_cost(idle_data, search_data, index_weight):
     
     cost_total_status_idle = ""
     if (total_current_idle_cost > total_previous_idle_cost):
-        cost_total_status_idle = f"""<span style="color:#e74c3c">⬆ {total_percentage_week_idle:.2f}%</span>"""
+        cost_total_status_idle = f"""<span style="color:#e74c3c">⬆ {total_percentage_week_idle}%</span>"""
     elif (total_current_idle_cost < total_previous_idle_cost):
-        cost_total_status_idle = f"""<span style="color:#1abc9c">⬇ {total_percentage_week_idle:.2f}%</span>"""
+        cost_total_status_idle = f"""<span style="color:#1abc9c">⬇ {total_percentage_week_idle}%</span>"""
     else:
         cost_total_status_idle = """Equal"""
     
@@ -189,9 +189,9 @@ def send_report(payload_data):
             cost_status_gcp = ""
             if (current_total_idr_gcp > previous_total_idr_gcp):
                 subject = f"!!! Hi {em_name}, BEWARE of Your GCP Cost on {date_time} !!!"
-                cost_status_gcp = f"""<span style="color:#e74c3c">⬆ {percent_status_gcp:.2f}%</span>"""
+                cost_status_gcp = f"""<span style="color:#e74c3c">⬆ {percent_status_gcp}%</span>"""
             elif (current_total_idr_gcp < previous_total_idr_gcp):
-                cost_status_gcp = f"""<span style="color:#1abc9c">⬇ {percent_status_gcp:.2f}%</span>"""
+                cost_status_gcp = f"""<span style="color:#1abc9c">⬇ {percent_status_gcp}%</span>"""
             else:
                 cost_status_gcp = """<strong><span style="font-size:16px">Equal&nbsp;</span></strong>"""
         
@@ -284,23 +284,18 @@ def send_report(payload_data):
         previous_total_usd_kubecost = kubecost_payload[data]['data']['summary']['cost_prev_week']
         current_total_usd_kubecost = kubecost_payload[data]['data']['summary']['cost_this_week']
         
-        # unpack_previous_total_usd_kubecost = Conversion.unpack_usd(previous_total_usd_kubecost)
-        # unpack_current_total_usd_kubecost = Conversion.unpack_usd(current_total_usd_kubecost)
-        
         cost_summary_kubecost = current_total_usd_kubecost - previous_total_usd_kubecost
         percent_status_kubecost = Conversion.get_percentage(current_total_usd_kubecost, previous_total_usd_kubecost)
         
         cost_status_kubecost = ""
         if (kubecost_payload[data]['data']['summary']['cost_status'] == 'UP'):
-            cost_status_kubecost = f"""<span style="color:#e74c3c">⬆ {percent_status_kubecost:.2f}%</span>"""
+            cost_status_kubecost = f"""<span style="color:#e74c3c">⬆ {percent_status_kubecost}%</span>"""
         elif (kubecost_payload[data]['data']['summary']['cost_status'] == "DOWN"):
-            cost_status_kubecost = f"""<span style="color:#1abc9c">⬇ {percent_status_kubecost:.2f}%</span>"""
+            cost_status_kubecost = f"""<span style="color:#1abc9c">⬇ {percent_status_kubecost}%</span>"""
         else:
             cost_status_kubecost = """Equal"""
         
         for item in kubecost_payload[data]['data']["services"]:
-            # unpack_cost_previous_week_kubecost = Conversion.unpack_usd(item["cost_prev_week"])
-            # unpack_cost_current_week_kubecost = Conversion.unpack_usd(item["cost_this_week"])
            
             percentage_week_kubecost = Conversion.get_percentage(item["cost_this_week"], item["cost_prev_week"])
             

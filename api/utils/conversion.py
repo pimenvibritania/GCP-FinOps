@@ -31,5 +31,5 @@ class Conversion:
     if to_value == 0: 
         return 100
       
-    return round(abs(min((from_value - to_value) / abs(to_value) * 100, 100)), 3)
+    return round(abs(min((from_value - to_value) / abs(to_value) * 100, 100)), 2)
 
