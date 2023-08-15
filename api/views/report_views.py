@@ -284,11 +284,11 @@ def send_report(payload_data):
         previous_total_usd_kubecost = kubecost_payload[data]['data']['summary']['cost_prev_week']
         current_total_usd_kubecost = kubecost_payload[data]['data']['summary']['cost_this_week']
         
-        unpack_previous_total_usd_kubecost = Conversion.unpack_usd(previous_total_usd_kubecost)
-        unpack_current_total_usd_kubecost = Conversion.unpack_usd(current_total_usd_kubecost)
+        # unpack_previous_total_usd_kubecost = Conversion.unpack_usd(previous_total_usd_kubecost)
+        # unpack_current_total_usd_kubecost = Conversion.unpack_usd(current_total_usd_kubecost)
         
-        cost_summary_kubecost = unpack_current_total_usd_kubecost - unpack_previous_total_usd_kubecost
-        percent_status_kubecost = Conversion.get_percentage(unpack_current_total_usd_kubecost, unpack_previous_total_usd_kubecost)
+        cost_summary_kubecost = current_total_usd_kubecost - previous_total_usd_kubecost
+        percent_status_kubecost = Conversion.get_percentage(current_total_usd_kubecost, previous_total_usd_kubecost)
         
         cost_status_kubecost = ""
         if (kubecost_payload[data]['data']['summary']['cost_status'] == 'UP'):
@@ -299,9 +299,10 @@ def send_report(payload_data):
             cost_status_kubecost = """Equal"""
         
         for item in kubecost_payload[data]['data']["services"]:
-            unpack_cost_previous_week_kubecost = Conversion.unpack_usd(item["cost_prev_week"])
-            unpack_cost_current_week_kubecost = Conversion.unpack_usd(item["cost_this_week"])
-            percentage_week_kubecost = Conversion.get_percentage(unpack_cost_current_week_kubecost, unpack_cost_previous_week_kubecost)
+            # unpack_cost_previous_week_kubecost = Conversion.unpack_usd(item["cost_prev_week"])
+            # unpack_cost_current_week_kubecost = Conversion.unpack_usd(item["cost_this_week"])
+           
+            percentage_week_kubecost = Conversion.get_percentage(item["cost_this_week"], item["cost_prev_week"])
             
             cost_status_service_kubecost = ""
             if (item["cost_status"].upper() == 'UP'):
