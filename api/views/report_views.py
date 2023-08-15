@@ -226,13 +226,13 @@ def send_report(payload_data):
                     else:
                         tr_first = "<tr>"
                     
-                    percentage_status = Conversion.get_percentage(cost_svc['cost_this_week'], cost_svc['cost_prev_week'])
+                    # percentage_status = Conversion.get_percentage(cost_svc['cost_this_week'], cost_svc['cost_prev_week'])
                     
                     cost_status_service_gcp = ""
                     if (cost_svc['cost_status'] == 'UP'):
-                        cost_status_service_gcp = f"""<span style="color:#e74c3c">⬆ {percentage_status}%</span>"""
+                        cost_status_service_gcp = f"""<span style="color:#e74c3c">⬆ {cost_svc['cost_status_percent']}%</span>"""
                     elif (cost_svc['cost_status'] == "DOWN"):
-                        cost_status_service_gcp = f"""<span style="color:#1abc9c">⬇ {percentage_status}%</span>"""
+                        cost_status_service_gcp = f"""<span style="color:#1abc9c">⬇ {cost_svc['cost_status_percent']}%</span>"""
                     else:
                         cost_status_service_gcp = """Equal"""
                         
@@ -250,7 +250,6 @@ def send_report(payload_data):
                     table_template_gcp += row
 
             table_template_gcp += "</tbody>\n</table>"
-        
             context_gcp = {
                 'cost_status_gcp' : cost_status_gcp,
                 'previous_total_idr_gcp': Conversion.idr_format(previous_total_idr_gcp),

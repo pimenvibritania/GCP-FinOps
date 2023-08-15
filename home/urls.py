@@ -1,9 +1,10 @@
 from django.urls import path, include
 
-from . import views
+from .views.auth_views import UserLoginView, user_logout_view
+from .views.dashboard_views import index as dashboard_index
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('login/', views.UserLoginView.as_view(), name='login'),
-    path('logout/', views.user_logout_view, name='logout'),
+    path('', dashboard_index, name='index'),
+    path('login/', UserLoginView.as_view(), name='login-user'),
+    path('logout/', user_logout_view, name='logout'),
 ]

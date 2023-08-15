@@ -3,9 +3,6 @@ from theme_material_kit.forms import LoginForm
 from django.contrib.auth import logout
 from django.contrib.auth import views as auth_views
 
-def index(request): 
-    return render(request, 'pages/index.html')
-
 class UserLoginView(auth_views.LoginView):
     template_name = 'pages/login.html'
     form_class = LoginForm
