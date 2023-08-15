@@ -5,6 +5,7 @@ from home.models.kubecost_namespaces import KubecostNamespaces, KubecostNamespac
 from ..serializers import KubecostClusterSerializer, ServiceSerializer, KubecostDeployments, KubecostNamespaceMapSerializer
 from django.db.utils import IntegrityError
 from ..utils.date import Date
+from ..utils.conversion import Conversion
 from kubernetes import config
 from datetime import datetime, timedelta
 import subprocess
@@ -247,7 +248,6 @@ class Kubecost:
             Kubecost.insert_cost_by_namespace(kube_context, company_project, environment, cluster_id, time_range)
             Kubecost.insert_cost_by_deployment(kube_context, company_project, environment, cluster_id, time_range)
 
-
 class KubecostReport:
     @staticmethod
     def round_up(n, decimals=0):
@@ -306,7 +306,7 @@ class KubecostReport:
         final_data = {}
         tech_family = TechFamily.get_tf_project()
         for tf in tech_family:
-            data = {
+            services_data = {
                 "tech_family": tf.name,
                 "pic": tf.pic,
                 "pic_email": tf.pic_email,
@@ -338,32 +338,35 @@ class KubecostReport:
                 summary_cost_status = "UP" if summary_cost_this_week - summary_cost_prev_week > 0 else ("EQUAL" if summary_cost_this_week - summary_cost_prev_week == 0 else "DOWN")
 
                 cost_per_env = cost_per_env[:-2]
+                cost_this_week = round(cost_this_week, 2)
+                cost_prev_week = round(cost_prev_week, 2)
                 cost_status = "UP" if cost_this_week - cost_prev_week > 0 else ("EQUAL" if cost_this_week - cost_prev_week == 0 else "DOWN")
-                cost_this_week = f"${str(KubecostReport.round_up(cost_this_week, 2))} USD"
-                cost_prev_week = f"${str(KubecostReport.round_up(cost_prev_week, 2))} USD"
-                
-                data['data']['services'].append({
+
+                services_data['data']['services'].append({
                     "service_name": service_name,
                     "environment": cost_per_env,
                     "cost_this_week": cost_this_week,
                     "cost_prev_week": cost_prev_week,
-                    "cost_status": cost_status
+                    "cost_difference": round(cost_this_week - cost_prev_week, 2),
+                    "cost_status": cost_status,
+                    "cost_status_percent": Conversion.get_percentage(cost_this_week, cost_prev_week)
                 })
 
-                data['data']['summary'] = {
-                    "cost_this_week": f"${str(KubecostReport.round_up(summary_cost_this_week, 2))} USD",
-                    "cost_prev_week": f"${str(KubecostReport.round_up(summary_cost_prev_week, 2))} USD",
+                services_data['data']['summary'] = {
+                    "cost_this_week": round(summary_cost_this_week, 2),
+                    "cost_prev_week": round(summary_cost_prev_week, 2),
                     "cost_status": summary_cost_status
                 }
-
-            # final_data.append(data)
-            final_data[tf.slug] = data
+                services_data['data']['services'] = sorted(services_data['data']['services'], key=lambda x: x["cost_status_percent"], reverse=True)
+            # final_data.append(services_data)
+            final_data[tf.slug] = services_data
           
 
         # Handling Unregisterd services (namespaces and deployments)
         service_dict = {}
         for service_entry in unregistered_service:
             service_name, project, environment, cluster_name, cost_this_week, cost_prev_week = service_entry
+            cost_status = "UP" if cost_this_week - cost_prev_week > 0 else ("EQUAL" if cost_this_week - cost_prev_week == 0 else "DOWN")
             # Check if the service_name already exists in the dictionary
             if service_name in service_dict:
                 service_dict[service_name]['data'].append({
@@ -371,7 +374,10 @@ class KubecostReport:
                     "environment": environment,
                     "cluster_name": cluster_name,
                     "cost_this_week": cost_this_week,
-                    "cost_prev_week": cost_prev_week
+                    "cost_prev_week": cost_prev_week,
+                    "cost_difference": round(cost_this_week - cost_prev_week, 2),
+                    "cost_status": cost_status,
+                    "cost_status_percent": Conversion.get_percentage(cost_this_week, cost_prev_week)
                 })
             else:
                 service_dict[service_name] = {
@@ -381,9 +387,15 @@ class KubecostReport:
                         "environment": environment,
                         "cluster_name": cluster_name,
                         "cost_this_week": cost_this_week,
-                        "cost_prev_week": cost_prev_week
+                        "cost_prev_week": cost_prev_week,
+                        "cost_difference": round(cost_this_week - cost_prev_week, 2),
+                        "cost_status": cost_status,
+                        "cost_status_percent": Conversion.get_percentage(cost_this_week, cost_prev_week)
                     }]
                 }
+            
+            service_dict[service_name]['data'] = sorted(service_dict[service_name]['data'], key=lambda x: x["cost_status_percent"], reverse=True)
+
         # Convert the dictionary values into a list
         result = list(service_dict.values())
 
