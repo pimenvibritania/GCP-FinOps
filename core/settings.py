@@ -179,5 +179,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 CRONJOBS = [
-    ("* * * * *", "home.cron.test_cron_job")
+    ("1 15 * * *", "api.cron.insert_kubecost_data")
     ]
