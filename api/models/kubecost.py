@@ -125,7 +125,7 @@ class Kubecost:
         print("Insert cost by namespace...")
         namespace_to_insert = [KubecostNamespaces(**data) for data in data_list]
         try:
-            KubecostNamespaces.objects.bulk_create(namespace_to_insert)
+            KubecostNamespaces.objects.bulk_create(namespace_to_insert, ignore_conflicts=True)
         except IntegrityError as e:
             print("IntegrityError:", e)
             pass
@@ -206,7 +206,7 @@ class Kubecost:
         print("Insert cost by deployment...")
         deployment_to_insert = [KubecostDeployments(**data) for data in data_list]
         try:
-            KubecostDeployments.objects.bulk_create(deployment_to_insert)
+            KubecostDeployments.objects.bulk_create(deployment_to_insert, ignore_conflicts=True)
         except IntegrityError as e:
             print("IntegrityError:", e)
             pass
