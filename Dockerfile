@@ -4,6 +4,7 @@ FROM asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-managemen
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV TZ=Asia/Jakarta
 
 COPY requirements.txt .
 # install python dependencies
@@ -17,6 +18,9 @@ RUN python manage.py migrate
 
 # collectstatic
 RUN python manage.py collectstatic
+
+# enable cronjob
+RUN python manage.py crontab add
 
 # generate kubeconfig for kubecost
 RUN gcloud auth activate-service-account --project=moladin-infra-prod --key-file=kubecost_sa.json
