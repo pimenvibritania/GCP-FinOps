@@ -180,5 +180,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 CRONJOBS = [
     ("1 15 * * *", "api.cron.insert_kubecost_data"),
-    ("1 */2 * * *", "api.cron.check_kubecost_status"),
+    ("1 9,11,13,15,17 * * *", "api.cron.check_kubecost_status"),
     ]
