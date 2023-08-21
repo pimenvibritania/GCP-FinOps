@@ -16,19 +16,20 @@ MFI_PROJECT = ["mofi", "platform_mfi", "defi_mfi"]
 
 
 @date_validator
+@period_validator
 @user_async_validator
 async def create_report(request):
     date = request.GET.get("date")
-    cache_key = f"cms-report-{date}"
+    period = request.GET.get("period")
+    cache_key = f"cms-report-{date}-{period}"
     if cache.get(cache_key):
         payload = cache.get(cache_key)
-        print("get cache")
     else:
         loop = asyncio.get_event_loop()
 
         async_tasks = [
-            loop.run_in_executor(None, BigQuery.get_project, date),
-            loop.run_in_executor(None, KubecostReport.report, date),
+            loop.run_in_executor(None, BigQuery.get_project, date, period),
+            loop.run_in_executor(None, KubecostReport.report, date, period),
         ]
 
         (bigquery_result, kubecost_result) = await asyncio.gather(*async_tasks)
@@ -62,8 +63,8 @@ def get_idle_cost(idle_data, search_data, index_weight):
                     <th>Cluster Name</th>
                     <th>Project</th>
                     <th>Environment</th>
-                    <th>Cost This Week</th>
-                    <th>Cost Previous Week</th>
+                    <th>Cost This period</th>
+                    <th>Cost Previous period</th>
                     <th>Status Cost</th>
                 </tr>
             </thead>
@@ -74,28 +75,22 @@ def get_idle_cost(idle_data, search_data, index_weight):
 
     for item in idle_data:
         project = item["project"]
-
         if search_for_project == project:
             cluster_name = item["cluster_name"]
             environment = item["environment"]
             iw = index_weight[search_for_project][search_data][environment]
-            cost_this_week = item["cost_this_week"] * (iw / 100)
-            cost_prev_week = item["cost_prev_week"] * (iw / 100)
-            total_current_idle_cost += cost_this_week
-            total_previous_idle_cost += cost_prev_week
-            percentage_week_idle = Conversion.get_percentage(
-                cost_this_week, cost_prev_week
+            cost_this_period = item["cost_this_period"] * (iw / 100)
+            cost_prev_period = item["cost_prev_period"] * (iw / 100)
+            total_current_idle_cost += cost_this_period
+            total_previous_idle_cost += cost_prev_period
+            percentage_period_idle = Conversion.get_percentage(
+                cost_this_period, cost_prev_period
             )
 
-            cost_status_idle = ""
-            if item["cost_this_week"] > item["cost_prev_week"]:
-                cost_status_idle = (
-                    f"""<span style="color:#e74c3c">⬆ {percentage_week_idle}%</span>"""
-                )
-            elif item["cost_this_week"] < item["cost_prev_week"]:
-                cost_status_idle = (
-                    f"""<span style="color:#1abc9c">⬇ {percentage_week_idle}%</span>"""
-                )
+            if item["cost_this_period"] > item["cost_prev_period"]:
+                cost_status_idle = f"""<span style="color:#e74c3c">⬆ {percentage_period_idle}%</span>"""
+            elif item["cost_this_period"] < item["cost_prev_period"]:
+                cost_status_idle = f"""<span style="color:#1abc9c">⬇ {percentage_period_idle}%</span>"""
             else:
                 cost_status_idle = """Equal"""
 
@@ -104,8 +99,8 @@ def get_idle_cost(idle_data, search_data, index_weight):
                     <td>{cluster_name}</td>
                     <td>{project}</td>
                     <td>{environment}</td>
-                    <td>{Conversion.usd_format(cost_this_week)} USD</td>
-                    <td>{Conversion.usd_format(cost_prev_week)} USD</td>
+                    <td>{Conversion.usd_format(cost_this_period)} USD</td>
+                    <td>{Conversion.usd_format(cost_prev_period)} USD</td>
                     <td>{cost_status_idle}</td>
                 </tr>
             """
@@ -116,18 +111,18 @@ def get_idle_cost(idle_data, search_data, index_weight):
         </tbody></table>
     """
 
-    total_percentage_week_idle = Conversion.get_percentage(
+    total_percentage_period_idle = Conversion.get_percentage(
         total_current_idle_cost, total_previous_idle_cost
     )
 
     cost_total_status_idle = ""
     if total_current_idle_cost > total_previous_idle_cost:
         cost_total_status_idle = (
-            f"""<span style="color:#e74c3c">⬆ {total_percentage_week_idle}%</span>"""
+            f"""<span style="color:#e74c3c">⬆ {total_percentage_period_idle}%</span>"""
         )
     elif total_current_idle_cost < total_previous_idle_cost:
         cost_total_status_idle = (
-            f"""<span style="color:#1abc9c">⬇ {total_percentage_week_idle}%</span>"""
+            f"""<span style="color:#1abc9c">⬇ {total_percentage_period_idle}%</span>"""
         )
     else:
         cost_total_status_idle = """Equal"""
@@ -201,10 +196,10 @@ def formatting_report(request, payload_data):
 
         if data not in KUBECOST_PROJECT:
             current_total_idr_gcp = bigquery_payload[data]["data"]["summary"][
-                "current_week"
+                "current_period"
             ]
             previous_total_idr_gcp = bigquery_payload[data]["data"]["summary"][
-                "previous_week"
+                "previous_period"
             ]
             rate_gcp = bigquery_payload[data]["data"]["conversion_rate"]
             cost_difference_idr_gcp = bigquery_payload[data]["data"]["summary"][
@@ -261,7 +256,7 @@ def formatting_report(request, payload_data):
                     else:
                         tr_first = "<tr>"
 
-                    # percentage_status = Conversion.get_percentage(cost_svc['cost_this_week'], cost_svc['cost_prev_week'])
+                    # percentage_status = Conversion.get_percentage(cost_svc['cost_this_period'], cost_svc['cost_prev_period'])
 
                     cost_status_service_gcp = ""
                     if cost_svc["cost_status"] == "UP":
@@ -275,10 +270,10 @@ def formatting_report(request, payload_data):
                         {tr_first}
                             <td>{cost_svc['gcp_project']}</td>
                             <td>{cost_svc['environment']}</td>
-                            <td>{Conversion.idr_format(cost_svc['cost_this_week'])}</td>
-                            <td>{Conversion.convert_usd(cost_svc['cost_this_week'], rate_gcp)} USD</td>
-                            <td>{Conversion.idr_format(cost_svc['cost_prev_week'])}</td>
-                            <td>{Conversion.convert_usd(cost_svc['cost_prev_week'], rate_gcp)} USD</td>
+                            <td>{Conversion.idr_format(cost_svc['cost_this_period'])}</td>
+                            <td>{Conversion.convert_usd(cost_svc['cost_this_period'], rate_gcp)} USD</td>
+                            <td>{Conversion.idr_format(cost_svc['cost_prev_period'])}</td>
+                            <td>{Conversion.convert_usd(cost_svc['cost_prev_period'], rate_gcp)} USD</td>
                             <td>{cost_status_service_gcp}</td>
                         </tr>"""
 
@@ -315,9 +310,9 @@ def formatting_report(request, payload_data):
                     <tr>
                         <th>Service Name</th>
                         <th>Service Environment</th>
-                        <th>Cost This Week</th>
+                        <th>Cost This period</th>
                         <th>Date</th>
-                        <th>Cost Previous Week</th>
+                        <th>Cost Previous period</th>
                         <th>Status Cost</th>
                     </tr>
                 </thead>
@@ -325,10 +320,10 @@ def formatting_report(request, payload_data):
         """
 
         previous_total_usd_kubecost = kubecost_payload[data]["data"]["summary"][
-            "cost_prev_week"
+            "cost_prev_period"
         ]
         current_total_usd_kubecost = kubecost_payload[data]["data"]["summary"][
-            "cost_this_week"
+            "cost_this_period"
         ]
 
         cost_summary_kubecost = current_total_usd_kubecost - previous_total_usd_kubecost
@@ -349,15 +344,15 @@ def formatting_report(request, payload_data):
             cost_status_kubecost = """Equal"""
 
         for item in kubecost_payload[data]["data"]["services"]:
-            percentage_week_kubecost = Conversion.get_percentage(
-                item["cost_this_week"], item["cost_prev_week"]
+            percentage_period_kubecost = Conversion.get_percentage(
+                item["cost_this_period"], item["cost_prev_period"]
             )
 
             cost_status_service_kubecost = ""
             if item["cost_status"].upper() == "UP":
-                cost_status_service_kubecost = f"""<span style="color:#e74c3c">⬆ {percentage_week_kubecost}%</span>"""
+                cost_status_service_kubecost = f"""<span style="color:#e74c3c">⬆ {percentage_period_kubecost}%</span>"""
             elif item["cost_status"].upper() == "DOWN":
-                cost_status_service_kubecost = f"""<span style="color:#1abc9c">⬇ {percentage_week_kubecost}%</span>"""
+                cost_status_service_kubecost = f"""<span style="color:#1abc9c">⬇ {percentage_period_kubecost}%</span>"""
             else:
                 cost_status_service_kubecost = """Equal"""
 
@@ -365,9 +360,9 @@ def formatting_report(request, payload_data):
                 <tr>
                     <td>{item["service_name"].upper()}</td>
                     <td>{item["environment"]}</td>
-                    <td>{Conversion.usd_format(item["cost_this_week"])} USD</td>
+                    <td>{Conversion.usd_format(item["cost_this_period"])} USD</td>
                     <td>{date_time}</td>
-                    <td>{Conversion.usd_format(item["cost_prev_week"])} USD</td>
+                    <td>{Conversion.usd_format(item["cost_prev_period"])} USD</td>
                     <td>{cost_status_service_kubecost}</td>
                 </tr>
             """

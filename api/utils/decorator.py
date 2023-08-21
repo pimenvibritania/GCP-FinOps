@@ -18,6 +18,24 @@ def date_validator(view_func):
     return _wrapped_view
 
 
+def period_validator(view_func):
+    @wraps(view_func)
+    async def _wrapped_view(request, *args, **kwargs):
+        period = request.GET.get("period")
+
+        if period is None or period not in ["weekly", "monthly"]:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": "The 'period' parameter is required and must be set to either 'weekly' or 'monthly'.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return await view_func(request, *args, **kwargs)
+
+    return _wrapped_view
+
+
 def user_async_validator(view_func):
     @wraps(view_func)
     async def _wrapped_view(request, *args, **kwargs):

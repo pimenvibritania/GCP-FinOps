@@ -356,42 +356,42 @@ class KubecostReport:
         return math.ceil(n * multiplier) / multiplier
 
     @staticmethod
-    def report(input_date):
-        cache_key = f"cms-kubecost-report-{input_date}"
+    def report(input_date, period):
+        cache_key = f"cms-kubecost-report-{input_date}-{period}"
         if cache.get(cache_key):
             return cache.get(cache_key)
         else:
             (
-                start_date_this_week,
-                end_date_this_week,
-                start_date_prev_week,
-                end_date_prev_week,
-            ) = Date.get_date_range(input_date)
+                start_date_this_period,
+                end_date_this_period,
+                start_date_prev_period,
+                end_date_prev_period,
+            ) = Date.get_date_range(input_date, period)
             namespace_data = KubecostNamespaces.get_namespace_report(
-                start_date_this_week,
-                end_date_this_week,
-                start_date_prev_week,
-                end_date_prev_week,
+                start_date_this_period,
+                end_date_this_period,
+                start_date_prev_period,
+                end_date_prev_period,
             )
             deployment_data = KubecostNamespaces.get_deployments_report(
-                start_date_this_week,
-                end_date_this_week,
-                start_date_prev_week,
-                end_date_prev_week,
+                start_date_this_period,
+                end_date_this_period,
+                start_date_prev_period,
+                end_date_prev_period,
             )
             registered_service = namespace_data + deployment_data
 
             unregistered_namespace = KubecostNamespaces.get_unregistered_namespace(
-                start_date_this_week,
-                end_date_this_week,
-                start_date_prev_week,
-                end_date_prev_week,
+                start_date_this_period,
+                end_date_this_period,
+                start_date_prev_period,
+                end_date_prev_period,
             )
             unregistered_deployment = KubecostNamespaces.get_unregistered_deployment(
-                start_date_this_week,
-                end_date_this_week,
-                start_date_prev_week,
-                end_date_prev_week,
+                start_date_this_period,
+                end_date_this_period,
+                start_date_prev_period,
+                end_date_prev_period,
             )
             unregistered_service = unregistered_namespace + unregistered_deployment
 
@@ -401,18 +401,18 @@ class KubecostReport:
                 service_id,
                 service_name,
                 environment,
-                cost_this_week,
-                cost_prev_week,
+                cost_this_period,
+                cost_prev_period,
             ) in registered_service:
                 if service_id not in services_data:
                     services_data[service_id] = {
                         "tf_id": tf_id,
                         "service_name": service_name,
-                        "costs": [(environment, cost_this_week, cost_prev_week)],
+                        "costs": [(environment, cost_this_period, cost_prev_period)],
                     }
                 else:
                     services_data[service_id]["costs"].append(
-                        (environment, cost_this_week, cost_prev_week)
+                        (environment, cost_this_period, cost_prev_period)
                     )
 
             data_by_tf = {}
@@ -447,13 +447,13 @@ class KubecostReport:
                     "pic_email": tf.pic_email,
                     "project": tf.project,
                     "data": {
-                        "date": f"{start_date_this_week} - {end_date_this_week}",
+                        "date": f"{start_date_this_period} - {end_date_this_period}",
                         "services": [],
                     },
                 }
 
-                summary_cost_this_week = 0
-                summary_cost_prev_week = 0
+                summary_cost_this_period = 0
+                summary_cost_prev_period = 0
 
                 services = data_by_tf[tf.id]["services"]
                 for svc in services:
@@ -461,33 +461,35 @@ class KubecostReport:
                     service_name = svc["service_name"]
                     costs = svc["costs"]
                     cost_per_env = ""
-                    cost_this_week = 0
-                    cost_prev_week = 0
+                    cost_this_period = 0
+                    cost_prev_period = 0
                     for cost in costs:
                         cost_per_env = cost_per_env + f"{cost[0]}(${cost[1]} USD), "
-                        cost_this_week += cost[1]
-                        cost_prev_week += cost[2]
+                        cost_this_period += cost[1]
+                        cost_prev_period += cost[2]
 
-                    summary_cost_this_week += cost_this_week
-                    summary_cost_prev_week += cost_prev_week
+                    summary_cost_this_period += cost_this_period
+                    summary_cost_prev_period += cost_prev_period
                     summary_cost_status = (
                         "UP"
-                        if summary_cost_this_week - summary_cost_prev_week > 0
+                        if summary_cost_this_period - summary_cost_prev_period > 0
                         else (
                             "EQUAL"
-                            if summary_cost_this_week - summary_cost_prev_week == 0
+                            if summary_cost_this_period - summary_cost_prev_period == 0
                             else "DOWN"
                         )
                     )
 
                     cost_per_env = cost_per_env[:-2]
-                    cost_this_week = round(cost_this_week, 2)
-                    cost_prev_week = round(cost_prev_week, 2)
+                    cost_this_period = round(cost_this_period, 2)
+                    cost_prev_period = round(cost_prev_period, 2)
                     cost_status = (
                         "UP"
-                        if cost_this_week - cost_prev_week > 0
+                        if cost_this_period - cost_prev_period > 0
                         else (
-                            "EQUAL" if cost_this_week - cost_prev_week == 0 else "DOWN"
+                            "EQUAL"
+                            if cost_this_period - cost_prev_period == 0
+                            else "DOWN"
                         )
                     )
 
@@ -495,21 +497,21 @@ class KubecostReport:
                         {
                             "service_name": service_name,
                             "environment": cost_per_env,
-                            "cost_this_week": cost_this_week,
-                            "cost_prev_week": cost_prev_week,
+                            "cost_this_period": cost_this_period,
+                            "cost_prev_period": cost_prev_period,
                             "cost_difference": round(
-                                cost_this_week - cost_prev_week, 2
+                                cost_this_period - cost_prev_period, 2
                             ),
                             "cost_status": cost_status,
                             "cost_status_percent": Conversion.get_percentage(
-                                cost_this_week, cost_prev_week
+                                cost_this_period, cost_prev_period
                             ),
                         }
                     )
 
                     services_data["data"]["summary"] = {
-                        "cost_this_week": round(summary_cost_this_week, 2),
-                        "cost_prev_week": round(summary_cost_prev_week, 2),
+                        "cost_this_period": round(summary_cost_this_period, 2),
+                        "cost_prev_period": round(summary_cost_prev_period, 2),
                         "cost_status": summary_cost_status,
                     }
                     services_data["data"]["services"] = sorted(
@@ -528,13 +530,15 @@ class KubecostReport:
                     project,
                     environment,
                     cluster_name,
-                    cost_this_week,
-                    cost_prev_week,
+                    cost_this_period,
+                    cost_prev_period,
                 ) = service_entry
                 cost_status = (
                     "UP"
-                    if cost_this_week - cost_prev_week > 0
-                    else ("EQUAL" if cost_this_week - cost_prev_week == 0 else "DOWN")
+                    if cost_this_period - cost_prev_period > 0
+                    else (
+                        "EQUAL" if cost_this_period - cost_prev_period == 0 else "DOWN"
+                    )
                 )
                 # Check if the service_name already exists in the dictionary
                 if service_name in service_dict:
@@ -543,14 +547,14 @@ class KubecostReport:
                             "project": project,
                             "environment": environment,
                             "cluster_name": cluster_name,
-                            "cost_this_week": cost_this_week,
-                            "cost_prev_week": cost_prev_week,
+                            "cost_this_period": cost_this_period,
+                            "cost_prev_period": cost_prev_period,
                             "cost_difference": round(
-                                cost_this_week - cost_prev_week, 2
+                                cost_this_period - cost_prev_period, 2
                             ),
                             "cost_status": cost_status,
                             "cost_status_percent": Conversion.get_percentage(
-                                cost_this_week, cost_prev_week
+                                cost_this_period, cost_prev_period
                             ),
                         }
                     )
@@ -562,14 +566,14 @@ class KubecostReport:
                                 "project": project,
                                 "environment": environment,
                                 "cluster_name": cluster_name,
-                                "cost_this_week": cost_this_week,
-                                "cost_prev_week": cost_prev_week,
+                                "cost_this_period": cost_this_period,
+                                "cost_prev_period": cost_prev_period,
                                 "cost_difference": round(
-                                    cost_this_week - cost_prev_week, 2
+                                    cost_this_period - cost_prev_period, 2
                                 ),
                                 "cost_status": cost_status,
                                 "cost_status_percent": Conversion.get_percentage(
-                                    cost_this_week, cost_prev_week
+                                    cost_this_period, cost_prev_period
                                 ),
                             }
                         ],
@@ -587,7 +591,7 @@ class KubecostReport:
             unregistered_data = {
                 "tech_family": "UNREGISTERED SERVICES",
                 "data": {
-                    "date": f"{start_date_this_week} - {end_date_this_week}",
+                    "date": f"{start_date_this_period} - {end_date_this_period}",
                     "services": result,
                 },
             }

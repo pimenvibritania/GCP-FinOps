@@ -67,8 +67,8 @@ def get_tf_collection(data, search, date, conversion_rate):
             "range_date": date,
             "conversion_rate": Conversion.idr_format(conversion_rate),
             "summary": {
-                "current_week": 0,
-                "previous_week": 0,
+                "current_period": 0,
+                "previous_period": 0,
                 "cost_difference": 0,
                 "status": "",
             },
@@ -84,8 +84,8 @@ def mapping_services(
     gcp_project,
     service_name,
     index_weight,
-    current_week_cost,
-    previous_week_cost,
+    current_period_cost,
+    previous_period_cost,
     project_family,
     tf,
     organization,
@@ -98,8 +98,8 @@ def mapping_services(
         else index_weight[organization][tf][environment]
     )
 
-    current_cost = current_week_cost * (weight_index_percent / 100)
-    previous_cost = previous_week_cost * (weight_index_percent / 100)
+    current_cost = current_period_cost * (weight_index_percent / 100)
+    previous_cost = previous_period_cost * (weight_index_percent / 100)
 
     diff_cost = current_cost - previous_cost
     status_cost = "UP" if diff_cost > 0 else "DOWN" if diff_cost < 0 else "EQUAL"
@@ -111,8 +111,8 @@ def mapping_services(
             {
                 "environment": environment,
                 "index_weight": f"{weight_index_percent} %",
-                "cost_this_week": current_cost,
-                "cost_prev_week": previous_cost,
+                "cost_this_period": current_cost,
+                "cost_prev_period": previous_cost,
                 "cost_difference": diff_cost,
                 "cost_status": status_cost,
                 "cost_status_percent": cost_status_percentage,
@@ -144,11 +144,11 @@ def mapping_services(
     if gcp_project not in project_family[tf]["data"]["project_included"]:
         project_family[tf]["data"]["project_included"].append(gcp_project)
 
-    project_family[tf]["data"]["summary"]["current_week"] += current_cost
-    project_family[tf]["data"]["summary"]["previous_week"] += previous_cost
+    project_family[tf]["data"]["summary"]["current_period"] += current_cost
+    project_family[tf]["data"]["summary"]["previous_period"] += previous_cost
     project_family[tf]["data"]["summary"]["cost_difference"] = (
-        project_family[tf]["data"]["summary"]["current_week"]
-        - project_family[tf]["data"]["summary"]["previous_week"]
+        project_family[tf]["data"]["summary"]["current_period"]
+        - project_family[tf]["data"]["summary"]["previous_period"]
     )
     project_family[tf]["data"]["summary"]["status"] = (
         "UP"
@@ -195,8 +195,8 @@ class BigQuery:
         return result[0]
 
     @classmethod
-    def get_project(cls, input_date):
-        cache_key = f"cms-bq-project-{input_date}"
+    def get_project(cls, input_date, period):
+        cache_key = f"cms-bq-project-{input_date}-{period}"
 
         if cache.get(cache_key):
             return cache.get(cache_key)
@@ -206,18 +206,17 @@ class BigQuery:
                 raise ValidationError(f"There is no data on date: {input_date}")
 
             mfi_project, mdi_project = get_tech_family()
-            print(Date.get_date_range(input_date))
             (
-                current_week_from,
-                current_week_to,
-                previous_week_from,
-                previous_week_to,
-            ) = Date.get_date_range(input_date)
+                current_period_from,
+                current_period_to,
+                previous_period_from,
+                previous_period_to,
+            ) = Date.get_date_range(input_date, period)
 
-            current_week_str = f"{current_week_from} - {current_week_to}"
+            current_period_str = f"{current_period_from} - {current_period_to}"
 
             index_weight = IndexWeight.get_index_weight(
-                current_week_from, current_week_to
+                current_period_from, current_period_to
             )
 
             query_template = """
@@ -227,47 +226,47 @@ class BigQuery:
                 GROUP BY proj, svc
             """
 
-            query_current_week = query_template.format(
+            query_current_period = query_template.format(
                 BIGQUERY_TABLE=BIGQUERY_TABLE,
-                start_date=current_week_from,
-                end_date=current_week_to,
+                start_date=current_period_from,
+                end_date=current_period_to,
             )
 
-            query_previous_week = query_template.format(
+            query_previous_period = query_template.format(
                 BIGQUERY_TABLE=BIGQUERY_TABLE,
-                start_date=previous_week_from,
-                end_date=previous_week_to,
+                start_date=previous_period_from,
+                end_date=previous_period_to,
             )
 
-            current_week_results = cls().client.query(query_current_week).result()
-            previous_week_results = cls().client.query(query_previous_week).result()
+            current_period_results = cls().client.query(query_current_period).result()
+            previous_period_results = cls().client.query(query_previous_period).result()
 
-            current_week_costs = {}
-            for row in current_week_results:
-                current_week_costs[(row.svc, row.proj)] = row.total_cost
+            current_period_costs = {}
+            for row in current_period_results:
+                current_period_costs[(row.svc, row.proj)] = row.total_cost
 
-            previous_week_costs = {}
-            for row in previous_week_results:
-                previous_week_costs[(row.svc, row.proj)] = row.total_cost
+            previous_period_costs = {}
+            for row in previous_period_results:
+                previous_period_costs[(row.svc, row.proj)] = row.total_cost
 
             platform_mfi = get_tf_collection(
-                mfi_project, "platform_mfi", current_week_str, conversion_rate
+                mfi_project, "platform_mfi", current_period_str, conversion_rate
             )
             mofi = get_tf_collection(
-                mfi_project, "mofi", current_week_str, conversion_rate
+                mfi_project, "mofi", current_period_str, conversion_rate
             )
             defi_mfi = get_tf_collection(
-                mfi_project, "defi_mfi", current_week_str, conversion_rate
+                mfi_project, "defi_mfi", current_period_str, conversion_rate
             )
 
             platform_mdi = get_tf_collection(
-                mdi_project, "platform_mdi", current_week_str, conversion_rate
+                mdi_project, "platform_mdi", current_period_str, conversion_rate
             )
             dana_tunai = get_tf_collection(
-                mdi_project, "dana_tunai", current_week_str, conversion_rate
+                mdi_project, "dana_tunai", current_period_str, conversion_rate
             )
             defi_mdi = get_tf_collection(
-                mdi_project, "defi_mdi", current_week_str, conversion_rate
+                mdi_project, "defi_mdi", current_period_str, conversion_rate
             )
 
             project_mfi = {
@@ -282,12 +281,12 @@ class BigQuery:
                 "defi_mdi": defi_mdi,
             }
 
-            for service, project in set(current_week_costs.keys()).union(
-                previous_week_costs.keys()
+            for service, project in set(current_period_costs.keys()).union(
+                previous_period_costs.keys()
             ):
-                current_week_cost = current_week_costs.get((service, project), 0)
-                previous_week_cost = previous_week_costs.get((service, project), 0)
-                cost_difference = current_week_cost - previous_week_cost
+                current_period_cost = current_period_costs.get((service, project), 0)
+                previous_period_cost = previous_period_costs.get((service, project), 0)
+                cost_difference = current_period_cost - previous_period_cost
 
                 if project in TF_PROJECT_MDI:
                     for tf in project_mdi.keys():
@@ -295,8 +294,8 @@ class BigQuery:
                             project,
                             service,
                             index_weight,
-                            current_week_cost,
-                            previous_week_cost,
+                            current_period_cost,
+                            previous_period_cost,
                             project_mdi,
                             tf,
                             "MDI",
@@ -308,21 +307,21 @@ class BigQuery:
                             project,
                             service,
                             index_weight,
-                            current_week_cost,
-                            previous_week_cost,
+                            current_period_cost,
+                            previous_period_cost,
                             project_mfi,
                             tf,
                             "MFI",
                         )
 
                 elif project in TF_PROJECT_ANDROID:
-                    # project_mfi["defi_mfi"] = mapping_services(project, service, index_weight, current_week_cost, previous_week_cost, project_mfi, "defi_mfi", "ANDROID")
+                    # project_mfi["defi_mfi"] = mapping_services(project, service, index_weight, current_period_cost, previous_period_cost, project_mfi, "defi_mfi", "ANDROID")
                     project_mdi["defi_mdi"] = mapping_services(
                         project,
                         service,
                         index_weight,
-                        current_week_cost,
-                        previous_week_cost,
+                        current_period_cost,
+                        previous_period_cost,
                         project_mdi,
                         "defi_mdi",
                         "ANDROID",
