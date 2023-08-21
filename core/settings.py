@@ -201,3 +201,8 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 CRONJOBS = [("* * * * *", "home.cron.test_cron_job")]
+
+GOOGLE_APPLICATION_CREDENTIALS = os.path.join(BASE_DIR, "service-account.json")
+GOOGLE_CLOUD_STORAGE_BUCKET_NAME = "cost-management-system"
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")

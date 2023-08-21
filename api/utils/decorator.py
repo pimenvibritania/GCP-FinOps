@@ -1,3 +1,4 @@
+import threading
 from functools import wraps
 from django.http import JsonResponse
 from .validator import Validator
@@ -84,3 +85,15 @@ def mail_validator(view_func):
         return await view_func(request, *args, **kwargs)
 
     return _wrapped_view
+
+
+def background(f):
+    """
+    a threading decorator
+    use @background above the function you want to run in the background
+    """
+
+    def background_func(*a, **kw):
+        threading.Thread(target=f, args=a, kwargs=kw).start()
+
+    return background_func

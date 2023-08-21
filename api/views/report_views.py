@@ -1,3 +1,5 @@
+import datetime
+
 from ..models.bigquery import BigQuery
 from ..utils.conversion import Conversion
 from ..utils.decorator import *
@@ -6,6 +8,7 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from ..models.kubecost import KubecostReport
 from django.core.cache import cache
+from ..utils.generator import pdf_file, random_string
 
 import asyncio
 import os
@@ -138,8 +141,20 @@ def get_idle_cost(idle_data, search_data, index_weight):
 
 
 @mail_validator
-async def send_email_task(request, subject, to_email, template_path, context):
+async def send_email_task(
+    request, subject, to_email, template_path, context, em_name, tech_family
+):
     email_content = render_to_string(template_path, context)
+    pdf_filename = (
+        f"{tech_family}-{em_name}-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
+    )
+    pdf_password = random_string(12)
+    pdf_link = pdf_file(pdf_filename, email_content, pdf_password)
+    password_html = f"""
+        <a href="{pdf_link}">PDF FILE</a>
+        <strong>Your PDF password is: {pdf_password}</strong>
+    """
+    email_content += password_html
     mail_data = request["mail_data"]
     mail_data["subject"] = subject
     mail_data["html"] = email_content
@@ -191,7 +206,8 @@ def formatting_report(request, payload_data):
         template_path = "email_template.html"
         em_name = kubecost_payload[data]["pic"]
         subject = f"!!! Hi {em_name}, your GCP Cost on {date_time} !!!"
-        project_name = f"({kubecost_payload[data]['tech_family']} - {kubecost_payload[data]['project']})"
+        tech_family = kubecost_payload[data]["tech_family"]
+        project_name = f"({tech_family} - {kubecost_payload[data]['project']})"
 
         context["em_name"] = em_name
         context["project_name"] = project_name
@@ -389,7 +405,15 @@ def formatting_report(request, payload_data):
         if to_email not in ["buyung@moladin.com", "devops-engineer@moladin.com"]:
             tasks.append(
                 loop.create_task(
-                    send_email_task(request, subject, to_email, template_path, context)
+                    send_email_task(
+                        request,
+                        subject,
+                        to_email,
+                        template_path,
+                        context,
+                        em_name,
+                        tech_family,
+                    )
                 )
             )
         # break
