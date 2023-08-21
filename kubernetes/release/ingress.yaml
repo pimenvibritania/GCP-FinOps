@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: ingress-cost-management-system
+  namespace: cost-management-system-release
+spec:
+  rules:
+  - host: cost-management-release.moladin.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: cost-management-system-svc
+            port:
+              number: 5005
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - cost-management.moladin.com
+    secretName: wildcard-moladin-tls
