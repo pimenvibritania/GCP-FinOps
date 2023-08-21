@@ -8,8 +8,10 @@ ENV TZ=Asia/Jakarta
 
 COPY requirements.txt .
 # install python dependencies
+RUN apt-get update
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get install cron -y
 
 COPY . .
 
