@@ -7,6 +7,8 @@ from ..serializers import TFSerializer
 from ..utils.conversion import Conversion
 from ..utils.date import Date
 from django.core.cache import cache
+from django.views.decorators.cache import cache_page
+
 import os
 
 GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT")
@@ -17,6 +19,8 @@ CURRENT_DIR_PATH = os.path.dirname(CURRENT_PATH)
 
 API_DIR = os.path.dirname(CURRENT_DIR_PATH)
 ROOT_DIR = os.path.dirname(API_DIR)
+
+REDIS_TTL = int(os.getenv("REDIS_TTL"))
 
 TF_PROJECT_MDI = [
     "moladin-shared-devl",
@@ -199,6 +203,7 @@ class BigQuery:
         cache_key = f"cms-bq-project-{input_date}-{period}"
 
         if cache.get(cache_key):
+            print("get project from cache")
             return cache.get(cache_key)
         else:
             conversion_rate = cls.get_conversion_rate(input_date)
@@ -335,5 +340,5 @@ class BigQuery:
 
             project_mdi.update(extras)
 
-            cache.set(cache_key, project_mdi)
+            cache.set(cache_key, project_mdi, timeout=REDIS_TTL)
             return project_mdi

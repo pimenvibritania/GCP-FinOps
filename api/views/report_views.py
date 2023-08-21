@@ -10,6 +10,8 @@ from django.core.cache import cache
 import asyncio
 import os
 
+REDIS_TTL = int(os.getenv("REDIS_TTL"))
+
 KUBECOST_PROJECT = ["moladin", "infra_mfi", "infra_mdi"]
 MDI_PROJECT = ["dana_tunai", "platform_mdi", "defi_mdi"]
 MFI_PROJECT = ["mofi", "platform_mfi", "defi_mfi"]
@@ -35,7 +37,7 @@ async def create_report(request):
         (bigquery_result, kubecost_result) = await asyncio.gather(*async_tasks)
 
         payload = {"bigquery": bigquery_result, "kubecost": kubecost_result}
-        cache.set(cache_key, payload)
+        cache.set(cache_key, payload, timeout=REDIS_TTL)
 
     formatting_report(request, payload)
 

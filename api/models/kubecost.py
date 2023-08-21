@@ -16,6 +16,9 @@ from datetime import datetime, timedelta
 from django.core.cache import cache
 import subprocess
 import math
+import os
+
+REDIS_TTL = int(os.getenv("REDIS_TTL"))
 
 
 def get_kubecost_cluster():
@@ -601,5 +604,5 @@ class KubecostReport:
 
             # json_data = json.dumps(final_data)
             # print(json_data)
-            cache.set(cache_key, final_data)
+            cache.set(cache_key, final_data, timeout=REDIS_TTL)
             return final_data

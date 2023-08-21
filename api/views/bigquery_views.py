@@ -23,6 +23,7 @@ class BigQueryViews(APIView):
 
     def get(self, request, *args, **kwargs) -> object:
         date = request.GET.get("date")
+        period = request.GET.get("period")
 
         if not date:
             return Response({"error": "Date parameter is required."}, status=400)
@@ -33,7 +34,7 @@ class BigQueryViews(APIView):
                 {"message": validated_date.message}, status=validated_date.status_code
             )
 
-        data = BigQuery.get_project(date)
+        data = BigQuery.get_project(date, period)
 
         return Response(data, status=status.HTTP_200_OK)
 
