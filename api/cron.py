@@ -25,7 +25,7 @@ def insert_kubecost_data():
     KUBECOST_CRONJOB_PASSWORD = getenv('KUBECOST_CRONJOB_PASSWORD')
 
     current_datetime = datetime.datetime.now()
-    yesterday_datetime = current_datetime - datetime.timedelta(days=2)
+    yesterday_datetime = current_datetime - datetime.timedelta(days=1)
     yesterday = yesterday_datetime.strftime("%Y-%m-%d")
 
     url = 'https://cost-management.moladin.com/api/kubecost/insert-data'
