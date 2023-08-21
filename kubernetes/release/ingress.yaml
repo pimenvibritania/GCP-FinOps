@@ -7,7 +7,7 @@ metadata:
   namespace: cost-management-system-release
 spec:
   rules:
-  - host: cost-management-release.moladin.com
+  - host: cost-management-system.moladin.com
     http:
       paths:
       - backend:
