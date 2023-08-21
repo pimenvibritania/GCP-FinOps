@@ -21,8 +21,8 @@ pipeline {
         garRepository = "infra-prod"
         gkeName = "${techFamily}-prod-cluster"
         gkeZone = "asia-southeast2-a"
-        projectName = "moladin-${techFamily}-prod"
-        consul = "https://consul-gcp.development.jinny.id/v1/kv/${serviceName}/backend"
+        projectName = "moladin-${techFamily}-prod"   
+        context = 'gke_moladin-infra-prod_asia-southeast2-a_infra-prod-cluster'
         consulToken = credentials('consul-dev-token')
         gitCommitMsg = sh (script: 'git log -1 --pretty=%B ${GIT_COMMIT}', returnStdout: true).trim()
         gitAuthor = sh (script: 'git show -s --pretty=%an', returnStdout: true).trim()
@@ -39,6 +39,7 @@ pipeline {
                     } else if (env.BRANCH_NAME == "main") {
                         env.resourceEnv = "production"
                         env.versioningCode = "prod"
+                        env.consul = "https://consul-gcp.development.jinny.id/v1/kv/${serviceName}/backend"
                         currentBuild.result = hudson.model.Result.SUCCESS.toString()
                     // } else if (env.BRANCH_NAME =~ /STG.*$/){
                     //     env.resourceEnv = "staging"
@@ -48,10 +49,11 @@ pipeline {
                     //     env.resourceEnv = "demo"
                     //     env.versioningCode = "demo"
                     //     currentBuild.result = hudson.model.Result.SUCCESS.toString()
-                    // } else if (env.BRANCH_NAME =~ /PROD.*$/){
-                    //     env.resourceEnv = "production"
-                    //     env.versioningCode = "release"
-                    //     currentBuild.result = hudson.model.Result.SUCCESS.toString()
+                    } else if (env.BRANCH_NAME =~ /PROD.*$/){
+                        env.resourceEnv = "release"
+                        env.versioningCode = "release"
+                        env.consul = "https://consul-gcp.production.jinny.id/v1/kv/${serviceName}/backend"
+                        currentBuild.result = hudson.model.Result.SUCCESS.toString()
                     // } else if (env.BRANCH_NAME.contains("PR")) {
                     //     echo "${env.BRANCH_NAME}"
                     //     env.resourceEnv = "pull_request"
@@ -99,7 +101,7 @@ pipeline {
         stage ("Deployment") {
             when {
                 expression {
-                    currentBuild.result == "SUCCESS"
+                    currentBuild.result == "SUCCESS" && env.resourceEnv == "production"
                 }
             }
             steps {
@@ -110,12 +112,44 @@ pipeline {
                         sh "gcloud container clusters get-credentials ${gkeName} --zone ${gkeZone} --project ${projectName}"
                         sh "getConsul.py ${consul}/cold ${consulToken} > ${serviceName}-env-cold"
                         sh "getConsul.py ${consul}/hot ${consulToken} > ${serviceName}-env-hot"
-                        sh "kubectl -n ${deploymentName} delete secret ${deploymentName}-cold-app-secret || true"
-                        sh "kubectl -n ${deploymentName} delete secret ${deploymentName}-hot-app-secret || true"
-                        sh "kubectl -n ${deploymentName} create secret generic ${deploymentName}-cold-app-secret --from-env-file=${serviceName}-env-cold"
-                        sh "kubectl -n ${deploymentName} create secret generic ${deploymentName}-hot-app-secret --from-env-file=${serviceName}-env-hot"
-                        sh "kubectl -n ${deploymentName} set image deployment/${deploymentName}-app-deployment ${deploymentName}-app=${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER}"
-                        sh "kubectl -n ${deploymentName} rollout restart deployment.apps"
+                        sh "kubectl --context ${context} -n ${deploymentName} delete secret ${deploymentName}-cold-app-secret || true"
+                        sh "kubectl --context ${context} -n ${deploymentName} delete secret ${deploymentName}-hot-app-secret || true"
+                        sh "kubectl --context ${context} -n ${deploymentName} create secret generic ${deploymentName}-cold-app-secret --from-env-file=${serviceName}-env-cold"
+                        sh "kubectl --context ${context} -n ${deploymentName} create secret generic ${deploymentName}-hot-app-secret --from-env-file=${serviceName}-env-hot"
+                        sh "kubectl --context ${context} -n ${deploymentName} set image deployment/${deploymentName}-app-deployment ${deploymentName}-app=${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER}"
+                        sh "kubectl --context ${context} -n ${deploymentName} rollout restart deployment.apps"
+                        currentBuild.result = 'SUCCESS'
+                    } catch(e) {
+                        currentBuild.result = 'FAILURE'
+                        throw e
+                    } finally {
+                        if (currentBuild.result == "FAILURE") {
+                            echo "Deployment ${serviceName} fail"
+                        }
+                    }
+                }
+            }
+        }
+        stage ("Deployment To Release") {
+            when {
+                expression {
+                    currentBuild.result == "SUCCESS" && env.resourceEnv == "release"
+                }
+            }
+            steps {
+                script {
+                    try {
+                        sh "gcloud auth activate-service-account ${emailJenkinsServiceAccount} --key-file=${keyJenkinsServiceAccount}"
+                        sh "gcloud auth configure-docker ${garLocation}"
+                        sh "gcloud container clusters get-credentials ${gkeName} --zone ${gkeZone} --project ${projectName}"
+                        sh "getConsul.py ${consul}/cold ${consulToken} > ${serviceName}-env-cold"
+                        sh "getConsul.py ${consul}/hot ${consulToken} > ${serviceName}-env-hot"
+                        sh "kubectl --context ${context} -n ${deploymentName}-release delete secret ${deploymentName}-cold-app-secret || true"
+                        sh "kubectl --context ${context} -n ${deploymentName}-release delete secret ${deploymentName}-hot-app-secret || true"
+                        sh "kubectl --context ${context} -n ${deploymentName}-release create secret generic ${deploymentName}-cold-app-secret --from-env-file=${serviceName}-env-cold"
+                        sh "kubectl --context ${context} -n ${deploymentName}-release create secret generic ${deploymentName}-hot-app-secret --from-env-file=${serviceName}-env-hot"
+                        sh "kubectl --context ${context} -n ${deploymentName}-release set image deployment/${deploymentName}-app-deployment ${deploymentName}-app=${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER}"
+                        sh "kubectl --context ${context} -n ${deploymentName}-release rollout restart deployment.apps"
                         currentBuild.result = 'SUCCESS'
                     } catch(e) {
                         currentBuild.result = 'FAILURE'
