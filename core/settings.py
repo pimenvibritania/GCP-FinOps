@@ -206,3 +206,5 @@ GOOGLE_APPLICATION_CREDENTIALS = os.path.join(BASE_DIR, "service-account.json")
 GOOGLE_CLOUD_STORAGE_BUCKET_NAME = "cost-management-system"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+ENCRYPTION_KEY = os.getenv("APPLICATION_KEY")

@@ -1,4 +1,5 @@
 import datetime
+import io
 
 from ..models.bigquery import BigQuery
 from ..utils.conversion import Conversion
@@ -8,7 +9,8 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from ..models.kubecost import KubecostReport
 from django.core.cache import cache
-from ..utils.generator import pdf_file, random_string
+from ..utils.generator import random_string, pdf
+from ..utils.crypter import encrypt
 
 import asyncio
 import os
@@ -148,10 +150,16 @@ async def send_email_task(
     pdf_filename = (
         f"{tech_family}-{em_name}-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
     )
+
     pdf_password = random_string(12)
-    pdf_link = pdf_file(pdf_filename, email_content, pdf_password)
+    pdf_link, pdf_file = pdf(pdf_filename, email_content, pdf_password)
+
+    # TODO: save the log into DB included encrypted & decoded password, gcs link and the requests
+    # encrypted_pdf_pass = encrypt(pdf_password)
+
     password_html = f"""
-        <a href="{pdf_link}">PDF FILE</a>
+        <hr/>
+        <a href="{pdf_link}"><strong>Your PDF file</strong></a><br/>
         <strong>Your PDF password is: {pdf_password}</strong>
     """
     email_content += password_html
@@ -160,14 +168,22 @@ async def send_email_task(
     mail_data["html"] = email_content
     mail_data["o:tag"] = "important"
 
+    with open(pdf_file, "rb") as pdf_attachment:
+        pdf_content = pdf_attachment.read()
+
+    files = [("attachment", (f"{pdf_filename}.pdf", pdf_content, "application/pdf"))]
+
     async with AsyncClient() as client:
         response = await client.post(
             os.getenv("MAILGUN_URL"),
             auth=("api", os.getenv("MAILGUN_API_KEY")),
             data=mail_data,
+            files=files,
         )
         if response.status_code != 200:
             raise ValueError(response.content)
+
+        os.remove(pdf_file)
         return response
 
 
@@ -274,9 +290,6 @@ def formatting_report(request, payload_data):
                     else:
                         tr_first = "<tr>"
 
-                    # percentage_status = Conversion.get_percentage(cost_svc['cost_this_period'], cost_svc['cost_prev_period'])
-
-                    cost_status_service_gcp = ""
                     if cost_svc["cost_status"] == "UP":
                         cost_status_service_gcp = f"""<span style="color:#e74c3c">⬆ {cost_svc['cost_status_percent']}%</span>"""
                     elif cost_svc["cost_status"] == "DOWN":
@@ -366,7 +379,6 @@ def formatting_report(request, payload_data):
                 item["cost_this_period"], item["cost_prev_period"]
             )
 
-            cost_status_service_kubecost = ""
             if item["cost_status"].upper() == "UP":
                 cost_status_service_kubecost = f"""<span style="color:#e74c3c">⬆ {percentage_period_kubecost}%</span>"""
             elif item["cost_status"].upper() == "DOWN":
