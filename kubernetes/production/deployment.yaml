@@ -23,7 +23,11 @@ spec:
         app: cost-management-system-app
     spec:
       containers:
-      - name: cost-management-system-app
+      - args:
+        - /bin/sh
+        - -c
+        - uvicorn --workers 5 core.asgi:application --host 0.0.0.0 --port 5005
+        name: cost-management-system-app
         envFrom:
         - secretRef:
             name: cost-management-system-cold-app-secret
