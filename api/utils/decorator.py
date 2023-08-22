@@ -53,6 +53,7 @@ def user_async_validator(view_func):
 def mail_validator(view_func):
     @wraps(view_func)
     async def _wrapped_view(request, *args, **kwargs):
+        to_email = args[1]
         mail_env = request.GET.get("send-mail")
         if mail_env is None:
             return JsonResponse(
@@ -63,12 +64,11 @@ def mail_validator(view_func):
             "devl": {
                 "from": "pirman.abdurohman@moladin.com",
                 "to": "tjatur.permadi@moladin.com",
-                # "to": "pimenvibritania@gmail.com",
                 "cc": "pirman.abdurohman@moladin.com",
             },
             "prod": {
                 "from": "DevOps Engineer <noreply@moladin.com>",
-                "to": args[1],
+                "to": to_email,
                 "cc": [
                     "buyung@moladin.com",
                     "sylvain@moladin.com",
