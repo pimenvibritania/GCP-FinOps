@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cost-management-system-svc
+  namespace: cost-management-system-release
+  labels:
+    app: cost-management-system-app
+spec:
+  type: ClusterIP
+  selector:
+    app: cost-management-system-app
+  ports:
+  - name: http
+    port: 5005
+    protocol: TCP
+    targetPort: 5005
