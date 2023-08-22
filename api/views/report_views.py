@@ -183,13 +183,14 @@ async def send_email_task(
         f"{tech_family}-{em_name}-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
     )
     pdf_content = f"""
-        <h3 style="text-align: right">{pdf_filename}</h3>
+        <h3 style="text-align: right">{tech_family}-{em_name}</h3>
+        <h4 style="text-align: right">{datetime.datetime.now().strftime("%d-%m-%Y")}</h4>
         <hr />
     """
     pdf_content += email_content
 
-    pdf_password = random_string(12)
-    # print(pdf_filename, pdf_password)
+    pdf_password = random_string(32)
+    print(pdf_filename, pdf_password)
     pdf_link, pdf_file = pdf(pdf_filename, pdf_content, pdf_password)
 
     # TODO: save the log into DB included encrypted & decoded password, gcs link and the requests
