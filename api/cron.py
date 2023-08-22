@@ -3,12 +3,15 @@ import requests
 import json
 import logging
 import subprocess
+import datetime
 from os import getenv
 from home.models.kubecost_clusters import KubecostClusters
 from kubernetes import client, config
 
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+current_datetime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 
 def send_slack(message):
@@ -36,13 +39,13 @@ def insert_kubecost_data():
     try:
         response = requests.post(url, json={"date": date}, auth=auth_credentials)
         if response.status_code != 200:
-            logs = f"Kubecost Daily Cronjob Failed. Date: {date}, Response: {response.status_code}, {response.text}"
+            logs = f"{current_datetime} - Kubecost Daily Cronjob Failed. Date: {date}, Response: {response.status_code}, {response.text}"
             logger.error(logs)
             send_slack(
                 f"<!here> \n*Kubecost Cronjob Failed!* :rotating_light: \nLogs: ```{logs}```"
             )
             return
-        logs = f"Kubecost Daily Cronjob Success. Response: {response.status_code}, {response.text}"
+        logs = f"{current_datetime} - Kubecost Daily Cronjob Success. Response: {response.status_code}, {response.text}"
         logger.info(logs)
         send_slack(
             f"<!here> \n*Kubecost Cronjob Success!* :white_check_mark: \nLogs: ```{logs}```"
@@ -64,12 +67,12 @@ def check_kubecost_status():
         company_project = obj.company_project
         environment = obj.environment
         kube_context = f"gke_{gcp_project}_{location}_{cluster_name}"
-        print("Run Cronjob check_kubecost_status.")
-        print(f"CLUSTER NAME: {cluster_name}")
+        print(f"{current_datetime} - Run Cronjob check_kubecost_status.")
+        print(f"{current_datetime} - CLUSTER NAME: {cluster_name}")
 
         # Check Deployment Ready Status
         try:
-            print("Checking Deployment Status...")
+            print(f"{current_datetime} - Checking Deployment Status...")
             config.load_kube_config(context=kube_context)
             apps_v1 = client.AppsV1Api()
 
@@ -94,13 +97,13 @@ def check_kubecost_status():
                     send_slack(
                         f"<!here>, *KUBECOST ALERT!!* :rotating_light: \nDeployment *'{deployment_name}'* is not Ready. Cluster: *'{cluster_name}'*"
                     )
-                print(f"Deployment: {deployment_name} - Ready: {deployment_ready}")
+                print(f"{current_datetime} - Deployment: {deployment_name} - Ready: {deployment_ready}")
         except Exception as e:
             print("Error:", e)
 
         # Check Data Exist
         try:
-            print("Checking Kubecost Data Exist...")
+            print(f"{current_datetime} - Checking Kubecost Data Exist...")
             command = f"kubectl cost namespace --context={kube_context} --historical --window 1d | wc -l"
 
             result = subprocess.run(
@@ -118,7 +121,7 @@ def check_kubecost_status():
                         f"<!here>, *KUBECOST ALERT!!* :rotating_light: \n*No Data Kubecost for Today*. Cluster: *'{cluster_name}'*."
                     )
             else:
-                print("Error:", result.stderr)
+                print(f"{current_datetime} - Error:", result.stderr)
 
         except Exception as e:
-            print("An error occurred:", str(e))
+            print(f"{current_datetime} - An error occurred:", str(e))
