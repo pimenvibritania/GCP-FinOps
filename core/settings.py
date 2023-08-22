@@ -199,7 +199,11 @@ LOGIN_REDIRECT_URL = "/"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
-CRONJOBS = [("* * * * *", "home.cron.test_cron_job")]
+CRONJOBS = [
+    ("* * * * *", "home.cron.test_cron_job"),
+    ("1 15 * * *", "api.cron.insert_kubecost_data"),
+    ("1 9,11,13,15,17 * * *", "api.cron.check_kubecost_status"),
+]
 
 GOOGLE_APPLICATION_CREDENTIALS = os.path.join(BASE_DIR, "service-account.json")
 GOOGLE_CLOUD_STORAGE_BUCKET_NAME = "cost-management-system"
@@ -207,7 +211,3 @@ GOOGLE_CLOUD_STORAGE_BUCKET_NAME = "cost-management-system"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 ENCRYPTION_KEY = os.getenv("APPLICATION_KEY")
-CRONJOBS = [
-    ("1 15 * * *", "api.cron.insert_kubecost_data"),
-    ("1 9,11,13,15,17 * * *", "api.cron.check_kubecost_status"),
-    ]

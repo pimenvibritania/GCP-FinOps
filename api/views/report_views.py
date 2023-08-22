@@ -143,26 +143,14 @@ def get_idle_cost(idle_data, search_data, index_weight):
 
 
 @mail_validator
-async def send_email_task(
-    request, subject, to_email, template_path, context, em_name, tech_family
+async def send_mail(
+    request,
+    subject,
+    to_email,
+    pdf_filename,
+    pdf_file,
+    email_content,
 ):
-    email_content = render_to_string(template_path, context)
-    pdf_filename = (
-        f"{tech_family}-{em_name}-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
-    )
-
-    pdf_password = random_string(12)
-    pdf_link, pdf_file = pdf(pdf_filename, email_content, pdf_password)
-
-    # TODO: save the log into DB included encrypted & decoded password, gcs link and the requests
-    # encrypted_pdf_pass = encrypt(pdf_password)
-
-    password_html = f"""
-        <hr/>
-        <a href="{pdf_link}"><strong>Your PDF file</strong></a><br/>
-        <strong>Your PDF password is: {pdf_password}</strong>
-    """
-    email_content += password_html
     mail_data = request["mail_data"]
     mail_data["subject"] = subject
     mail_data["html"] = email_content
@@ -185,6 +173,36 @@ async def send_email_task(
 
         os.remove(pdf_file)
         return response
+
+
+async def send_email_task(
+    request, subject, to_email, template_path, context, em_name, tech_family
+):
+    email_content = render_to_string(template_path, context)
+    pdf_filename = (
+        f"{tech_family}-{em_name}-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
+    )
+    pdf_content = f"""
+        <h3 style="text-align: right">{pdf_filename}</h3>
+        <hr />
+    """
+    pdf_content += email_content
+
+    pdf_password = random_string(12)
+    # print(pdf_filename, pdf_password)
+    pdf_link, pdf_file = pdf(pdf_filename, pdf_content, pdf_password)
+
+    # TODO: save the log into DB included encrypted & decoded password, gcs link and the requests
+    # encrypted_pdf_pass = encrypt(pdf_password)
+
+    password_html = f"""
+        <hr/>
+        <a href="{pdf_link}"><strong>Your PDF file</strong></a><br/>
+        <strong>Your PDF password is: {pdf_password}</strong>
+    """
+    email_content += password_html
+
+    await send_mail(request, subject, to_email, pdf_filename, pdf_file, email_content)
 
 
 def formatting_report(request, payload_data):
@@ -244,7 +262,6 @@ def formatting_report(request, payload_data):
             )
             date_range_gcp = bigquery_payload[data]["data"]["range_date"]
 
-            cost_status_gcp = ""
             if current_total_idr_gcp > previous_total_idr_gcp:
                 subject = (
                     f"!!! Hi {em_name}, BEWARE of Your GCP Cost on {date_time} !!!"

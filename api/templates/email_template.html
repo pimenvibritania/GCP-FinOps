@@ -1,11 +1,18 @@
 {% autoescape off %}
 <!DOCTYPE html>
-<html>
+<html lang="">
   <head>
       <style>
         @page {
             size: Letter;
-            margin: 0 0.44in 0.2in 0.44in;
+            margin: 0.44in;
+            font-size: 12px;
+        }
+        @font-face {
+            font-size: 12px;
+        }
+        body {
+            font-size: 12px;
         }
 
         table {
@@ -23,6 +30,7 @@
           background-color: #f2f2f2;
         }
       </style>
+      <title>Cost Report</title>
   </head>
   <body>
     <p><strong>Trial</strong> - Cost reminder</p>
