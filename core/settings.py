@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 import os, random, string
 from pathlib import Path
-
 from dotenv import load_dotenv
 
 load_dotenv()  # take environment variables from .env.
@@ -208,3 +207,7 @@ GOOGLE_CLOUD_STORAGE_BUCKET_NAME = "cost-management-system"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 ENCRYPTION_KEY = os.getenv("APPLICATION_KEY")
+CRONJOBS = [
+    ("1 15 * * *", "api.cron.insert_kubecost_data"),
+    ("1 9,11,13,15,17 * * *", "api.cron.check_kubecost_status"),
+    ]
