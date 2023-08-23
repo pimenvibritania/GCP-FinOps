@@ -13,7 +13,7 @@ class ReportLogger(models.Model):
     )
     metadata = models.TextField()
     link = models.TextField()
-    pdf_password = models.CharField(max_length=64)
+    pdf_password = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False, blank=False)
 
     def __str__(self):
