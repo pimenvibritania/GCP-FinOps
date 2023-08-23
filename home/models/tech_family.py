@@ -34,6 +34,11 @@ class TechFamily(models.Model):
             Q(slug="platform_mfi") | Q(slug="mofi") | Q(slug="defi_mfi")
         )
 
+    @classmethod
+    def get_id(cls, column_name, value):
+        data = (column_name, value)
+        return cls.objects.get(data).id
+
     @staticmethod
     def included_mdi():
         return ["dana_tunai", "platform_mdi"]

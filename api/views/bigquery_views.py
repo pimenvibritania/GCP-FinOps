@@ -1,4 +1,5 @@
 import datetime
+import os
 
 from django.http import JsonResponse
 from rest_framework.views import APIView
@@ -9,6 +10,8 @@ from rest_framework.decorators import (
     permission_classes as view_permission_classes,
 )
 from rest_framework.permissions import IsAuthenticated
+
+from core import settings
 from ..models.bigquery import BigQuery
 from ..serializers import TFSerializer, IndexWeightSerializer
 from home.models.tech_family import TechFamily
@@ -39,9 +42,9 @@ class BigQueryViews(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
     @api_view(["GET"])
+    @view_permission_classes([IsAuthenticated])
     def get_tf(self):
         cache_key = f"cms-tf-{datetime.date.today()}"
-
         if cache.get(cache_key):
             data = cache.get(cache_key)
             print("hit cache")
@@ -50,8 +53,7 @@ class BigQueryViews(APIView):
             tf_mfi = TechFamily.get_tf_mfi()
 
             data = TFSerializer(list(chain(tf_mdi, tf_mfi)), many=True)
-
-            cache.set(cache_key, data)
+            cache.set(cache_key, data, timeout=int(os.getenv("REDIS_TTL")))
 
         return Response(data=data.data, status=status.HTTP_200_OK)
 

@@ -1,6 +1,6 @@
 import datetime
-import io
-
+import asyncio
+import os
 from ..models.bigquery import BigQuery
 from ..utils.conversion import Conversion
 from ..utils.decorator import *
@@ -10,10 +10,8 @@ from django.template.loader import render_to_string
 from ..models.kubecost import KubecostReport
 from django.core.cache import cache
 from ..utils.generator import random_string, pdf
-from ..utils.crypter import encrypt
-
-import asyncio
-import os
+from ..utils.logger import Logger
+from ..utils.crypter import *
 
 REDIS_TTL = int(os.getenv("REDIS_TTL"))
 
@@ -171,7 +169,6 @@ async def send_mail(
         if response.status_code != 200:
             raise ValueError(response.content)
 
-        os.remove(pdf_file)
         return response
 
 
@@ -190,11 +187,10 @@ async def send_email_task(
     pdf_content += email_content
 
     pdf_password = random_string(32)
-    print(pdf_filename, pdf_password)
-    pdf_link, pdf_file = pdf(pdf_filename, pdf_content, pdf_password)
 
-    # TODO: save the log into DB included encrypted & decoded password, gcs link and the requests
-    # encrypted_pdf_pass = encrypt(pdf_password)
+    pdf_link, pdf_file = pdf(pdf_filename, pdf_content, pdf_password)
+    # print(pdf_link, pdf_file, pdf_password)
+    encrypted_pdf_pass = encrypt(pdf_password)
 
     password_html = f"""
         <hr/>
@@ -203,7 +199,15 @@ async def send_email_task(
     """
     email_content += password_html
 
+    await Logger.log_report(
+        created_by="Admin",
+        tech_family=tech_family,
+        metadata=request.META,
+        link=pdf_link,
+        pdf_password=encrypted_pdf_pass,
+    )
     await send_mail(request, subject, to_email, pdf_filename, pdf_file, email_content)
+    os.remove(pdf_file)
 
 
 def formatting_report(request, payload_data):

@@ -1,17 +1,11 @@
 from rest_framework import serializers
-from .model import Todo
 from home.models.tech_family import TechFamily
 from home.models.index_weight import IndexWeight
 from home.models.kubecost_clusters import KubecostClusters
 from home.models.services import Services
 from home.models.kubecost_deployments import KubecostDeployments
 from home.models.kubecost_namespaces import KubecostNamespaces, KubecostNamespacesMap
-
-
-class TodoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Todo
-        fields = ["task", "completed", "timestamp", "updated", "user"]
+from home.models.logger import ReportLogger
 
 
 class BQQueryParamSerializer(serializers.Serializer):
@@ -119,3 +113,20 @@ class KubecostNamespaceMapSerializer(serializers.ModelSerializer):
     class Meta:
         model = KubecostNamespacesMap
         fields = ["namespace", "service", "project", "created_at", "updated_at"]
+
+
+class ReportLoggerSerializer(serializers.ModelSerializer):
+    tech_family = serializers.PrimaryKeyRelatedField(
+        queryset=TechFamily.objects.all(), many=False
+    )
+
+    class Meta:
+        model = ReportLogger
+        fields = [
+            "created_by",
+            "tech_family",
+            "metadata",
+            "link",
+            "pdf_password",
+            "created_at",
+        ]
