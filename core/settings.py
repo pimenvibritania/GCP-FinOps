@@ -200,9 +200,8 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 CRONJOBS = [
-    ("* * * * *", "home.cron.test_cron_job"),
-    ("1 15 * * *", "api.cron.insert_kubecost_data"),
-    ("1 9,11,13,15,17 * * *", "api.cron.check_kubecost_status"),
+    ("1 8 * * *", "api.cron.insert_kubecost_data"),
+    ("1 8,9,10,11,12,13,14,15,16,17 * * *", "api.cron.check_kubecost_status"),
 ]
 
 GOOGLE_APPLICATION_CREDENTIALS = os.path.join(BASE_DIR, "service-account.json")

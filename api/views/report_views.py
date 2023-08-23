@@ -70,7 +70,7 @@ def get_idle_cost(idle_data, search_data, index_weight):
                     <th>Environment</th>
                     <th>Cost This period</th>
                     <th>Cost Previous period</th>
-                    <th>Status Cost</th>
+                    <th style="width:75px">Status Cost</th>
                 </tr>
             </thead>
             <tbody>
@@ -180,8 +180,8 @@ async def send_email_task(
         f"{tech_family}-{em_name}-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
     )
     pdf_content = f"""
-        <h3 style="text-align: right">{tech_family}-{em_name}</h3>
-        <h4 style="text-align: right">{datetime.datetime.now().strftime("%d-%m-%Y")}</h4>
+        <h3 style="text-align: right">{tech_family}</h3>
+        <h4 style="text-align: right">{em_name} | {datetime.datetime.now().strftime("%d-%m-%Y")}</h4>
         <hr />
     """
     pdf_content += email_content
@@ -292,7 +292,7 @@ def formatting_report(request, payload_data):
                             <th>Current USD</th>
                             <th>Previous IDR</th>
                             <th>Previous USD</th>
-                            <th>Status</th>
+                            <th style="width:75px">Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -366,7 +366,7 @@ def formatting_report(request, payload_data):
                         <th>Cost This period</th>
                         <th>Date</th>
                         <th>Cost Previous period</th>
-                        <th>Status Cost</th>
+                        <th style="width:75px">Status Cost</th>
                     </tr>
                 </thead>
                 <tbody>
