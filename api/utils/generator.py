@@ -28,9 +28,8 @@ def upload_file(local_encrypted_filepath, filename):
         settings.GOOGLE_APPLICATION_CREDENTIALS
     )
     bucket = storage_client.bucket(settings.GOOGLE_CLOUD_STORAGE_BUCKET_NAME)
-    blob = bucket.blob(
-        f"pdf-report/{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}-{filename}"
-    )
+    bucket_folder = settings.GOOGLE_CLOUD_STORAGE_FOLDER_NAME
+    blob = bucket.blob(f"pdf-report/{bucket_folder}/{filename}")
     blob.upload_from_filename(local_encrypted_filepath, content_type="application/pdf")
 
     return blob.public_url
@@ -40,7 +39,6 @@ def pdf(filename, content, password):
     pdf_content = HTML(string=content).write_pdf()
 
     pdf_filename = f"{filename}.pdf"
-
     local_pdf_path = os.path.join(MEDIA_ROOT, pdf_filename)
     with open(local_pdf_path, "wb") as local_pdf_file:
         local_pdf_file.write(pdf_content)

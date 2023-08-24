@@ -219,7 +219,8 @@ CRONJOBS = [
 ]
 
 GOOGLE_APPLICATION_CREDENTIALS = os.path.join(BASE_DIR, "service-account.json")
-GOOGLE_CLOUD_STORAGE_BUCKET_NAME = "cost-management-system"
+GOOGLE_CLOUD_STORAGE_BUCKET_NAME = os.getenv("GCS_BUCKET")
+GOOGLE_CLOUD_STORAGE_FOLDER_NAME = os.getenv("GCS_FOLDER")
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
