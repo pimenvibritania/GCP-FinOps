@@ -4,25 +4,23 @@ from .tech_family import TechFamily
 from ..utils.serializer import IndexWeightSerializer
 from django.core import serializers
 
+
 class IndexWeight(models.Model):
     class Meta:
         db_table = "index_weight"
 
     tech_family = models.ForeignKey(
-        TechFamily,
-        related_name="index_weight",
-        on_delete=models.PROTECT,
-        blank=False
+        TechFamily, related_name="index_weight", on_delete=models.PROTECT, blank=False
     )
 
     value = models.FloatField()
 
     environment = models.CharField(max_length=12, choices=EnvironmentType.choices())
-    created_at = models.DateTimeField(auto_now_add = True, auto_now = False, blank = False)
+    created_at = models.DateTimeField(auto_now_add=True, auto_now=False, blank=False)
 
     def __str__(self):
         return self.environment
-    
+
     @classmethod
     def get_index_weight(cls, from_date, to_date):
         query = f"""

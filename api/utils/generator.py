@@ -33,7 +33,6 @@ def upload_file(local_encrypted_filepath, filename):
     )
     blob.upload_from_filename(local_encrypted_filepath, content_type="application/pdf")
 
-    print(blob.public_url)
     return blob.public_url
 
 

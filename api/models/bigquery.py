@@ -34,6 +34,8 @@ TF_PROJECT_MDI = [
 TF_PROJECT_MFI = ["moladin-mof-devl", "moladin-mof-stag", "moladin-mof-prod"]
 TF_PROJECT_ANDROID = ["pc-api-9219877891024085702-541"]
 
+ATLAS_SERVICE_NAME = "MongoDB Atlas (Private Offer)"
+
 
 def get_tech_family():
     mfi = TechFamily.get_tf_mfi()
@@ -94,11 +96,19 @@ def mapping_services(
     tf,
     organization,
 ):
-    environment = parse_env(gcp_project)
+    environment = (
+        "All Environment"
+        if service_name == ATLAS_SERVICE_NAME
+        else "Production"
+        if (service_name == "Support" and gcp_project == "Shared Support")
+        else parse_env(gcp_project)
+    )
 
     weight_index_percent = (
         100
-        if organization == "ANDROID"
+        if (organization == "ANDROID" or service_name == ATLAS_SERVICE_NAME)
+        else 16.66
+        if (service_name == "Support" and gcp_project == "Shared Support")
         else index_weight[organization][tf][environment]
     )
 
@@ -106,9 +116,11 @@ def mapping_services(
     previous_cost = previous_period_cost * (weight_index_percent / 100)
 
     diff_cost = current_cost - previous_cost
+
     status_cost = "UP" if diff_cost > 0 else "DOWN" if diff_cost < 0 else "EQUAL"
 
     cost_status_percentage = Conversion.get_percentage(current_cost, previous_cost)
+
     new_svc = {
         "name": service_name,
         "cost_services": [
@@ -203,7 +215,6 @@ class BigQuery:
         cache_key = f"cms-bq-project-{input_date}-{period}"
 
         if cache.get(cache_key):
-            print("get project from cache")
             return cache.get(cache_key)
         else:
             conversion_rate = cls.get_conversion_rate(input_date)
@@ -320,7 +331,6 @@ class BigQuery:
                         )
 
                 elif project in TF_PROJECT_ANDROID:
-                    # project_mfi["defi_mfi"] = mapping_services(project, service, index_weight, current_period_cost, previous_period_cost, project_mfi, "defi_mfi", "ANDROID")
                     project_mdi["defi_mdi"] = mapping_services(
                         project,
                         service,
@@ -331,6 +341,42 @@ class BigQuery:
                         "defi_mdi",
                         "ANDROID",
                     )
+
+                elif project is None and service == ATLAS_SERVICE_NAME:
+                    project_mdi["dana_tunai"] = mapping_services(
+                        ATLAS_SERVICE_NAME,
+                        service,
+                        index_weight,
+                        current_period_cost,
+                        previous_period_cost,
+                        project_mdi,
+                        "dana_tunai",
+                        "MDI",
+                    )
+                elif project is None and service == "Support":
+                    for tf in project_mfi.keys():
+                        project_mfi[tf] = mapping_services(
+                            "Shared Support",
+                            service,
+                            index_weight,
+                            current_period_cost,
+                            previous_period_cost,
+                            project_mfi,
+                            tf,
+                            "MFI",
+                        )
+
+                    for tf in project_mdi.keys():
+                        project_mdi[tf] = mapping_services(
+                            "Shared Support",
+                            service,
+                            index_weight,
+                            current_period_cost,
+                            previous_period_cost,
+                            project_mdi,
+                            tf,
+                            "MDI",
+                        )
                 else:
                     pass
 
