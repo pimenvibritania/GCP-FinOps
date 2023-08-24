@@ -1,0 +1,10 @@
+# docker build -t asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-management-system:cronjob -f Dockerfile.cronjob
+FROM python:slim-bullseye
+
+ENV TZ=Asia/Jakarta
+
+COPY . .
+
+RUN apt-get update
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt

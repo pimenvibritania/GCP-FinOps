@@ -1,6 +1,5 @@
 # Cost Management System
 
-
 - ✅ **Authentication**: `Django.contrib.AUTH`, Registration
 <br />
 
