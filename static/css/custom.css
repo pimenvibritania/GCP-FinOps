@@ -1,0 +1,6 @@
+.custom-blur {
+    box-shadow: inset 0px 0px 2px #fefefed1;
+    -webkit-backdrop-filter: saturate(200%) blur(30px);
+    backdrop-filter: saturate(200%) blur(30px);
+    background-color: rgb(32 41 64 / 78%) !important;
+}

@@ -31,7 +31,13 @@ if not SECRET_KEY:
 DEBUG = "RENDER" not in os.environ
 
 # Docker HOST
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "cost-management.moladin.com"]
+ALLOWED_HOSTS = [
+    "localhost",
+    "0.0.0.0",
+    "127.0.0.1",
+    "cost-management.moladin.com",
+    "cost-management-system.moladin.com",
+]
 
 # Add here your deployment HOSTS
 CSRF_TRUSTED_ORIGINS = [
@@ -42,6 +48,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://0.0.0.0:5005",
     "http://cost-management.moladin.com",
     "https://cost-management.moladin.com",
+    "http://cost-management-system.moladin.com",
+    "https://cost-management-system.moladin.com",
     "https://*.moladin.com",
     "http://*.moladin.com",
 ]
@@ -49,6 +57,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "http://0.0.0.0:5005",
+    "http://cost-management.moladin.com",
+    "https://cost-management.moladin.com",
+    "http://cost-management-system.moladin.com",
+    "https://cost-management-system.moladin.com",
+    "https://*.moladin.com",
+    "http://*.moladin.com",
 ]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
