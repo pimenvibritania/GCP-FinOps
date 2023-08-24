@@ -21,9 +21,6 @@ RUN python manage.py migrate
 # collectstatic
 RUN python manage.py collectstatic
 
-# enable cronjob
-RUN python manage.py crontab add
-
 # generate kubeconfig for kubecost
 RUN gcloud auth activate-service-account --project=moladin-infra-prod --key-file=kubecost_sa.json
 RUN gcloud container clusters get-credentials mof-devl-cluster --zone asia-southeast2-a --project moladin-mof-devl

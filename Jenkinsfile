@@ -85,7 +85,9 @@ pipeline {
                         sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} SERVICE_ACCOUNT | sed "s/\'/\\"/g" > service-account.json'
                         sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
                         sh "docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER} ."
+                        sh "docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER} -f kubernetes/production/cronjob/script/Dockerfile.cronjob"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER}"
+                        sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER}"
                         currentBuild.result = 'SUCCESS'
                     } catch(e) {
                         currentBuild.result = 'FAILURE'
@@ -118,6 +120,9 @@ pipeline {
                         sh "kubectl --context ${context} -n ${deploymentName} create secret generic ${deploymentName}-hot-app-secret --from-env-file=${serviceName}-env-hot"
                         sh "kubectl --context ${context} -n ${deploymentName} set image deployment/${deploymentName}-app-deployment ${deploymentName}-app=${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER}"
                         sh "kubectl --context ${context} -n ${deploymentName} rollout restart deployment.apps"
+                        
+                        sh "kubectl --context ${context} -n ${deploymentName} set image cronjob.batch/kubecost-insert-data kubecost-insert-data=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER}"
+                        sh "kubectl --context ${context} -n ${deploymentName} set image cronjob.batch/kubecost-check-status kubecost-check-status=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER}"
                         currentBuild.result = 'SUCCESS'
                     } catch(e) {
                         currentBuild.result = 'FAILURE'
