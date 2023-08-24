@@ -29,4 +29,4 @@ spec:
           securityContext: {}
           terminationGracePeriodSeconds: 30
   schedule: '1 8 * * *'
-  suspend: false
+  suspend: true
