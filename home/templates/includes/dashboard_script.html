@@ -7,9 +7,9 @@
 <script src="{% static 'js/plugins/smooth-scrollbar.min.js' %}"></script>
 <script src="{% static 'js/plugins/chartjs.min.js' %}"></script>
 <script>
-  var ctx = document.getElementById("chart-bars").getContext("2d");
+    const ctx = document.getElementById("chart-bars").getContext("2d");
 
-  new Chart(ctx, {
+    new Chart(ctx, {
     type: "bar",
     data: {
       labels: ["M", "T", "W", "T", "F", "S", "S"],
@@ -87,21 +87,18 @@
     },
   });
 
+    const ctx2 = document.getElementById("chart-line").getContext("2d");
 
-  var ctx2 = document.getElementById("chart-line").getContext("2d");
-
-  new Chart(ctx2, {
+    new Chart(ctx2, {
     type: "line",
     data: {
       labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
       datasets: [{
         label: "Mobile apps",
         tension: 0,
-        borderWidth: 0,
         pointRadius: 5,
         pointBackgroundColor: "rgba(255, 255, 255, .8)",
         pointBorderColor: "transparent",
-        borderColor: "rgba(255, 255, 255, .8)",
         borderColor: "rgba(255, 255, 255, .8)",
         borderWidth: 4,
         backgroundColor: "transparent",
@@ -171,16 +168,15 @@
     },
   });
 
-  var ctx3 = document.getElementById("chart-line-tasks").getContext("2d");
+    const ctx3 = document.getElementById("chart-line-tasks").getContext("2d");
 
-  new Chart(ctx3, {
+    new Chart(ctx3, {
     type: "line",
     data: {
       labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
       datasets: [{
         label: "Mobile apps",
         tension: 0,
-        borderWidth: 0,
         pointRadius: 5,
         pointBackgroundColor: "rgba(255, 255, 255, .8)",
         pointBorderColor: "transparent",
@@ -254,14 +250,30 @@
   });
 </script>
 <script>
-  var win = navigator.platform.indexOf('Win') > -1;
-  if (win && document.querySelector('#sidenav-scrollbar')) {
-    var options = {
-      damping: '0.5'
-    }
-    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    const win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+        const options = {
+            damping: '0.5'
+        };
+        Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
   }
 </script>
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 <script src="{% static 'js/material-dashboard.min.js' %}"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8b253dfea2ab4077af8c6f58422dfbfd1689876627854" integrity="sha512-bjgnUKX4azu3dLTVtie9u6TKqgx29RBwfj3QXYt5EKfWM/9hPSAI/4qcV5NACjwAo8UtTeWefx6Zq5PHcMm7Tg==" data-cf-beacon='{"rayId":"7f6ee7e65e36893c","version":"2023.8.0","r":1,"token":"1b7cbb72744b40c580f8633c6b62637e","si":100}' crossorigin="anonymous"></script>
+<script>
+    const path = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    navLinks.forEach(function(link) {
+    console.log(link.getAttribute('href'))
+    if (link.getAttribute('href') === path) {
+      link.classList.add('active');
+      link.classList.add('bg-gradient-primary');
+    } else {
+      link.classList.remove('active');
+      link.classList.remove('bg-gradient-primary');
+    }
+  });
+</script>
+

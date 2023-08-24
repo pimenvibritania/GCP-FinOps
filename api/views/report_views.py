@@ -1,6 +1,6 @@
 import datetime
-import io
-
+import asyncio
+import os
 from ..models.bigquery import BigQuery
 from ..utils.conversion import Conversion
 from ..utils.decorator import *
@@ -10,10 +10,8 @@ from django.template.loader import render_to_string
 from ..models.kubecost import KubecostReport
 from django.core.cache import cache
 from ..utils.generator import random_string, pdf
-from ..utils.crypter import encrypt
-
-import asyncio
-import os
+from ..utils.logger import Logger
+from ..utils.crypter import *
 
 REDIS_TTL = int(os.getenv("REDIS_TTL"))
 
@@ -72,7 +70,7 @@ def get_idle_cost(idle_data, search_data, index_weight):
                     <th>Environment</th>
                     <th>Cost This period</th>
                     <th>Cost Previous period</th>
-                    <th>Status Cost</th>
+                    <th style="width:75px">Status Cost</th>
                 </tr>
             </thead>
             <tbody>
@@ -171,7 +169,6 @@ async def send_mail(
         if response.status_code != 200:
             raise ValueError(response.content)
 
-        os.remove(pdf_file)
         return response
 
 
@@ -183,18 +180,17 @@ async def send_email_task(
         f"{tech_family}-{em_name}-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
     )
     pdf_content = f"""
-        <h3 style="text-align: right">{tech_family}-{em_name}</h3>
-        <h4 style="text-align: right">{datetime.datetime.now().strftime("%d-%m-%Y")}</h4>
+        <h3 style="text-align: right">{tech_family}</h3>
+        <h4 style="text-align: right">{em_name} | {datetime.datetime.now().strftime("%d-%m-%Y")}</h4>
         <hr />
     """
     pdf_content += email_content
 
     pdf_password = random_string(32)
-    print(pdf_filename, pdf_password)
-    pdf_link, pdf_file = pdf(pdf_filename, pdf_content, pdf_password)
 
-    # TODO: save the log into DB included encrypted & decoded password, gcs link and the requests
-    # encrypted_pdf_pass = encrypt(pdf_password)
+    pdf_link, pdf_file = pdf(pdf_filename, pdf_content, pdf_password)
+    # print(pdf_link, pdf_file, pdf_password)
+    encrypted_pdf_pass = encrypt(pdf_password)
 
     password_html = f"""
         <hr/>
@@ -202,8 +198,16 @@ async def send_email_task(
         <strong>Your PDF password is: {pdf_password}</strong>
     """
     email_content += password_html
-
+    print(pdf_link, encrypted_pdf_pass)
+    await Logger.log_report(
+        created_by="Admin",
+        tech_family=tech_family,
+        metadata=request.META,
+        link=pdf_link,
+        pdf_password=encrypted_pdf_pass,
+    )
     await send_mail(request, subject, to_email, pdf_filename, pdf_file, email_content)
+    os.remove(pdf_file)
 
 
 def formatting_report(request, payload_data):
@@ -288,7 +292,7 @@ def formatting_report(request, payload_data):
                             <th>Current USD</th>
                             <th>Previous IDR</th>
                             <th>Previous USD</th>
-                            <th>Status</th>
+                            <th style="width:75px">Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -362,7 +366,7 @@ def formatting_report(request, payload_data):
                         <th>Cost This period</th>
                         <th>Date</th>
                         <th>Cost Previous period</th>
-                        <th>Status Cost</th>
+                        <th style="width:75px">Status Cost</th>
                     </tr>
                 </thead>
                 <tbody>
