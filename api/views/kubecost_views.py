@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from ..serializers import KubecostClusterSerializer, KubecostDeploymentSerializer, KubecostNamespaceMapSerializer
 from django.db import IntegrityError
-from ..models.kubecost import get_kubecost_cluster, get_namespace_map, KubecostReport, Kubecost
+from ..models.kubecost import get_kubecost_cluster, get_namespace_map, KubecostReport, KubecostInsertData, KubecostCheckStatus
 # from ..models.kubecost import get
 
 class KubecostClusterViews(APIView):
@@ -78,17 +78,24 @@ class KubecostInsertDataViews(APIView):
     def post(self, request, *args, **kwargs):
 
         date = request.data.get('date')
+        try:
+            KubecostInsertData.insert_data(date)
 
-        Kubecost.insert_data(date)
+            message = f"Kubecost data '{date}' successfully inserted."
+            print(message)
 
-        message = f"Kubecost data '{date}' successfully inserted."
-        print(message)
+            data = {
+                "status": "success",
+                "message": message
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            data = {
+                "status": "failed",
+                "message": str(e)
+            }
+            return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        data = {
-            "status": "success",
-            "message": message
-        }
-        return Response(data, status=status.HTTP_200_OK)
     
 class KubecostNamespaceMapViews(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -146,3 +153,17 @@ class KubecostReportViews(APIView):
         # }
 
         return Response(data, status=status.HTTP_200_OK)
+    
+class KubecostCheckStatusViews(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            KubecostCheckStatus.check_status()
+            return Response(status=status.HTTP_202_ACCEPTED)
+        except Exception as e:
+            data = {
+                "status": "failed",
+                "message": str(e)
+            }
+            return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

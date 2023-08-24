@@ -17,8 +17,22 @@ from django.core.cache import cache
 import subprocess
 import math
 import os
+import requests
+import json
+from kubernetes import client, config
+
 
 REDIS_TTL = int(os.getenv("REDIS_TTL"))
+SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
+
+
+def send_slack(message):
+    headers = {"Content-type": "application/json"}
+    payload = {"text": message}
+    try:
+        requests.post(SLACK_WEBHOOK_URL, headers=headers, data=json.dumps(payload))
+    except requests.exceptions.RequestException as e:
+        print("Send Slack Error: %s", e)
 
 
 def get_kubecost_cluster():
@@ -41,7 +55,7 @@ def get_namespace_map():
     return namespace_map_serialize.data
 
 
-class Kubecost:
+class KubecostInsertData:
     @staticmethod
     def check_gke_connection(kube_context, cluster_name):
         print(f"Checking connection to {cluster_name}...")
@@ -119,8 +133,8 @@ class Kubecost:
         rows = [[cell.strip() for cell in row] for row in table_data[1:]]
         rows.pop()
 
-        service_list = Kubecost.get_service_list(company_project)
-        service_multiple_ns = Kubecost.get_service_multiple_ns(company_project)
+        service_list = KubecostInsertData.get_service_list(company_project)
+        service_multiple_ns = KubecostInsertData.get_service_multiple_ns(company_project)
 
         cluster_instance = KubecostClusters.objects.get(id=cluster_id)
 
@@ -128,12 +142,12 @@ class Kubecost:
         data_list = []
         for row in rows:
             namespace = row[2]
-            cpu_cost = Kubecost.round_up(float(row[3]), 2)
-            memory_cost = Kubecost.round_up(float(row[4]), 2)
-            pv_cost = Kubecost.round_up(float(row[5]), 2)
-            network_cost = Kubecost.round_up(float(row[6]), 2)
-            lb_cost = Kubecost.round_up(float(row[7]), 2)
-            total_cost = Kubecost.round_up(float(row[8]), 2)
+            cpu_cost = KubecostInsertData.round_up(float(row[3]), 2)
+            memory_cost = KubecostInsertData.round_up(float(row[4]), 2)
+            pv_cost = KubecostInsertData.round_up(float(row[5]), 2)
+            network_cost = KubecostInsertData.round_up(float(row[6]), 2)
+            lb_cost = KubecostInsertData.round_up(float(row[7]), 2)
+            total_cost = KubecostInsertData.round_up(float(row[8]), 2)
 
             if namespace in service_list[0]:
                 service_id = service_list[1][namespace]
@@ -231,8 +245,8 @@ class Kubecost:
         rows = [[cell.strip() for cell in row] for row in table_data[1:]]
         rows.pop()
 
-        service_list = Kubecost.get_service_list(company_project)
-        service_multiple_ns = Kubecost.get_service_multiple_ns(company_project)
+        service_list = KubecostInsertData.get_service_list(company_project)
+        service_multiple_ns = KubecostInsertData.get_service_multiple_ns(company_project)
 
         cluster_instance = KubecostClusters.objects.get(id=cluster_id)
 
@@ -243,12 +257,12 @@ class Kubecost:
             # print(row)
             namespace = row[2]
             deployment = row[3]
-            cpu_cost = Kubecost.round_up(float(row[4]), 2)
-            memory_cost = Kubecost.round_up(float(row[5]), 2)
-            pv_cost = Kubecost.round_up(float(row[6]), 2)
-            network_cost = Kubecost.round_up(float(row[7]), 2)
-            lb_cost = Kubecost.round_up(float(row[8]), 2)
-            total_cost = Kubecost.round_up(float(row[9]), 2)
+            cpu_cost = KubecostInsertData.round_up(float(row[4]), 2)
+            memory_cost = KubecostInsertData.round_up(float(row[5]), 2)
+            pv_cost = KubecostInsertData.round_up(float(row[6]), 2)
+            network_cost = KubecostInsertData.round_up(float(row[7]), 2)
+            lb_cost = KubecostInsertData.round_up(float(row[8]), 2)
+            total_cost = KubecostInsertData.round_up(float(row[9]), 2)
 
             if namespace != "":
                 temp_namespace = namespace
@@ -342,12 +356,12 @@ class Kubecost:
             print(f"CLUSTER NAME: {cluster_name}")
             print(f"ENVIRONMENT: {environment}")
 
-            Kubecost.check_gke_connection(kube_context, cluster_name)
+            KubecostInsertData.check_gke_connection(kube_context, cluster_name)
 
-            Kubecost.insert_cost_by_namespace(
+            KubecostInsertData.insert_cost_by_namespace(
                 kube_context, company_project, environment, cluster_id, time_range
             )
-            Kubecost.insert_cost_by_deployment(
+            KubecostInsertData.insert_cost_by_deployment(
                 kube_context, company_project, environment, cluster_id, time_range
             )
 
@@ -606,3 +620,75 @@ class KubecostReport:
             # print(json_data)
             cache.set(cache_key, final_data, timeout=REDIS_TTL)
             return final_data
+
+
+class KubecostCheckStatus:
+    def check_status():
+        kubecost_clusters = KubecostClusters.get_all()
+        current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        for obj in kubecost_clusters:
+            cluster_name = obj.cluster_name
+            location = obj.location
+            gcp_project = obj.gcp_project
+            company_project = obj.company_project
+            environment = obj.environment
+            kube_context = f"gke_{gcp_project}_{location}_{cluster_name}"
+            print(f"{current_datetime} - Run Cronjob kubecost_check_status.")
+            print(f"{current_datetime} - CLUSTER NAME: {cluster_name}")
+
+            # Check Deployment Ready Status
+            try:
+                print(f"{current_datetime} - Checking Deployment Status...")
+                config.load_kube_config(context=kube_context)
+                apps_v1 = client.AppsV1Api()
+
+                deployments = apps_v1.list_namespaced_deployment(namespace="kubecost")
+
+                for deployment in deployments.items:
+                    deployment_name = deployment.metadata.name
+                    if deployment_name == "kubecost-grafana":
+                        continue  # skip kubecost-grafana
+
+                    ready_replicas = deployment.status.ready_replicas
+                    replicas = deployment.spec.replicas
+
+                    if ready_replicas is None:
+                        deployment_ready = False
+                    elif ready_replicas == replicas:
+                        deployment_ready = True
+                    else:
+                        deployment_ready = False
+
+                    if deployment_ready == False:
+                        send_slack(
+                            f"<!here>, *KUBECOST ALERT!!* :rotating_light: \nDeployment *'{deployment_name}'* is not Ready. Cluster: *'{cluster_name}'*"
+                        )
+                    print(f"{current_datetime} - Deployment: {deployment_name} - Ready: {deployment_ready}")
+            except Exception as e:
+                print("Error:", e)
+
+            # Check Data Exist
+            try:
+                print(f"{current_datetime} - Checking Kubecost Data Exist...")
+                command = f"kubectl cost namespace --context={kube_context} --historical --window 1d | wc -l"
+
+                result = subprocess.run(
+                    command,
+                    shell=True,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+                if result.returncode == 0:
+                    output = result.stdout.strip()
+                    total_line = int(output)
+                    if total_line <= 6:  # no data when execute 'kubectl cost'
+                        send_slack(
+                            f"<!here>, *KUBECOST ALERT!!* :rotating_light: \n*No Data Kubecost for Today*. Cluster: *'{cluster_name}'*."
+                        )
+                else:
+                    print(f"{current_datetime} - Error:", result.stderr)
+
+            except Exception as e:
+                print(f"{current_datetime} - An error occurred:", str(e))

@@ -21,9 +21,6 @@ RUN python manage.py migrate
 # collectstatic
 RUN python manage.py collectstatic
 
-# enable cronjob
-# RUN python manage.py crontab add
-
 # generate kubeconfig for kubecost
 RUN gcloud auth activate-service-account --project=moladin-infra-prod --key-file=kubecost_sa.json
 RUN gcloud container clusters get-credentials mof-devl-cluster --zone asia-southeast2-a --project moladin-mof-devl
@@ -39,7 +36,7 @@ RUN gcloud container clusters get-credentials frame-prod-cluster --zone asia-sou
 # CMD ["gunicorn", "--config", "gunicorn-cfg.py", "core.wsgi"]
 
 #uvicorn
-# CMD ["uvicorn", "--workers", "5", "core.asgi:application","--host", "0.0.0.0", "--port", "5005"]
+CMD ["uvicorn", "--workers", "5", "core.asgi:application","--host", "0.0.0.0", "--port", "5005"]
 
 #gunicorn&uvicorrn
 # CMD ["gunicorn", "--worker-class", "uvicorn.workers.UvicornWorker", "--config", "gunicorn-cfg.py", "core.asgi"]

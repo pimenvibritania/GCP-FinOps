@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kubecost-check-status
+  namespace: cost-management-system
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - args:
+            - /bin/sh
+            - -c
+            - python kubecost_check_status.py
+            envFrom:
+            - secretRef:
+                name: cost-management-system-cold-app-secret
+            image: asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-management-system:cronjob
+            imagePullPolicy: Always
+            name: kubecost-check-status
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+  schedule: '1 8,9,10,11,12,13,14,15,16,17 * * *'
+  suspend: false
