@@ -24,6 +24,7 @@ pipeline {
         projectName = "moladin-${techFamily}-prod"   
         context = 'gke_moladin-infra-prod_asia-southeast2-a_infra-prod-cluster'
         consulToken = credentials('consul-dev-token')
+        consulProdToken = credentials('consul-prod-token')
         gitCommitMsg = sh (script: 'git log -1 --pretty=%B ${GIT_COMMIT}', returnStdout: true).trim()
         gitAuthor = sh (script: 'git show -s --pretty=%an', returnStdout: true).trim()
         gitCommitId = sh (script: 'git rev-parse HEAD|cut -c1-7',returnStdout: true).trim()
@@ -80,10 +81,21 @@ pipeline {
                         sh "gcloud auth configure-docker ${garLocation}"
                         sh "cp /home/jenkins/.ssh/id_rsa id_rsa_moladin.pem && cp /home/jenkins/.ssh/id_rsa id_rsa"
                         sh "chmod 400 id_rsa_moladin.pem"
-                        sh "getConsul.py ${consul}/cold ${consulToken} > .env"
-                        sh "getConsul.py ${consul}/hot ${consulToken} >> .env"
-                        sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} SERVICE_ACCOUNT | sed "s/\'/\\"/g" > service-account.json'
-                        sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
+                        if (env.BRANCH_NAME == "main") {
+                            sh "getConsul.py ${consul}/cold ${consulToken} > .env"
+                            sh "getConsul.py ${consul}/hot ${consulToken} >> .env"
+                            sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} SERVICE_ACCOUNT | sed "s/\'/\\"/g" > service-account.json'
+                            sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
+                        } else if (env.BRANCH_NAME =~ /PROD.*$/){
+                            sh "getConsul.py ${consul}/cold ${consulProdToken} > .env"
+                            sh "getConsul.py ${consul}/hot ${consulProdToken} >> .env"
+                            sh 'consulMantisCommand.py --get ${consul}/cold ${consulProdToken} SERVICE_ACCOUNT | sed "s/\'/\\"/g" > service-account.json'
+                            sh 'consulMantisCommand.py --get ${consul}/cold ${consulProdToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
+                        }
+                        // sh "getConsul.py ${consul}/cold ${consulToken} > .env"
+                        // sh "getConsul.py ${consul}/hot ${consulToken} >> .env"
+                        // sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} SERVICE_ACCOUNT | sed "s/\'/\\"/g" > service-account.json'
+                        // sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
                         sh "docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER} ."
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER} -f Dockerfile.cronjob ."
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER}"
@@ -147,8 +159,8 @@ pipeline {
                         sh "gcloud auth activate-service-account ${emailJenkinsServiceAccount} --key-file=${keyJenkinsServiceAccount}"
                         sh "gcloud auth configure-docker ${garLocation}"
                         sh "gcloud container clusters get-credentials ${gkeName} --zone ${gkeZone} --project ${projectName}"
-                        sh "getConsul.py ${consul}/cold ${consulToken} > ${serviceName}-env-cold"
-                        sh "getConsul.py ${consul}/hot ${consulToken} > ${serviceName}-env-hot"
+                        sh "getConsul.py ${consul}/cold ${consulProdToken} > ${serviceName}-env-cold"
+                        sh "getConsul.py ${consul}/hot ${consulProdToken} > ${serviceName}-env-hot"
                         sh "kubectl --context ${context} -n ${deploymentName}-release delete secret ${deploymentName}-cold-app-secret || true"
                         sh "kubectl --context ${context} -n ${deploymentName}-release delete secret ${deploymentName}-hot-app-secret || true"
                         sh "kubectl --context ${context} -n ${deploymentName}-release create secret generic ${deploymentName}-cold-app-secret --from-env-file=${serviceName}-env-cold"
