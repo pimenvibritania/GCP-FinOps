@@ -8,6 +8,7 @@ from notif import send_slack
 KUBECOST_CRONJOB_USER = getenv("KUBECOST_CRONJOB_USER")
 KUBECOST_CRONJOB_PASSWORD = getenv("KUBECOST_CRONJOB_PASSWORD")
 APP_URL = getenv("APP_URL")
+ENVIRONMENT = getenv("ENVIRONMENT")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,14 +23,12 @@ def kubecost_check_status():
     try:
         response = requests.post(endpoint, auth=auth_credentials)
         if response.status_code != 202:
-            send_slack(
-                f"<!here> \n*Kubecost Cronjob Failed!* :rotating_light: \nLogs: ```{response.text}```"
-            )
+            logs = f"{current_datetime} - Kubecost Check Status Failed. Endpoint: {endpoint}, Response: {response.status_code}"
+            logger.error(logs)
+            send_slack(f"<!here> *Kubecost Check Status Failed!* :rotating_light:\nEnvironment: *{ENVIRONMENT}*\nLogs: ```{logs}```")
             return
     except requests.exceptions.RequestException as e:
         logger.error("Error: %s", e)
-        send_slack(
-            f"<!here> \n*Kubecost Cronjob Failed!* :rotating_light: \nLogs: ```{e}```"
-        )
+        send_slack(f"<!here> *Kubecost Check Status Failed!* :rotating_light:\nEnvironment: *{ENVIRONMENT}*\nLogs: ```{e}```")
 
 kubecost_check_status()

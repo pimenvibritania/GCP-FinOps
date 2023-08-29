@@ -4,7 +4,6 @@ from rest_framework import status, permissions
 from ..serializers import KubecostClusterSerializer, KubecostDeploymentSerializer, KubecostNamespaceMapSerializer
 from django.db import IntegrityError
 from ..models.kubecost import get_kubecost_cluster, get_namespace_map, KubecostReport, KubecostInsertData, KubecostCheckStatus
-# from ..models.kubecost import get
 
 class KubecostClusterViews(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -145,12 +144,8 @@ class KubecostReportViews(APIView):
     def get(self, request, *args, **kwargs):
 
         date = request.GET.get('date')
-        data = KubecostReport.report(date)
-
-        # data = {
-        #     "from_date": from_date,
-        #     "to_date": to_date
-        # }
+        period = request.GET.get('period')
+        data = KubecostReport.report(date, period)
 
         return Response(data, status=status.HTTP_200_OK)
     
