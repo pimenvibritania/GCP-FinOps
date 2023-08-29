@@ -28,7 +28,7 @@ if not SECRET_KEY:
     SECRET_KEY = "".join(random.choice(string.ascii_lowercase) for i in range(32))
 
 # Render Deployment Code
-DEBUG = "RENDER" not in os.environ
+DEBUG = eval(os.environ.get("DEBUG"))
 
 # Docker HOST
 ALLOWED_HOSTS = [
@@ -37,6 +37,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "cost-management.moladin.com",
     "cost-management-system.moladin.com",
+    "cost-management-system-appscript.moladin.com",
 ]
 
 # Add here your deployment HOSTS
@@ -50,6 +51,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://cost-management.moladin.com",
     "http://cost-management-system.moladin.com",
     "https://cost-management-system.moladin.com",
+    "http://cost-management-system-appscript.moladin.com",
+    "https://cost-management-system-appscript.moladin.com",
     "https://*.moladin.com",
     "http://*.moladin.com",
 ]
@@ -201,8 +204,8 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
-# if not DEBUG:
-#    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if not DEBUG:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
