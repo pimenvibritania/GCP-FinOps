@@ -1,0 +1,76 @@
+{% extends 'layouts/base_dashboard.html' %}
+{% load static %}
+
+{% block title %} Table CMS {% endblock title %}
+
+{% block content %}
+<main class="main-content">
+    <div class="container">
+        <br>
+        <table class="table table-bordered table-striped table-hover" id="example" style="text-align: center; font-size: 14px;">  
+            <a class="btn btn-secondary btn-sm" style="width: 120px;" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="fas fa-plus"></i>&nbsp; Add Service
+            </a>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Service Type</th>
+                    <th>Project</th>
+                    <th>Tech Family</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <!-- Data from backend -->
+            <tbody>
+                {% for service in services %}
+                <tr>
+                    <td>{{ service.id }}</td>
+                    <td>{{ service.name }}</td>
+                    <td>{{ service.service_type }}</td>
+                    <td>{{ service.project }}</td>
+                    <td>{{ service.tech_family }}</td>
+                    <td>
+                        <a class="btn btn-success text-center" title="Edit Service" data-bs-toggle="modal" data-bs-target="#editModal" data-service-id="{{ service.pk }}" data-service-name="{{ service.name }}" data-service-type="{{ service.service_type }}" data-service-project="{{ service.project }}" data-service-tech-family="{{ service.tech_family }}">
+                            <i class="fas fa-pen"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <a class="btn btn-secondary text-center" title="Delete Service" data-bs-toggle="modal" data-bs-target="#deleteModal" data-service-id="{{ service.pk }}" data-service-name="{{ service.name }}" >
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+
+        </table>
+
+        {% include 'pages/service_owner_modal.html' %}
+
+    </div> <!-- END // Container -->
+
+    {% for message in messages %}
+    {% if message.tags == 'success' %}
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        var m = "{{ message }}";
+        swal("SUCCESS !", m, "success")
+    </script>
+    {% endif %}
+    {% if message.tags == 'error' %}
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        var m = "{{ message }}";
+        swal("FAILED !", m, "error")
+    </script>
+    {% endif %}
+    {% endfor %}
+
+</main>
+{% endblock content %}
+
+{% block javascripts %}
+{% endblock javascripts %}
