@@ -9,29 +9,8 @@ from django.db import IntegrityError
 
 @is_authenticated
 def service_owner(request):
-    # p = Paginator(Services.objects.all(), 10)
-    # page = request.GET.get('page')
-    # services = p.get_page(page)
-    
-    # services = Services.objects.all().order_by('created_at')
-
     tech_family = TechFamily.objects.all()
-    return render(request, 'pages/service_owner.html', {'services': [
-        {
-        "id": 1,
-        "name": "defi-loan-management",
-        "service_type": "backend",
-        "project": "MFI",
-        "tech_family": "DEFI MFI"
-        },
-        {
-        "id": 2,
-        "name": "defi-loan-origination",
-        "service_type": "backend",
-        "project": "MFI",
-        "tech_family": "DEFI MFI"
-        },
-        ], 'tech_family': tech_family})
+    return render(request, 'pages/service_owner.html', {'tech_family': tech_family})
 
 @is_authenticated
 def service_owner_add(request):

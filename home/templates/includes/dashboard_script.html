@@ -265,7 +265,6 @@
     const navLinks = document.querySelectorAll('.nav-link');
 
     navLinks.forEach(function(link) {
-    console.log(link.getAttribute('href'))
     if (link.getAttribute('href') === path) {
       link.classList.add('active');
       link.classList.add('bg-gradient-primary');
@@ -287,21 +286,71 @@
 <!-- Service Owner Datatables script -->
 <script>
     $(document).ready(function() {
-        // $('#example thead tr')
-        //     .clone(true)
-        //     .addClass('filters')
-        //     .appendTo('#example thead');
-        
-        var table = $('#example').DataTable({
+        var table = $('#serviceOwnerDatatable').DataTable({
+            "ajax": "/api/services",
+            "columns": [
+                {
+                    "data": "id",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center text-sm"
+                },
+                {
+                    "data": "name",
+                    "render": function (data, type, row) {
+                        return '<p class="text-xs font-weight-bold mb-0">' + data + '</p><p class="text-xs text-secondary mb-0">ID: ' + row.id + '</p>';
+                    },
+                    "className": "align-middle text-center text-sm",
+                    "width": "250px"
+                },
+                {
+                    "data": "service_type",
+                    "render": function (data, type, row) {
+                        return '<span class="badge badge-sm bg-gradient-success">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center text-sm"
+                },
+                {
+                    "data": "project",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center"
+                },
+                {
+                    "data": "tech_family",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center"
+                },
+                {
+                    "data": null,
+                    "render": function (data, type, row) {
+                        return '<a href="#" class="text-secondary font-weight-bold text-xs" title="Edit Service" data-bs-toggle="modal" data-bs-target="#editModal" data-service-id="'+ row.id +'" data-service-name="'+ row.name +'" data-service-type="'+ row.service_type +'" data-service-project="'+ row.project +'" data-service-tech-family="'+ row.tech_family +'" data-original-title="Edit">Edit</a>';
+                    },
+                    "className": "align-middle"
+                },
+                {
+                    "data": null,
+                    "render": function (data, type, row) {
+                        return '<a href="#" class="text-secondary font-weight-bold text-xs" title="Delete Service" data-bs-toggle="modal" data-bs-target="#deleteModal" data-service-id="'+ row.id +'" data-service-name="'+ row.name +'" data-original-title="Delete"> Delete </a>';
+                    },
+                    "className": "align-middle"
+                }
+            ],
+            processing: true,
+            serverSide: true,
+            stateSave: true,
             paging: true,
             pageLength: 10,
-            lengthChange: false,
+            lengthChange: true,
             autoWidth: false,
             searching: true,
-            bInfo: false,
+            bInfo: true,
             bSort: true,
-            order: [],
-            orderCellsTop: true,
+            // orderCellsTop: true,
             scrollX: true,
             fixedHeader: true,
             "columnDefs": [{
@@ -314,109 +363,7 @@
                 "next": ">"
               },
             },
-            initComplete: function() {
-                var api = this.api();
-
-                // Set the columns with filtering
-                api
-                    .columns([0, 1, 2, 3, 4])
-                    .eq(0)
-                    .each(function(colIdx) {
-                        var cell = $('.filters th').eq(
-                            $(api.column(colIdx).header()).index()
-                        );
-                        var title = $(cell).text();
-                        $(cell).html('<input type="text" placeholder="' + title + '"/>');
-
-                        $(
-                            'input',
-                            $('.filters th').eq($(api.column(colIdx).header()).index())
-                        )
-                        .off('keyup change')
-                        .on('keyup change', function(e) {
-                            e.stopPropagation();
-
-                            $(this).attr('title', $(this).val());
-                            var regexr = '({search})';
-
-                            var cursorPosition = this.selectionStart;
-
-                            api
-                                .column(colIdx)
-                                .search(
-                                    this.value != ''
-                                        ? regexr.replace('{search}', '(((' + this.value + ')))')
-                                        : '',
-                                    this.value != '',
-                                    this.value == ''
-                                )
-                            .draw();
-
-                        $(this)
-                            .focus()[0]
-                            .setSelectionRange(cursorPosition, cursorPosition);
-                        });
-                    });
-            },
-            dom: 'lBfrtip',
-            buttons: [
-                {
-                    extend: 'copy',
-                    text: '<i class="fas fa-clone"></i>',
-                    className: 'btn btn-secondary',
-                    titleAttr: 'Copy',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4]
-                    }
-                },
-                {
-                    extend: 'excel',
-                    text: '<i class="fas fa-file-excel"></i>',
-                    className: 'btn btn-secondary',
-                    titleAttr: 'Excel',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4]
-                    }
-                },
-                {
-                    extend: 'print',
-                    text: '<i class="fas fa-print"></i>',
-                    className: 'btn btn-secondary',
-                    titleAttr: 'Print',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4]
-                    },
-                    customize: function ( win ) {
-                        $(win.document.body).css('font-size', '10pt')
-                        $(win.document.body).find('table')
-                            .addClass('compact')
-                            .css('font-size', 'inherit');
-                    }
-                },
-                {
-                    extend: 'pdf',
-                    text: '<i class="fas fa-file-pdf"></i>',
-                    className: 'btn btn-secondary',
-                    titleAttr: 'PDF',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4]
-                    },
-                    tableHeader: {
-                        alignment: 'center'
-                    },
-                    // FOnt size and optimization
-                    customize: function (doc) {
-                        doc.styles.tableHeader.alignment = 'center'; // Header postition
-                        doc.styles.tableBodyOdd.alignment = 'center'; // Header postition
-                        doc.styles.tableBodyEven.alignment = 'center'; // Header postition
-                        doc.styles.tableHeader.fontSize = 7; // Header postition
-                        doc.defaultStyle.fontSize = 6; // Header postition
-                        // To get 100% width of the table
-                        doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
-                    }
-                },
-
-            ] 
+            
             
         });
     });
