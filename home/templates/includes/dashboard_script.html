@@ -258,7 +258,6 @@
         Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
   }
 </script>
-<script async defer src="https://buttons.github.io/buttons.js"></script>
 <script src="{% static 'js/material-dashboard.min.js' %}"></script>
 {#<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8b253dfea2ab4077af8c6f58422dfbfd1689876627854" integrity="sha512-bjgnUKX4azu3dLTVtie9u6TKqgx29RBwfj3QXYt5EKfWM/9hPSAI/4qcV5NACjwAo8UtTeWefx6Zq5PHcMm7Tg==" data-cf-beacon='{"rayId":"7f6ee7e65e36893c","version":"2023.8.0","r":1,"token":"1b7cbb72744b40c580f8633c6b62637e","si":100}' crossorigin="anonymous"></script>#}
 <script>
@@ -288,18 +287,18 @@
 <!-- Service Owner Datatables script -->
 <script>
     $(document).ready(function() {
-        $('#example thead tr')
-            .clone(true)
-            .addClass('filters')
-            .appendTo('#example thead');
+        // $('#example thead tr')
+        //     .clone(true)
+        //     .addClass('filters')
+        //     .appendTo('#example thead');
         
         var table = $('#example').DataTable({
             paging: true,
             pageLength: 10,
-            lengthChange: true,
+            lengthChange: false,
             autoWidth: false,
             searching: true,
-            bInfo: true,
+            bInfo: false,
             bSort: true,
             order: [],
             orderCellsTop: true,
@@ -309,6 +308,12 @@
                 "targets": [5, 6],
                 "orderable": false
             }],
+            language: {
+              paginate: {
+                "previous": "<",
+                "next": ">"
+              },
+            },
             initComplete: function() {
                 var api = this.api();
 
