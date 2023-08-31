@@ -299,7 +299,7 @@
                 {
                     "data": "name",
                     "render": function (data, type, row) {
-                        return '<p class="text-xs font-weight-bold mb-0">' + data + '</p><p class="text-xs text-secondary mb-0">ID: ' + row.id + '</p>';
+                        return '<p class="text-xs font-weight-bold text-uppercase mb-0">' + data + '</p>';
                     },
                     "className": "align-middle text-center text-sm",
                     "width": "250px"
@@ -363,7 +363,41 @@
                 "next": ">"
               },
             },
-            
+            dom: 'flrtipB',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<i class="fas fa-file-excel"></i>',
+                    className: 'btn btn-secondary',
+                    titleAttr: 'Excel',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4]
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="fas fa-file-pdf"></i>',
+                    className: 'btn btn-secondary',
+                    titleAttr: 'PDF',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4]
+                    },
+                    tableHeader: {
+                        alignment: 'center'
+                    },
+                    // FOnt size and optimization
+                    customize: function (doc) {
+                        doc.styles.tableHeader.alignment = 'center'; // Header postition
+                        doc.styles.tableBodyOdd.alignment = 'center'; // Header postition
+                        doc.styles.tableBodyEven.alignment = 'center'; // Header postition
+                        doc.styles.tableHeader.fontSize = 7; // Header postition
+                        doc.defaultStyle.fontSize = 6; // Header postition
+                        // To get 100% width of the table
+                        doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
+                    }
+                },
+
+            ]
             
         });
     });

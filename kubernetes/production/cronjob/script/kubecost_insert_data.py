@@ -24,13 +24,13 @@ def insert_kubecost_data():
     date = yesterday
     try:
         response = requests.post(endpoint, json={"date": date}, auth=auth_credentials)
-        if response.status_code != 200:
+        if response.status_code not in [200, 403]:
             logs = f"{current_datetime} - Kubecost Daily Cronjob Failed. Date: {date}, Response: {response.status_code}, {response.text}"
             logger.error(logs)
             send_slack(
                 f"<!here> \n*Kubecost Cronjob Failed!* :rotating_light: \nLogs: ```{logs}```"
             )
-            return
+            exit(1)
         logs = f"{current_datetime} - Kubecost Daily Cronjob Success. Response: {response.status_code}, {response.text}"
         logger.info(logs)
         send_slack(
