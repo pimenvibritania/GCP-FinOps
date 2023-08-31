@@ -258,7 +258,6 @@
         Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
   }
 </script>
-<script async defer src="https://buttons.github.io/buttons.js"></script>
 <script src="{% static 'js/material-dashboard.min.js' %}"></script>
 {#<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8b253dfea2ab4077af8c6f58422dfbfd1689876627854" integrity="sha512-bjgnUKX4azu3dLTVtie9u6TKqgx29RBwfj3QXYt5EKfWM/9hPSAI/4qcV5NACjwAo8UtTeWefx6Zq5PHcMm7Tg==" data-cf-beacon='{"rayId":"7f6ee7e65e36893c","version":"2023.8.0","r":1,"token":"1b7cbb72744b40c580f8633c6b62637e","si":100}' crossorigin="anonymous"></script>#}
 <script>
@@ -266,7 +265,6 @@
     const navLinks = document.querySelectorAll('.nav-link');
 
     navLinks.forEach(function(link) {
-    console.log(link.getAttribute('href'))
     if (link.getAttribute('href') === path) {
       link.classList.add('active');
       link.classList.add('bg-gradient-primary');
@@ -277,3 +275,158 @@
   });
 </script>
 
+<!-- Jquery -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+
+<!-- Datatables JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-html5-2.4.1/b-print-2.4.1/datatables.min.js"></script>
+
+<!-- Service Owner Datatables script -->
+<script>
+    $(document).ready(function() {
+        var table = $('#serviceOwnerDatatable').DataTable({
+            "ajax": "/api/services",
+            "columns": [
+                {
+                    "data": "id",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center text-sm"
+                },
+                {
+                    "data": "name",
+                    "render": function (data, type, row) {
+                        return '<p class="text-xs font-weight-bold text-uppercase mb-0">' + data + '</p>';
+                    },
+                    "className": "align-middle text-center text-sm",
+                    "width": "250px"
+                },
+                {
+                    "data": "service_type",
+                    "render": function (data, type, row) {
+                        return '<span class="badge badge-sm bg-gradient-success">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center text-sm"
+                },
+                {
+                    "data": "project",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center"
+                },
+                {
+                    "data": "tech_family",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center"
+                },
+                {
+                    "data": null,
+                    "render": function (data, type, row) {
+                        return '<a href="#" class="text-secondary font-weight-bold text-xs" title="Edit Service" data-bs-toggle="modal" data-bs-target="#editModal" data-service-id="'+ row.id +'" data-service-name="'+ row.name +'" data-service-type="'+ row.service_type +'" data-service-project="'+ row.project +'" data-service-tech-family="'+ row.tech_family +'" data-original-title="Edit">Edit</a>';
+                    },
+                    "className": "align-middle"
+                },
+                {
+                    "data": null,
+                    "render": function (data, type, row) {
+                        return '<a href="#" class="text-secondary font-weight-bold text-xs" title="Delete Service" data-bs-toggle="modal" data-bs-target="#deleteModal" data-service-id="'+ row.id +'" data-service-name="'+ row.name +'" data-original-title="Delete"> Delete </a>';
+                    },
+                    "className": "align-middle"
+                }
+            ],
+            processing: true,
+            serverSide: true,
+            stateSave: true,
+            paging: true,
+            pageLength: 10,
+            lengthChange: true,
+            autoWidth: false,
+            searching: true,
+            bInfo: true,
+            bSort: true,
+            // orderCellsTop: true,
+            scrollX: true,
+            fixedHeader: true,
+            "columnDefs": [{
+                "targets": [5, 6],
+                "orderable": false
+            }],
+            language: {
+              paginate: {
+                "previous": "<",
+                "next": ">"
+              },
+            },
+            dom: 'flrtipB',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<i class="fas fa-file-excel"></i>',
+                    className: 'btn btn-secondary',
+                    titleAttr: 'Excel',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4]
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="fas fa-file-pdf"></i>',
+                    className: 'btn btn-secondary',
+                    titleAttr: 'PDF',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4]
+                    },
+                    tableHeader: {
+                        alignment: 'center'
+                    },
+                    // FOnt size and optimization
+                    customize: function (doc) {
+                        doc.styles.tableHeader.alignment = 'center'; // Header postition
+                        doc.styles.tableBodyOdd.alignment = 'center'; // Header postition
+                        doc.styles.tableBodyEven.alignment = 'center'; // Header postition
+                        doc.styles.tableHeader.fontSize = 7; // Header postition
+                        doc.defaultStyle.fontSize = 6; // Header postition
+                        // To get 100% width of the table
+                        doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
+                    }
+                },
+
+            ]
+            
+        });
+    });
+</script>
+
+<!-- Service Owner Modal Script -->
+<script>
+  $('#deleteModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var serviceId = button.data('service-id');
+    var serviceName = button.data('service-name');
+    $('#deleteModalServiceId').val(serviceId);
+    $('#serviceNamePlaceholder').text(serviceName);
+  });
+
+  $('#editModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var serviceId = button.data('service-id');
+    var serviceName = button.data('service-name');
+    var serviceType = button.data('service-type');
+    var serviceProject = button.data('service-project');
+    var serviceTechFamily = button.data('service-tech-family');
+    $('#editModalServiceId').val(serviceId);
+    $('#editModalServiceName').val(serviceName);
+    $('#editModalServiceType').val(serviceType);
+    $('#editModalServiceType').text(serviceType);
+    $('#editModalServiceProject').val(serviceProject);
+    $('#editModalServiceProject').text(serviceProject);
+    $('#editModalServiceTechFamily').val(serviceTechFamily);
+    $('#editModalServiceTechFamily').text(serviceTechFamily);
+  });
+</script>

@@ -30,3 +30,12 @@ class Services(models.Model):
     @classmethod
     def get_service(cls, project):
         return cls.objects.filter(project=project).values('id', 'name')
+    
+    def get_data(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'service_type': self.service_type,
+            'project': self.project,
+            'tech_family': self.tech_family.name
+        }
