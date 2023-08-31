@@ -9,6 +9,8 @@ from .views.kubecost_views import KubecostNamespaceMapViews
 from .views.kubecost_views import KubecostInsertDataViews
 from .views.kubecost_views import KubecostReportViews
 from .views.kubecost_views import KubecostCheckStatusViews
+from .views.report_views import ninjaAPI
+
 
 urlpatterns = [
     path("get-project", BigQueryViews.as_view()),
@@ -23,4 +25,5 @@ urlpatterns = [
     path("kubecost/insert-data", KubecostInsertDataViews.as_view()),
     path("kubecost/report", KubecostReportViews.as_view()),
     path("kubecost/check-status", KubecostCheckStatusViews.as_view()),
+    path("cms/", ninjaAPI.urls),
 ]

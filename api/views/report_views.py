@@ -12,18 +12,31 @@ from django.core.cache import cache
 from ..utils.generator import random_string, pdf
 from ..utils.logger import Logger
 from ..utils.crypter import *
+from ninja import NinjaAPI
+from ninja.security import HttpBasicAuth
+from asgiref.sync import sync_to_async
 
+from ..utils.validator import Validator
+
+ninjaAPI = NinjaAPI(csrf=True)
 REDIS_TTL = int(os.getenv("REDIS_TTL"))
 
 KUBECOST_PROJECT = ["moladin", "infra_mfi", "infra_mdi"]
 MDI_PROJECT = ["dana_tunai", "platform_mdi", "defi_mdi"]
 MFI_PROJECT = ["mofi", "platform_mfi", "defi_mfi"]
 
+class BasicAuth(HttpBasicAuth):
+    @sync_to_async
+    def authenticate(self, request, username):
+        validated_user = Validator.async_authenticate(request=request)
+        if validated_user.status_code != status.HTTP_200_OK:
+            return username
 
+@ninjaAPI.get("/create_report", auth=BasicAuth())
 @date_validator
 @period_validator
 @user_async_validator
-async def create_report(request):
+async def create_report(request, date=None, period=None):
     date = request.GET.get("date")
     period = request.GET.get("period")
     cache_key = f"cms-report-{date}-{period}"
