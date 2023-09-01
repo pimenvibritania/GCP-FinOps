@@ -1,0 +1,254 @@
+openapi: 3.0.3
+info:
+  title: Cost Management System
+  version: 1.0.0
+  description: |-
+    Efficient cost and budget management are paramount for ensuring the uninterrupted functionality of our business, as well as our various teams and units. This document delves into our comprehensive strategy encompassing five key phases to effectively manage costs and budgets. The approach outlined here will enable us to proactively monitor and control expenses related to Google Cloud Platform (GCP) and other resources. Furthermore, the document highlights the frequency of alerts, indicating that these vital notifications will be disseminated on both a weekly and monthly basis, enhancing our ability to maintain financial transparency and control.
+
+    
+    Some useful links:
+    - [Cost Management System Abstract](https://moladin.atlassian.net/wiki/spaces/IN/pages/739082289/Cost+Management+System)
+    - [The source API definition for the CMS](https://bitbucket.org/moladinTech/cost-management-system/src/main/static/schema.yaml)
+  termsOfService: https://cost-management-system.moladin.com/
+  contact:
+    email: devops-engineer@moladin.com
+  license:
+    name: Moladin
+    url: https://cost-management-system.moladin.com/
+
+servers:
+  - url: https://cost-management-system.moladin.com
+  - url: https://cost-management.moladin.com
+tags:
+  - name: GCP
+    description: GCP Cost
+
+  - name: Kubecost
+    description: Kubernetes Cost
+
+paths:
+  /api/create-index:
+    post:
+      operationId: create_index_create
+      tags:
+      - GCP
+      summary: Create Index Weight
+      description: Add new index weight base on living docs
+      security:
+      - basicAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IndexWeight'
+        required: true
+      responses:
+        '200':
+          description: No response body
+  /api/create-report:
+    get:
+      operationId: create_report
+      summary: Create & Generate Report
+      description: Create gcp & kubecost report and generate PDF, can send email also
+      parameters:
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: Date / current date (yyyy-mm-dd)
+        - in: query
+          name: period
+          required: true
+          schema:
+            type: string
+            format: string
+          description: Fill with weekly or monthly
+        - in: query
+          name: send_mail
+          schema:
+            type: string
+            format: string
+          description: Fill with devl or stag
+      tags:
+      - GCP
+      security:
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/get-project:
+    get:
+      operationId: get_project_retrieve
+      summary: Get projects
+      description: Get project based on date and period
+      parameters:
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: Date / current date (yyyy-mm-dd)
+        - in: query
+          name: period
+          required: true
+          schema:
+            type: string
+            format: string
+          description: Fill with weekly or monthly
+      tags:
+      - GCP
+      security:
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/get-tf:
+    get:
+      operationId: get_tf_retrieve
+      tags:
+      - GCP
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/kubecost/check-status:
+    post:
+      operationId: kubecost_check_status_create
+      tags:
+      - Kubecost
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/kubecost/clusters:
+    get:
+      operationId: kubecost_clusters_retrieve
+      tags:
+      - Kubecost
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: kubecost_clusters_create
+      tags:
+      - Kubecost
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/kubecost/deployments:
+    get:
+      operationId: kubecost_deployments_retrieve
+      tags:
+      - Kubecost
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: kubecost_deployments_create
+      tags:
+      - Kubecost
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/kubecost/insert-data:
+    post:
+      operationId: kubecost_insert_data_create
+      tags:
+      - Kubecost
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/kubecost/namespace-map:
+    get:
+      operationId: kubecost_namespace_map_retrieve
+      tags:
+      - Kubecost
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: kubecost_namespace_map_create
+      tags:
+      - Kubecost
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/kubecost/namespaces:
+    get:
+      operationId: kubecost_namespaces_retrieve
+      tags:
+      - Kubecost
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/kubecost/report:
+    get:
+      operationId: kubecost_report_retrieve
+      tags:
+      - Kubecost
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/services:
+    get:
+      operationId: services_retrieve
+      tags:
+      - services
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: services_create
+      tags:
+      - services
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    IndexWeight:
+      type: object
+      properties:
+        value:
+          type: integer
+          example: 30.12
+        environment:
+          type: string
+          example: "development"
+        tech_family_id:
+          type: integer
+          example: 2
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
