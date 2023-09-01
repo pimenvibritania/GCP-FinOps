@@ -10,6 +10,7 @@ from .views.kubecost_views import KubecostInsertDataViews
 from .views.kubecost_views import KubecostReportViews
 from .views.kubecost_views import KubecostCheckStatusViews
 from .views.report_views import ninjaAPI
+from django.views.generic import TemplateView
 
 
 urlpatterns = [
@@ -26,4 +27,12 @@ urlpatterns = [
     path("kubecost/report", KubecostReportViews.as_view()),
     path("kubecost/check-status", KubecostCheckStatusViews.as_view()),
     path("cms/", ninjaAPI.urls),
+    path(
+        "docs/",
+        TemplateView.as_view(
+            template_name="swagger.html",
+            extra_context={"schema_url": "openapi-schema"},
+        ),
+        name="swagger-ui",
+    ),
 ]
