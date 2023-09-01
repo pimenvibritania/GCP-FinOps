@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from ..serializers import ServiceSerializer
+from home.models.services import Services
+from django.db.models import Q
 from django.db import IntegrityError
 from ..models.kubecost import get_service
 
@@ -9,9 +11,52 @@ class ServiceViews(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
+        draw = int(request.GET.get('draw', 0))
+        start = int(request.GET.get('start', 0))
+        length = int(request.GET.get('length', 10))
+        search_value = request.GET.get('search[value]', '')
+        order_column = int(request.GET.get('order[0][column]', 0))
+        order_dir = request.GET.get('order[0][dir]', 'asc')
 
-        data = get_service()
-        return Response(data, status=status.HTTP_200_OK)
+        services = Services.objects.all()
+
+        if search_value:
+            services = services.filter(
+                Q(name__icontains=search_value) |
+                Q(service_type__icontains=search_value) |
+                Q(project__icontains=search_value) |
+                Q(tech_family__name__icontains=search_value)
+            )
+
+        total_records = services.count()
+
+        if order_column == 0:
+            sort_column = 'id'
+        elif order_column == 1:
+            sort_column = 'name'
+        elif order_column == 2:
+            sort_column = 'service_type'
+        elif order_column == 3:
+            sort_column = 'project'
+        elif order_column == 4:
+            sort_column = 'tech_family'
+
+        if order_dir == 'desc':
+            sort_column = '-' + sort_column
+
+        services = services.order_by(sort_column)[start:start+length]
+
+        data = [service.get_data() for service in services]
+
+        response = {
+            "draw": draw,
+            "recordsTotal": total_records,
+            "recordsFiltered": total_records,
+            "data": data,
+        }
+
+        return Response(response, status=status.HTTP_200_OK)
+
 
     def post(self, request, *args, **kwargs):
 

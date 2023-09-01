@@ -1,0 +1,178 @@
+<!-- Modal Add Service -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">
+                    <i class="fas fa-plus"></i>&nbsp;&nbsp; Add Service
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/service-owner/add" autocomplete="off">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <span class="btn border-secondary bg-light side-label"><i class="fas fa-user-alt"></i></span>
+                        <input type="text" class="form-control" name="service_name" maxlength="100" placeholder="Service Name" required>
+                    </div>
+                    <div class="input-group mb-3">
+                        <label>
+                            <span class="btn border-secondary bg-light side-label" style="border-radius: 4px 0px 0px 4px;">
+                                <i class="fas fas fa-user-cog"></i>
+                            </span>
+                        </label>
+                        <select class="form-select" name="service_type" required>
+                            <option value="" hidden>Select Service Type</option>
+                            <option disabled></option>
+                            <option value="backend">backend</option>
+                            <option value="frontend">frontend</option>
+                        </select>
+                    </div>
+                    <div class="input-group mb-3">
+                        <label>
+                            <span class="btn border-secondary bg-light side-label" style="border-radius: 4px 0px 0px 4px;">
+                                <i class="fas fa-user-cog"></i>
+                            </span>
+                        </label>
+                        <select class="form-select" name="project" required>
+                            <option value="" hidden>Select Project</option>
+                            <option disabled></option>
+                            <option value="MFI">MFI</option>
+                            <option value="MDI">MDI</option>
+                        </select>
+                    </div>
+                    <div class="input-group mb-3">
+                        <label>
+                            <span class="btn border-secondary bg-light side-label" style="border-radius: 4px 0px 0px 4px;">
+                                <i class="fas fa-user-cog"></i>
+                            </span>
+                        </label>
+                        <select class="form-select" name="tech_family" required>
+                            <option value="" hidden>Select Tech Family</option>
+                            <option disabled></option>
+                            {% for tf in tech_family %}
+                            <option value="{{ tf.name }}">{{tf.name}}</option>
+                            {% endfor %}
+                            <option></option>
+                        </select>
+                    </div>
+
+                    <div class="mt-4" style="width: 100%;">
+                        <button type="submit" class="btn btn-secondary mb-3">
+                            <i class="fas fa-plus"></i>&nbsp;&nbsp; Add Service
+                        </button>
+                        <button type="button" class="btn btn-outline-dark mb-3 ms-2" style="width: 50px;" title="Close" data-bs-dismiss="modal"><i class="fas fa-times"></i></button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Service -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">
+                    <i class="fas fa-plus"></i>&nbsp;&nbsp; Edit Service
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/service-owner/edit" autocomplete="off">
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                    <span class="btn border-secondary bg-light side-label"><i class="fas fa-key"></i></span>
+                    <input type="text" class="form-control" name="service_id" id="editModalServiceId" readonly>
+                </div>                
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <span class="btn border-secondary bg-light side-label"><i class="fas fa-user-alt"></i></span>
+                        <input type="text" id="editModalServiceName" class="form-control" name="service_name" maxlength="100" placeholder="Service Name" required>
+                    </div>
+                    <div class="input-group mb-3">
+                        <label>
+                            <span class="btn border-secondary bg-light side-label" style="border-radius: 4px 0px 0px 4px;">
+                                <i class="fas fas fa-user-cog"></i>
+                            </span>
+                        </label>
+                        <select class="form-select" name="service_type" required>
+                            <option id="editModalServiceType"></option>
+                            <option disabled></option>
+                            <option value="backend">backend</option>
+                            <option value="frontend">frontend</option>
+                        </select>
+                    </div>
+                    <div class="input-group mb-3">
+                        <label>
+                            <span class="btn border-secondary bg-light side-label" style="border-radius: 4px 0px 0px 4px;">
+                                <i class="fas fa-user-cog"></i>
+                            </span>
+                        </label>
+                        <select class="form-select" name="project" required>
+                            <option id="editModalServiceProject"></option>
+                            <option disabled></option>
+                            <option value="MFI">MFI</option>
+                            <option value="MDI">MDI</option>
+                        </select>
+                    </div>
+                    <div class="input-group mb-3">
+                        <label>
+                            <span class="btn border-secondary bg-light side-label" style="border-radius: 4px 0px 0px 4px;">
+                                <i class="fas fa-user-cog"></i>
+                            </span>
+                        </label>
+                        <select class="form-select" name="tech_family" required>
+                            <option id="editModalServiceTechFamily"></option>
+                            <option disabled></option>
+                            {% for tf in tech_family %}
+                            <option value="{{ tf.name }}">{{tf.name}}</option>
+                            {% endfor %}
+                            <option></option>
+                        </select>
+                    </div>
+
+                    <div class="mt-4" style="width: 100%;">
+                        <button type="submit" class="btn btn-secondary mb-3">
+                            <i class="fas fa-server"></i>&nbsp;&nbsp; Save Changes
+                        </button>
+                        <button type="button" class="btn btn-outline-dark mb-3 ms-2" style="width: 50px;" title="Close" data-bs-dismiss="modal"><i class="fas fa-times"></i></button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Delete Confirmation -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <form method="POST" action="/service-owner/delete" autocomplete="off">
+        {% csrf_token %}
+        <input type="hidden" id="deleteModalServiceId" name="service_id" value="{{ service.pk }}">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp; Delete Service</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center text-danger"><i class="far fa-times-circle fa-5x mb-4 mt-2"></i></div>
+                    <div class="text-center text-danger">
+                        <span>DO YOU WANT TO DELETE THIS SERVICE ?</span>
+                        <div class="text-dark mt-3 mb-2" id="deleteModalServiceName">Service:&nbsp; <strong><span id="serviceNamePlaceholder"></span></strong></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <!-- <a href="/delete_temp/{{ service.id }}" class="btn btn-outline-danger btn-sm">Delete</a> -->
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
