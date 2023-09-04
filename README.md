@@ -90,7 +90,7 @@ The theme used to style this starter provides the following files:
    |    |-- includes/       
    |    |    |-- footer.html          # Footer component
    |    |    |-- navigation.html      # Navigation Bar
-   |    |    |-- scripts.html         # Scripts Component
+   |    |    |-- script.html         # Scripts Component
    |    |
    |    |-- layouts/       
    |    |    |-- base.html            # Masterpage
