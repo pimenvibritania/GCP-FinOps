@@ -84,36 +84,6 @@ CACHES = {
     }
 }
 
-SITE_ID = 2
-
-SOCIALACCOUNT_LOGIN_ON_GET = True
-
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-)
-
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        # "APP": {
-        #     "client_id": "795692197025-c1gp4e2d4f299hojso2g7fmq8c4qogn2.apps.googleusercontent.com",
-        #     "secret": "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",
-        #     "key": "",
-        # },
-        "SCOPE": [
-            "profile",
-            "email",
-        ],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-    }
-}
-
-
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -246,14 +216,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGIN_REDIRECT_URL = "/"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-
-CRONJOBS = [
-    # ("1 8 * * *", "api.cron.insert_kubecost_data"),
-    # ("1 8,9,10,11,12,13,14,15,16,17 * * *", "api.cron.check_kubecost_status"),
-]
 
 GOOGLE_APPLICATION_CREDENTIALS = os.path.join(BASE_DIR, "service-account.json")
 GOOGLE_CLOUD_STORAGE_BUCKET_NAME = os.getenv("GCS_BUCKET")
@@ -262,6 +225,31 @@ GOOGLE_CLOUD_STORAGE_FOLDER_NAME = os.getenv("GCS_FOLDER")
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 ENCRYPTION_KEY = os.getenv("APPLICATION_KEY")
+
+SITE_ID = 2
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    }
+}
+
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 SOCIALACCOUNT_ADAPTER = "home.utils.adapter.CustomGoogleOAuth2Adapter"
 
