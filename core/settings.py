@@ -84,6 +84,35 @@ CACHES = {
     }
 }
 
+SITE_ID = 2
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        # "APP": {
+        #     "client_id": "795692197025-c1gp4e2d4f299hojso2g7fmq8c4qogn2.apps.googleusercontent.com",
+        #     "secret": "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",
+        #     "key": "",
+        # },
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    }
+}
+
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 # Application definition
 
@@ -94,12 +123,17 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
     "theme_material_kit",
     "home",
     "api",
     "rest_framework",
     "django_crontab",
     "core",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 ]
 
 MIDDLEWARE = [
@@ -228,3 +262,7 @@ GOOGLE_CLOUD_STORAGE_FOLDER_NAME = os.getenv("GCS_FOLDER")
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 ENCRYPTION_KEY = os.getenv("APPLICATION_KEY")
+
+SOCIALACCOUNT_ADAPTER = "home.utils.adapter.CustomGoogleOAuth2Adapter"
+
+OAUTH_EMAIL_WHITELIST = str(os.getenv("OAUTH_EMAIL_WHITELIST")).split(",")
