@@ -14,7 +14,7 @@
   
   {% block header %}
 
-    {% include 'includes/dashboard_navbar.html' %}
+    {% include 'includes/dashboard_sidebar.html' %}
 
   {% endblock header %}
 
@@ -22,12 +22,12 @@
 
 {% block footer %}
   
-  {% include 'includes/dashboard_plugin.html' %}
+{#  {% include 'includes/dashboard_plugin.html' %}#}
 
 {% endblock footer %}
 
-{% include 'includes/dashboard_script.html' %}
-{% block javascripts %}{% endblock javascripts %}
+{% include 'includes/script/dashboard_script.html' %}
+{% block javascript %}{% endblock javascript %}
 
 </body>
 </html>

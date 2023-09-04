@@ -2,26 +2,19 @@ import datetime
 import os
 
 from django.http import JsonResponse
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from rest_framework.decorators import (
-    api_view,
-    permission_classes as view_permission_classes,
-)
-from rest_framework.permissions import IsAuthenticated
-
-from core import settings
-from ..models.bigquery import BigQuery
-from ..serializers import TFSerializer, IndexWeightSerializer
+from api.models.bigquery import BigQuery
+from api.serializers import TFSerializer, IndexWeightSerializer
+from api.utils.validator import Validator
 from home.models.tech_family import TechFamily
 from home.models.index_weight import IndexWeight
 from itertools import chain
-from ..utils.validator import Validator
 from django.core.cache import cache
+from rest_framework import generics
 
 
-class BigQueryViews(APIView):
+class BigQueryPeriodicalCost(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs) -> object:
@@ -37,13 +30,15 @@ class BigQueryViews(APIView):
                 {"message": validated_date.message}, status=validated_date.status_code
             )
 
-        data = BigQuery.get_project(date, period)
+        data = BigQuery.get_periodical_cost(date, period)
 
         return Response(data, status=status.HTTP_200_OK)
 
-    @api_view(["GET"])
-    @view_permission_classes([IsAuthenticated])
-    def get_tf(self):
+
+class BigQueryTechFamily(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
         cache_key = f"cms-tf-{datetime.date.today()}"
         if cache.get(cache_key):
             data = cache.get(cache_key)
@@ -57,14 +52,19 @@ class BigQueryViews(APIView):
 
         return Response(data=data.data, status=status.HTTP_200_OK)
 
-    def get_index_weight(from_date, to_date):
-        data = IndexWeight.get_index_weight(from_date, to_date)
-        serializer = IndexWeightSerializer(data, many=True)
-        return serializer
 
-    @api_view(["POST"])
-    @view_permission_classes([IsAuthenticated])
-    def post_index_weight(request, *args, **kwargs):
+class BigQueryIndexWeight(generics.ListCreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        from_date = request.GET.get("from_date")
+        to_date = request.GET.get("to_date")
+
+        data = IndexWeight.get_index_weight(from_date, to_date)
+
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
         data = {
             "value": request.data.get("value"),
             "environment": request.data.get("environment"),
