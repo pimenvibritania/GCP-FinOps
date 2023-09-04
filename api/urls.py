@@ -1,5 +1,9 @@
 from django.urls import path
-from .views.bigquery_views import BigQueryViews
+from api.views.bigquery_views import (
+    BigQueryPeriodicalCost,
+    BigQueryTechFamily,
+    BigQueryIndexWeight,
+)
 from .views.report_views import create_report
 from .views.kubecost_views import KubecostClusterViews
 from .views.service_views import ServiceViews
@@ -9,16 +13,13 @@ from .views.kubecost_views import KubecostNamespaceMapViews
 from .views.kubecost_views import KubecostInsertDataViews
 from .views.kubecost_views import KubecostReportViews
 from .views.kubecost_views import KubecostCheckStatusViews
-from .views.report_views import ninjaAPI
 from django.views.generic import TemplateView
 
 
 urlpatterns = [
-    path("get-project", BigQueryViews.as_view()),
-    path("get-tf", BigQueryViews.get_tf),
-    path("create-index", BigQueryViews.post_index_weight),
-    path("create-report", create_report),
-    path("services", ServiceViews.as_view()),
+    path("gcp/periodical-cost", BigQueryPeriodicalCost.as_view()),
+    path("gcp/index-weight", BigQueryIndexWeight.as_view()),
+    path("gcp/tech-family", BigQueryTechFamily.as_view()),
     path("kubecost/clusters", KubecostClusterViews.as_view()),
     path("kubecost/namespaces", KubecostNamespaceViews.as_view()),
     path("kubecost/deployments", KubecostDeploymentViews.as_view()),
@@ -26,7 +27,6 @@ urlpatterns = [
     path("kubecost/insert-data", KubecostInsertDataViews.as_view()),
     path("kubecost/report", KubecostReportViews.as_view()),
     path("kubecost/check-status", KubecostCheckStatusViews.as_view()),
-    path("cms/", ninjaAPI.urls),
     path(
         "docs/",
         TemplateView.as_view(
@@ -35,4 +35,7 @@ urlpatterns = [
         ),
         name="swagger-ui",
     ),
+    path("services", ServiceViews.as_view()),
+    # Async route
+    path("create-report", create_report),
 ]

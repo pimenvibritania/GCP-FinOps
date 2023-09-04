@@ -1,0 +1,28 @@
+
+<!-- Service Owner Modal Script -->
+<script>
+  $('#deleteModal').on('show.bs.modal', function (event) {
+      const button = $(event.relatedTarget);
+      const serviceId = button.data('service-id');
+      const serviceName = button.data('service-name');
+      $('#deleteModalServiceId').val(serviceId);
+      $('#serviceNamePlaceholder').text(serviceName);
+  });
+
+  $('#editModal').on('show.bs.modal', function (event) {
+      const button = $(event.relatedTarget);
+      const serviceId = button.data('service-id');
+      const serviceName = button.data('service-name');
+      const serviceType = button.data('service-type');
+      const serviceProject = button.data('service-project');
+      const serviceTechFamily = button.data('service-tech-family');
+      $('#editModalServiceId').val(serviceId);
+      $('#editModalServiceName').val(serviceName);
+      $('#editModalServiceType').val(serviceType);
+      $('#editModalServiceType').text(serviceType);
+      $('#editModalServiceProject').val(serviceProject);
+      $('#editModalServiceProject').text(serviceProject);
+      $('#editModalServiceTechFamily').val(serviceTechFamily);
+      $('#editModalServiceTechFamily').text(serviceTechFamily);
+  });
+</script>

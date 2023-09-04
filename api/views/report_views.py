@@ -1,38 +1,19 @@
 import datetime
 import asyncio
-import os
-from ..models.bigquery import BigQuery
-from ..utils.conversion import Conversion
-from ..utils.decorator import *
+from api.models.bigquery import BigQuery
+from api.models.kubecost import KubecostReport
+from api.models.__constant import *
+from api.utils.conversion import Conversion
+from api.utils.decorator import *
+from api.utils.generator import random_string, pdf
+from api.utils.logger import Logger
+from api.utils.crypter import *
 from httpx import AsyncClient
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from ..models.kubecost import KubecostReport
 from django.core.cache import cache
-from ..utils.generator import random_string, pdf
-from ..utils.logger import Logger
-from ..utils.crypter import *
-from ninja import NinjaAPI
-from ninja.security import HttpBasicAuth
-from asgiref.sync import sync_to_async
 
-from ..utils.validator import Validator
 
-ninjaAPI = NinjaAPI(csrf=True)
-REDIS_TTL = int(os.getenv("REDIS_TTL"))
-
-KUBECOST_PROJECT = ["moladin", "infra_mfi", "infra_mdi"]
-MDI_PROJECT = ["dana_tunai", "platform_mdi", "defi_mdi"]
-MFI_PROJECT = ["mofi", "platform_mfi", "defi_mfi"]
-
-class BasicAuth(HttpBasicAuth):
-    @sync_to_async
-    def authenticate(self, request, username):
-        validated_user = Validator.async_authenticate(request=request)
-        if validated_user.status_code != status.HTTP_200_OK:
-            return username
-
-@ninjaAPI.get("/create_report", auth=BasicAuth())
 @date_validator
 @period_validator
 @user_async_validator
@@ -46,7 +27,7 @@ async def create_report(request, date=None, period=None):
         loop = asyncio.get_event_loop()
 
         async_tasks = [
-            loop.run_in_executor(None, BigQuery.get_project, date, period),
+            loop.run_in_executor(None, BigQuery.get_periodical_cost, date, period),
             loop.run_in_executor(None, KubecostReport.report, date, period),
         ]
 

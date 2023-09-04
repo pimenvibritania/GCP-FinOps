@@ -1,7 +1,7 @@
 {% extends 'layouts/base_dashboard.html' %}
 {% load static %}
 
-{% block title %} Service Owner {% endblock title %}
+{% block title %} GCP Cost {% endblock title %}
 
 {% block content %}
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
@@ -13,9 +13,9 @@
             <div class="card my-4">
             <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                 <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 col-12">
-                  <div class="row">
+                  <div class="row">    
                     <div class="col-sm-10">
-                      <h6 class="text-white text-capitalize ps-3">Service Owner</h6>
+                      <h6 class="text-white text-capitalize ps-3">GCP Cost</h6>
                     </div>
                     <div class="col-sm-1"></div>
                     <div class="col-sm-1">
@@ -26,11 +26,27 @@
                   </div>
 
                 </div>
-
+                
             </div>
             <div class="card-body px-0 pb-2">
+
                 <div class="table-responsive p-0">
-                <table class="table align-items-center mb-0" id="serviceOwnerDatatable">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col">
+                                <div class="custom-select-container">
+                                    <label for="projectFilter" class="ms-4">Select Project:
+                                    <select id="projectFilter" class="form-select form-select-sm custom-select">
+                                        <option value="proj_a">Project A</option>
+                                        <option value="proj_b">Project B</option>
+                                        <option value="proj_c">Project C</option>
+                                    </select>
+                                </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="table align-items-center mb-0" id="serviceOwnerDatatable">
                     <thead>
                     <tr>
                         <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">No</th>
@@ -70,7 +86,6 @@
         </div>
     </footer>
     </div>
-
 
     {% for message in messages %}
     {% if message.tags == 'success' %}
