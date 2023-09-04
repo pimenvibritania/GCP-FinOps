@@ -30,10 +30,8 @@
                   {% endfor %}
                 {% endif %}
                 {% csrf_token %}
-
                 {% for field in form %}
                   <div class="input-group input-group-outline my-3">
-                    <label style="padding-top: 8px; padding-right: 5px;">{{ field.label }}</label>
                     {{field}}
                   </div>
                   <small>{{ field.errors }}</small>
