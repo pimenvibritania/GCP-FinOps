@@ -24,9 +24,9 @@ urlpatterns = [
     path("material/", include("theme_material_kit.urls")),
     path("api-auth/", include("rest_framework.urls")),
     path("api/", include(api_url)),
-    path("accounts/login/", not_found),  # most important
-    path("accounts/signup/", not_found),  # most important
-    path("accounts/", include("allauth.urls")),  # most important
+    path("accounts/login/", not_found),
+    path("accounts/signup/", not_found),
+    path("accounts/", include("allauth.urls")),
 ]
 
 handler403 = "home.views.error_views.unauthenticated"
