@@ -2,12 +2,7 @@ from django.urls import path, include
 
 from .views.auth_views import UserLoginView, user_logout_view
 from .views.dashboard_views import index as dashboard_index, table as table_index
-from .views.service_owner_views import (
-    service_owner,
-    service_owner_add,
-    service_owner_edit,
-    service_owner_delete,
-)
+from .views.service_owner_views import service_owner
 
 from home.views.gcp_cost_views import GCPCostList
 
@@ -17,8 +12,5 @@ urlpatterns = [
     path("login/", UserLoginView.as_view(), name="login-user"),
     path("logout/", user_logout_view, name="logout"),
     path("service-owner", service_owner, name="service-owner"),
-    path("service-owner/add", service_owner_add, name="service-owner-add"),
-    path("service-owner/edit", service_owner_edit, name="service-owner-edit"),
-    path("service-owner/delete", service_owner_delete, name="service-owner-delete"),
     path("gcp-cost", GCPCostList.as_view(), name="gcp-cost"),
 ]
