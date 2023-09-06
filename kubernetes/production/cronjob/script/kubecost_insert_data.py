@@ -5,15 +5,16 @@ import datetime
 from os import getenv
 from notif import send_slack
 
-KUBECOST_CRONJOB_USER = getenv("KUBECOST_CRONJOB_USER")
-KUBECOST_CRONJOB_PASSWORD = getenv("KUBECOST_CRONJOB_PASSWORD")
+KUBECOST_CRONJOB_USER = getenv("CRONJOB_USER")
+KUBECOST_CRONJOB_PASSWORD = getenv("CRONJOB_PASSWORD")
 APP_URL = getenv("APP_URL")
 ENVIRONMENT = getenv("ENVIRONMENT")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-current_datetime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+current_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 
 def insert_kubecost_data():
     current_datetime = datetime.datetime.now()
@@ -34,9 +35,14 @@ def insert_kubecost_data():
             exit(1)
         logs = f"{current_datetime} - Kubecost Daily Cronjob Success. Response: {response.status_code}, {response.text}"
         logger.info(logs)
-        send_slack(f"<!here> *Kubecost Insert Data Success!* :white_check_mark:\nEnvironment: *{ENVIRONMENT}*\nLogs: ```{logs}```")
+        send_slack(
+            f"<!here> *Kubecost Insert Data Success!* :white_check_mark:\nEnvironment: *{ENVIRONMENT}*\nLogs: ```{logs}```"
+        )
     except requests.exceptions.RequestException as e:
         logger.error("Error: %s", e)
-        send_slack(f"<!here> \n*Kubecost Insert Data Failed!* :rotating_light:\nEnvironment: *{ENVIRONMENT}*\nLogs: ```{e}```")
+        send_slack(
+            f"<!here> \n*Kubecost Insert Data Failed!* :rotating_light:\nEnvironment: *{ENVIRONMENT}*\nLogs: ```{e}```"
+        )
+
 
 insert_kubecost_data()
