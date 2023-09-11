@@ -59,9 +59,12 @@ kubernetes==26.1.0
 MarkupSafe==2.1.3
 marshmallow==3.20.1
 mysqlclient==2.0.3
+numpy==1.25.2
 oauthlib==3.2.2
 openapi-codec==1.3.2
 packaging==23.1
+panda==0.3.1
+pandas==2.1.0
 Pillow==10.0.0
 proto-plus==1.22.3
 protobuf==4.23.4
@@ -94,6 +97,7 @@ sniffio==1.3.0
 sqlparse==0.4.4
 tinycss2==1.2.1
 typing_extensions==4.7.1
+tzdata==2023.3
 uritemplate==4.1.1
 urllib3==1.26.16
 uvicorn==0.23.2

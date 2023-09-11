@@ -20,6 +20,7 @@ class BigQueryPeriodicalCost(generics.ListAPIView):
     def get(self, request, *args, **kwargs) -> object:
         date = request.GET.get("date")
         period = request.GET.get("period")
+        csv_import = request.GET.get("csv_import")
 
         if not date:
             return Response({"error": "Date parameter is required."}, status=400)
@@ -30,7 +31,7 @@ class BigQueryPeriodicalCost(generics.ListAPIView):
                 {"message": validated_date.message}, status=validated_date.status_code
             )
 
-        data = BigQuery.get_periodical_cost(date, period)
+        data = BigQuery.get_periodical_cost(date, period, csv_import)
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -42,7 +43,6 @@ class BigQueryTechFamily(generics.ListAPIView):
         cache_key = f"cms-tf-{datetime.date.today()}"
         if cache.get(cache_key):
             data = cache.get(cache_key)
-            print("hit cache")
         else:
             tf_mdi = TechFamily.get_tf_mdi()
             tf_mfi = TechFamily.get_tf_mfi()

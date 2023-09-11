@@ -28,12 +28,15 @@ class BigQuery:
 
     @classmethod
     def get_conversion_rate(cls, input_date):
+        date = datetime.strptime(input_date, "%Y-%m-%d")
+        current_date = date - timedelta(days=1)
+        current_date_f = current_date.strftime("%Y-%m-%d")
         query = f"""
             SELECT AVG(currency) 
             FROM 
                 (SELECT currency_conversion_rate AS currency,FORMAT_TIMESTAMP('%Y-%m-%d', _PARTITIONTIME) AS date 
                 FROM `moladin-shared-devl.shared_devl_project.gcp_billing_export_v1_014380_D715C8_03F1FE` 
-                WHERE _PARTITIONTIME = TIMESTAMP('{input_date}') 
+                WHERE _PARTITIONTIME = TIMESTAMP('{current_date_f}') 
                 GROUP BY currency, date)
             LIMIT 1
         """
@@ -47,7 +50,7 @@ class BigQuery:
         return result[0]
 
     @classmethod
-    def get_periodical_cost(cls, input_date, period):
+    def get_periodical_cost(cls, input_date, period, csv_import=None):
         cache_key = f"cms-bq-project-{input_date}-{period}"
 
         if cache.get(cache_key):
@@ -70,36 +73,6 @@ class BigQuery:
             index_weight = IndexWeight.get_index_weight(
                 current_period_from, current_period_to
             )
-
-            query_template = """
-                SELECT project.id as proj, service.description as svc, SUM(cost) AS total_cost
-                FROM `{BIGQUERY_TABLE}`
-                WHERE DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
-                GROUP BY proj, svc
-            """
-
-            query_current_period = query_template.format(
-                BIGQUERY_TABLE=BIGQUERY_TABLE,
-                start_date=current_period_from,
-                end_date=current_period_to,
-            )
-
-            query_previous_period = query_template.format(
-                BIGQUERY_TABLE=BIGQUERY_TABLE,
-                start_date=previous_period_from,
-                end_date=previous_period_to,
-            )
-
-            current_period_results = cls().client.query(query_current_period).result()
-            previous_period_results = cls().client.query(query_previous_period).result()
-
-            current_period_costs = {}
-            for row in current_period_results:
-                current_period_costs[(row.svc, row.proj)] = row.total_cost
-
-            previous_period_costs = {}
-            for row in previous_period_results:
-                previous_period_costs[(row.svc, row.proj)] = row.total_cost
 
             platform_mfi = get_tf_collection(
                 mfi_project, "platform_mfi", current_period_str, conversion_rate
@@ -133,11 +106,50 @@ class BigQuery:
                 "defi_mdi": defi_mdi,
             }
 
-            for service, project in set(current_period_costs.keys()).union(
-                previous_period_costs.keys()
+            query_template = """
+                SELECT project.id as proj, service.description as svc, SUM(cost) AS total_cost
+                FROM `{BIGQUERY_TABLE}`
+                WHERE DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
+                GROUP BY proj, svc
+            """
+
+            # MDI Query
+            query_current_period_mdi = query_template.format(
+                BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
+                start_date=current_period_from,
+                end_date=current_period_to,
+            )
+
+            query_previous_period_mdi = query_template.format(
+                BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
+                start_date=previous_period_from,
+                end_date=previous_period_to,
+            )
+
+            current_period_results_mdi = (
+                cls().client.query(query_current_period_mdi).result()
+            )
+            previous_period_results_mdi = (
+                cls().client.query(query_previous_period_mdi).result()
+            )
+
+            current_period_costs_mdi = {}
+            for row in current_period_results_mdi:
+                current_period_costs_mdi[(row.svc, row.proj)] = row.total_cost
+
+            previous_period_costs_mdi = {}
+            for row in previous_period_results_mdi:
+                previous_period_costs_mdi[(row.svc, row.proj)] = row.total_cost
+
+            for service, project in set(current_period_costs_mdi.keys()).union(
+                previous_period_costs_mdi.keys()
             ):
-                current_period_cost = current_period_costs.get((service, project), 0)
-                previous_period_cost = previous_period_costs.get((service, project), 0)
+                current_period_cost = current_period_costs_mdi.get(
+                    (service, project), 0
+                )
+                previous_period_cost = previous_period_costs_mdi.get(
+                    (service, project), 0
+                )
                 cost_difference = current_period_cost - previous_period_cost
 
                 if project in TF_PROJECT_MDI:
@@ -151,19 +163,6 @@ class BigQuery:
                             project_mdi,
                             tf,
                             "MDI",
-                        )
-
-                elif project in TF_PROJECT_MFI:
-                    for tf in project_mfi.keys():
-                        project_mfi[tf] = mapping_services(
-                            project,
-                            service,
-                            index_weight,
-                            current_period_cost,
-                            previous_period_cost,
-                            project_mfi,
-                            tf,
-                            "MFI",
                         )
 
                 elif project in TF_PROJECT_ANDROID:
@@ -189,6 +188,90 @@ class BigQuery:
                         "dana_tunai",
                         "MDI",
                     )
+
+                elif project is None and service == "Support":
+                    for tf in project_mdi.keys():
+                        project_mdi[tf] = mapping_services(
+                            "Shared Support",
+                            service,
+                            index_weight,
+                            current_period_cost,
+                            previous_period_cost,
+                            project_mdi,
+                            tf,
+                            "MDI",
+                        )
+
+                else:
+                    pass
+
+            # MFI Query
+            query_current_period_mfi = query_template.format(
+                BIGQUERY_TABLE=BIGQUERY_MFI_TABLE,
+                start_date=current_period_from,
+                end_date=current_period_to,
+            )
+
+            query_previous_period_mfi = query_template.format(
+                BIGQUERY_TABLE=BIGQUERY_MFI_TABLE,
+                start_date=previous_period_from,
+                end_date=previous_period_to,
+            )
+
+            current_period_results_mfi = (
+                cls().client.query(query_current_period_mfi).result()
+            )
+            previous_period_results_mfi = (
+                cls().client.query(query_previous_period_mfi).result()
+            )
+
+            current_period_costs_mfi = {}
+            for row in current_period_results_mfi:
+                current_period_costs_mfi[(row.svc, row.proj)] = row.total_cost
+
+            previous_period_costs_mfi = {}
+            for row in previous_period_results_mfi:
+                previous_period_costs_mfi[(row.svc, row.proj)] = row.total_cost
+
+            csv_cost = None
+
+            if csv_import is not None:
+                gcp_services = cls().get_services()
+                csv_path = "static/import/mfi"
+                csv_cost = mapping_csv(
+                    current_period_from,
+                    current_period_to,
+                    previous_period_from,
+                    previous_period_to,
+                    gcp_services,
+                    csv_path,
+                )
+
+            for service, project in set(current_period_costs_mfi.keys()).union(
+                previous_period_costs_mfi.keys()
+            ):
+                current_period_cost = current_period_costs_mfi.get(
+                    (service, project), 0
+                )
+                previous_period_cost = previous_period_costs_mfi.get(
+                    (service, project), 0
+                )
+                cost_difference = current_period_cost - previous_period_cost
+
+                if project in TF_PROJECT_MFI:
+                    for tf in project_mfi.keys():
+                        project_mfi[tf] = mapping_services(
+                            project,
+                            service,
+                            index_weight,
+                            current_period_cost,
+                            previous_period_cost,
+                            project_mfi,
+                            tf,
+                            "MFI",
+                            csv_import=csv_cost,
+                        )
+
                 elif project is None and service == "Support":
                     for tf in project_mfi.keys():
                         project_mfi[tf] = mapping_services(
@@ -201,18 +284,6 @@ class BigQuery:
                             tf,
                             "MFI",
                         )
-
-                    for tf in project_mdi.keys():
-                        project_mdi[tf] = mapping_services(
-                            "Shared Support",
-                            service,
-                            index_weight,
-                            current_period_cost,
-                            previous_period_cost,
-                            project_mdi,
-                            tf,
-                            "MDI",
-                        )
                 else:
                     pass
 
@@ -224,3 +295,18 @@ class BigQuery:
 
             cache.set(cache_key, project_mdi, timeout=REDIS_TTL)
             return project_mdi
+
+    @classmethod
+    def get_services(cls):
+        query_template = f"""
+            SELECT service.id as svc_id, service.description as svc
+            FROM `{BIGQUERY_MFI_TABLE}`
+            GROUP BY svc_id, svc
+            ORDER BY svc ASC
+        """
+        result_query = cls().client.query(query_template).result()
+        result = {}
+        for row in result_query:
+            result[row.svc_id] = row.svc
+
+        return result

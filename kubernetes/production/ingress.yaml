@@ -4,10 +4,10 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
   name: ingress-cost-management-system
-  namespace: cost-management-system
+  namespace: cost-management-system-release
 spec:
   rules:
-  - host: cost-management.moladin.com
+  - host: cost-management-system.moladin.com
     http:
       paths:
       - backend:

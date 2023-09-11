@@ -1,25 +1,30 @@
 from django.urls import path
+from django.views.generic import TemplateView
+from api.views.report_views import create_report
+
 from api.views.bigquery_views import (
     BigQueryPeriodicalCost,
     BigQueryTechFamily,
     BigQueryIndexWeight,
 )
-from .views.report_views import create_report
-from .views.kubecost_views import KubecostClusterViews
-from .views.service_views import ServiceViews
-from .views.kubecost_views import KubecostNamespaceViews
-from .views.kubecost_views import KubecostDeploymentViews
-from .views.kubecost_views import KubecostNamespaceMapViews
-from .views.kubecost_views import KubecostInsertDataViews
-from .views.kubecost_views import KubecostReportViews
-from .views.kubecost_views import KubecostCheckStatusViews
-from django.views.generic import TemplateView
-
+from api.views.kubecost_views import (
+    KubecostClusterViews,
+    KubecostNamespaceViews,
+    KubecostDeploymentViews,
+    KubecostNamespaceMapViews,
+    KubecostInsertDataViews,
+    KubecostReportViews,
+    KubecostCheckStatusViews
+)
+from api.views.service_views import ServiceViews
+from api.views.tech_family_views import TechFamilyViews
 
 urlpatterns = [
     path("gcp/periodical-cost", BigQueryPeriodicalCost.as_view()),
     path("gcp/index-weight", BigQueryIndexWeight.as_view()),
     path("gcp/tech-family", BigQueryTechFamily.as_view()),
+    path("services", ServiceViews.as_view()),
+    path("tech-family", TechFamilyViews.as_view()),
     path("kubecost/clusters", KubecostClusterViews.as_view()),
     path("kubecost/namespaces", KubecostNamespaceViews.as_view()),
     path("kubecost/deployments", KubecostDeploymentViews.as_view()),
@@ -35,7 +40,6 @@ urlpatterns = [
         ),
         name="swagger-ui",
     ),
-    path("services", ServiceViews.as_view()),
     # Async route
     path("create-report", create_report),
 ]

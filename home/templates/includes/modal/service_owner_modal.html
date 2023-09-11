@@ -8,7 +8,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST" action="/service-owner/add" autocomplete="off">
+            <form id="addServiceForm" autocomplete="off">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="input-group mb-3">
@@ -58,12 +58,11 @@
                     </div>
 
                     <div class="mt-4" style="width: 100%;">
-                        <button type="submit" class="btn btn-secondary mb-3">
+                        <button type="button" id="addServiceButton" class="btn btn-secondary mb-3">
                             <i class="fas fa-plus"></i>&nbsp;&nbsp; Add Service
                         </button>
                         <button type="button" class="btn btn-outline-dark mb-3 ms-2" style="width: 50px;" title="Close" data-bs-dismiss="modal"><i class="fas fa-times"></i></button>
                     </div>
-
                 </div>
             </form>
         </div>
@@ -80,7 +79,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST" action="/service-owner/edit" autocomplete="off">
+            <form id="editServiceForm" autocomplete="off">
                 {% csrf_token %}
                 <div class="input-group mb-3">
                     <span class="btn border-secondary bg-light side-label"><i class="fas fa-key"></i></span>
@@ -134,24 +133,23 @@
                     </div>
 
                     <div class="mt-4" style="width: 100%;">
-                        <button type="submit" class="btn btn-secondary mb-3">
+                        <button type="button" id="editServiceButton" class="btn btn-secondary mb-3">
                             <i class="fas fa-server"></i>&nbsp;&nbsp; Save Changes
                         </button>
                         <button type="button" class="btn btn-outline-dark mb-3 ms-2" style="width: 50px;" title="Close" data-bs-dismiss="modal"><i class="fas fa-times"></i></button>
                     </div>
-
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-
 <!-- Modal Delete Confirmation -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <form method="POST" action="/service-owner/delete" autocomplete="off">
+    <form id="deleteServiceForm" autocomplete="off">
         {% csrf_token %}
         <input type="hidden" id="deleteModalServiceId" name="service_id" value="{{ service.pk }}">
+        <input type="hidden" id="deleteModalServiceName" name="service_name" value="{{ service.name }}">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -167,8 +165,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                    <!-- <a href="/delete_temp/{{ service.id }}" class="btn btn-outline-danger btn-sm">Delete</a> -->
-                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                    <button type="button" id="deleteServiceButton" class="btn btn-outline-danger btn-sm">Delete</button>
 
                 </div>
             </div>
