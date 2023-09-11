@@ -237,7 +237,7 @@ class BigQuery:
 
             if csv_import is not None:
                 gcp_services = cls().get_services()
-                csv_path = "static/csv/mfi"
+                csv_path = "static/import/mfi"
                 csv_cost = mapping_csv(
                     current_period_from,
                     current_period_to,
