@@ -1,7 +1,7 @@
 {% extends 'layouts/base_dashboard.html' %}
 {% load static %}
 
-{% block title %} Service Owner {% endblock title %}
+{% block title %} Tech Family {% endblock title %}
 
 {% block content %}
 <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
@@ -13,37 +13,37 @@
             <div class="card my-4">
             <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                 <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 col-12">
-                  <div class="row">
+                    <div class="row">    
                     <div class="col-sm-10">
-                      <h6 class="text-white text-capitalize ps-3">Service Owner</h6>
+                        <h6 class="text-white text-capitalize ps-3">Tech Family</h6>
                     </div>
                     <div class="col-sm-1"></div>
                     <div class="col-sm-1">
-                      <a class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal">
+                        <a class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal">
                         <i class="fas fa-plus"></i>&nbsp; Add
-                      </a>
+                        </a>
                     </div>
-                  </div>
+                    </div>
 
                 </div>
-
+                
             </div>
             <div class="card-body px-0 pb-2">
                 <div class="table-responsive p-0">
-                <table class="table align-items-center mb-0" id="serviceOwnerDatatable">
+                <table class="table align-items-center mb-0" id="techFamilyDatatable">
                     <thead>
-                    <tr>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">No</th>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Name</th>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Service Type</th>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Project</th>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Tech Family</th>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7"></th>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7"></th>
-                    </tr>
+                        <tr>
+                            <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">No</th>
+                            <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Name</th>
+                            <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">PIC</th>
+                            <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Email</th>
+                            <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Project</th>
+                            <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7"></th>
+                            <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7"></th>
+                        </tr>
                     </thead>
                 </table>
-                {% include 'includes/modal/service_owner_modal.html' %}
+                {% include 'includes/modal/tech_family_modal.html' %}
                 </div>
             </div>
             </div>
@@ -65,7 +65,6 @@
                 </li>
                 </ul>
             </div>
-
             </div>
         </div>
     </footer>
@@ -76,5 +75,5 @@
 {% endblock content %}
 
 {% block javascript %}
-    {% include 'includes/script/service_owner_script.html' %}
+    {% include 'includes/script/tech_family_script.html' %}
 {% endblock javascript %}

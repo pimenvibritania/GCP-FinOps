@@ -1,0 +1,336 @@
+<!-- Service Owner Datatable -->
+<script>
+    $(document).ready(function() {
+        const table = $('#serviceOwnerDatatable').DataTable({
+            "ajax": "/api/services",
+            "columns": [
+                {
+                    "data": "id",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center text-sm"
+                },
+                {
+                    "data": "name",
+                    "render": function (data, type, row) {
+                        return '<p class="text-xs font-weight-bold text-uppercase mb-0">' + data + '</p>';
+                    },
+                    "className": "align-middle text-center text-sm",
+                    "width": "250px"
+                },
+                {
+                    "data": "service_type",
+                    "render": function (data, type, row) {
+                        return '<span class="badge badge-sm bg-gradient-success">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center text-sm"
+                },
+                {
+                    "data": "project",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center"
+                },
+                {
+                    "data": "tech_family",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center"
+                },
+                {
+                    "data": null,
+                    "render": function (data, type, row) {
+                        return '<a href="#" class="text-secondary font-weight-bold text-xs" title="Edit Service" data-bs-toggle="modal" data-bs-target="#editModal" data-service-id="' + row.id + '" data-service-name="' + row.name + '" data-service-type="' + row.service_type + '" data-service-project="' + row.project + '" data-service-tech-family="' + row.tech_family + '" data-original-title="Edit">Edit</a>';
+                    },
+                    "className": "align-middle"
+                },
+                {
+                    "data": null,
+                    "render": function (data, type, row) {
+                        return '<a href="#" class="text-secondary font-weight-bold text-xs" title="Delete Service" data-bs-toggle="modal" data-bs-target="#deleteModal" data-service-id="' + row.id + '" data-service-name="' + row.name + '" data-original-title="Delete"> Delete </a>';
+                    },
+                    "className": "align-middle"
+                }
+            ],
+            processing: true,
+            serverSide: true,
+            stateSave: true,
+            paging: true,
+            pageLength: 10,
+            lengthChange: true,
+            autoWidth: false,
+            searching: true,
+            bInfo: true,
+            bSort: true,
+            // orderCellsTop: true,
+            scrollX: true,
+            fixedHeader: true,
+            "columnDefs": [{
+                "targets": [5, 6],
+                "orderable": false
+            }],
+            language: {
+                paginate: {
+                    "previous": "<",
+                    "next": ">"
+                },
+            },
+            dom: '<"container-fluid"<"row"<"col"l><"col"f>>>rti<"container-fluid"<"row mt-2"<"col"B><"col"p>>>',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<i class="fas fa-file-excel"></i>',
+                    className: 'btn btn-secondary',
+                    titleAttr: 'Excel',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4]
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="fas fa-file-pdf"></i>',
+                    className: 'btn btn-secondary',
+                    titleAttr: 'PDF',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4]
+                    },
+                    tableHeader: {
+                        alignment: 'center'
+                    },
+                    // FOnt size and optimization
+                    customize: function (doc) {
+                        doc.styles.tableHeader.alignment = 'center'; // Header postition
+                        doc.styles.tableBodyOdd.alignment = 'center'; // Header postition
+                        doc.styles.tableBodyEven.alignment = 'center'; // Header postition
+                        doc.styles.tableHeader.fontSize = 7; // Header postition
+                        doc.defaultStyle.fontSize = 6; // Header postition
+                        // To get 100% width of the table
+                        doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
+                    }
+                },
+
+            ]
+
+        });
+    });
+</script>
+
+<!-- Service Owner Modal -->
+<script>
+  $('#deleteModal').on('show.bs.modal', function (event) {
+      const button = $(event.relatedTarget);
+      const serviceId = button.data('service-id');
+      const serviceName = button.data('service-name');
+      $('#deleteModalServiceId').val(serviceId);
+      $('#deleteModalServiceName').val(serviceName);
+      $('#serviceNamePlaceholder').text(serviceName);
+  });
+
+  $('#editModal').on('show.bs.modal', function (event) {
+      const button = $(event.relatedTarget);
+      const serviceId = button.data('service-id');
+      const serviceName = button.data('service-name');
+      const serviceType = button.data('service-type');
+      const serviceProject = button.data('service-project');
+      const serviceTechFamily = button.data('service-tech-family');
+      $('#editModalServiceId').val(serviceId);
+      $('#editModalServiceName').val(serviceName);
+      $('#editModalServiceType').val(serviceType);
+      $('#editModalServiceType').text(serviceType);
+      $('#editModalServiceProject').val(serviceProject);
+      $('#editModalServiceProject').text(serviceProject);
+      $('#editModalServiceTechFamily').val(serviceTechFamily);
+      $('#editModalServiceTechFamily').text(serviceTechFamily);
+  });
+</script>
+
+<!-- Service Owner Modal Add Button -->
+<script>
+  $(document).ready(function() {
+      $("#addServiceButton").click(function() {
+          var formData = $("#addServiceForm").serialize();
+          $.ajax({
+            type: "POST",
+            url: "/api/services",
+            headers: { "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val() },
+            data: formData,
+            success: function(response) {
+                $("#addModal").modal("hide");
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'SUCCESS!',
+                    text: `Service ${response.data.name} added successfully.`,
+                    showConfirmButton: true
+                }).then(function() {
+                    window.location.href = '/service-owner';
+                });
+            },
+            error: function(xhr, status, error) {
+                $("#addModal").modal("hide");
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response && response.message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'FAILED!',
+                            text: response.message,
+                            showConfirmButton: true
+                        }).then(function() {
+                            window.location.href = '/service-owner';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'FAILED!',
+                            text: 'An error occurred while adding the service.',
+                            showConfirmButton: true
+                        }).then(function() {
+                            window.location.href = '/service-owner';
+                        });
+                    }
+                } catch (parseError) {
+                    console.error("Error parsing response:", parseError);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'FAILED!',
+                        text: 'An error occurred while adding the service.',
+                        showConfirmButton: true
+                    }).then(function() {
+                            window.location.href = '/service-owner';
+                        });
+                }
+            }
+          });
+      });
+  });
+</script>
+
+<!-- Service Owner Modal Edit Button -->
+<script>
+    $(document).ready(function() {
+        $("#editServiceButton").click(function() {
+            var formData = $("#editServiceForm").serialize();
+            $.ajax({
+                type: "PUT",
+                url: "/api/services",
+                headers: { "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val() },
+                data: formData,
+                success: function(response) {
+                    $("#editModal").modal("hide");
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'SUCCESS!',
+                        text: `Service ${response.data.name} updated successfully.`,
+                        showConfirmButton: true
+                    }).then(function() {
+                        window.location.href = '/service-owner';
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.log(error)
+                    $("#editModal").modal("hide");
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response && response.message) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'FAILED!',
+                                text: response.message,
+                                showConfirmButton: true
+                            }).then(function() {
+                                window.location.href = '/service-owner';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'FAILED!',
+                                text: 'An error occurred while updating the service.',
+                                showConfirmButton: true
+                            }).then(function() {
+                                window.location.href = '/service-owner';
+                            });
+                        }
+                    } catch (parseError) {
+                        console.error("Error parsing response:", parseError);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'FAILED!',
+                            text: 'An error occurred while updating the service.',
+                            showConfirmButton: true
+                        }).then(function() {
+                            window.location.href = '/service-owner';
+                        });
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<!-- Service Owner Modal Delete Button -->
+<script>
+    $(document).ready(function() {
+        $("#deleteServiceButton").click(function() {
+            var formData = $("#deleteServiceForm").serialize();
+            var serviceName = $("#deleteModalServiceName").val();
+            $.ajax({
+                type: "DELETE",
+                url: "/api/services",
+                headers: { "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val() },
+                data: formData,
+                success: function(response) {
+                    $("#deleteModal").modal("hide");
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'SUCCESS!',
+                        text: `Service ${serviceName} deleted successfully.`,
+                        showConfirmButton: true
+                    }).then(function() {
+                        window.location.href = '/service-owner';
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.log(error)
+                    $("#deleteModal").modal("hide");
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response && response.message) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'FAILED!',
+                                text: response.message,
+                                showConfirmButton: true
+                            }).then(function() {
+                                window.location.href = '/service-owner';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'FAILED!',
+                                text: 'An error occurred while deleting the service.',
+                                showConfirmButton: true
+                            }).then(function() {
+                                window.location.href = '/service-owner';
+                            });
+                        }
+                    } catch (parseError) {
+                        console.error("Error parsing response:", parseError);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'FAILED!',
+                            text: 'An error occurred while deleting the service.',
+                            showConfirmButton: true
+                        }).then(function() {
+                            window.location.href = '/service-owner';
+                        });
+                    }
+                }
+            });
+        });
+    });
+</script>
+  
