@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from os import getenv
 import logging
 
-import dotenv
+# import dotenv
 
 # dotenv.load_dotenv()
 
