@@ -226,7 +226,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 ENCRYPTION_KEY = os.getenv("APPLICATION_KEY")
 
-SITE_ID = 2
+SITE_ID = int(os.getenv("OAUTH_SITE_ID"))
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
