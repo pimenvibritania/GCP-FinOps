@@ -192,7 +192,6 @@ async def send_email_task(
         <strong>Your PDF password is: {pdf_password}</strong>
     """
     email_content += password_html
-    print(pdf_link, encrypted_pdf_pass)
     await Logger.log_report(
         created_by="Admin",
         tech_family=tech_family,

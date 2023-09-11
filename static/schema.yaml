@@ -70,7 +70,7 @@ paths:
           schema:
             type: string
             format: string
-          description: Fill with devl or stag
+          description: Fill with development or stag
       tags:
       - GCP
       security:
