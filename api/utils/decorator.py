@@ -64,7 +64,7 @@ def mail_validator(view_func):
             "devl": {
                 "from": "pirman.abdurohman@moladin.com",
                 "to": "tjatur.permadi@moladin.com",
-                "cc": "pirman.abdurohman@moladin.com",
+                "cc": "devops-engineer@moladin.com",
             },
             "prod": {
                 "from": "DevOps Engineer <noreply@moladin.com>",
