@@ -62,7 +62,7 @@ def mail_validator(view_func):
 
         data = {
             "devl": {
-                "from": "pirman.abdurohman@moladin.com",
+                "from": "DevOps Engineer <noreply@moladin.com>",
                 "to": "tjatur.permadi@moladin.com",
                 "cc": "devops-engineer@moladin.com",
             },
