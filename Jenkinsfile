@@ -102,6 +102,8 @@ pipeline {
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-prod -f Dockerfile.cronjob ."
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER}"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER}"
+                        sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-devl"
+                        sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-prod"
                         currentBuild.result = 'SUCCESS'
                     } catch(e) {
                         currentBuild.result = 'FAILURE'
