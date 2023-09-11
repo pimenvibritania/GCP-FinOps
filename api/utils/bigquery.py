@@ -18,7 +18,7 @@ def get_tech_family():
 
 
 def parse_env(project):
-    if "development" in project:
+    if "devl" in project:
         return "development"
     elif "stag" in project:
         return "staging"

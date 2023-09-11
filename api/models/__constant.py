@@ -13,7 +13,7 @@ ROOT_DIR = os.path.dirname(API_DIR)
 REDIS_TTL = int(os.getenv("REDIS_TTL"))
 
 TF_PROJECT_MDI = [
-    "moladin-shared-development",
+    "moladin-shared-devl",
     "moladin-shared-stag",
     "moladin-shared-prod",
     "moladin-frame-prod",
@@ -21,7 +21,7 @@ TF_PROJECT_MDI = [
     "moladin-refi-prod",
     "moladin-wholesale-prod",
 ]
-TF_PROJECT_MFI = ["moladin-mof-development", "moladin-mof-stag", "moladin-mof-prod"]
+TF_PROJECT_MFI = ["moladin-mof-devl", "moladin-mof-stag", "moladin-mof-prod"]
 TF_PROJECT_ANDROID = ["pc-api-9219877891024085702-541"]
 
 ATLAS_SERVICE_NAME = "MongoDB Atlas (Private Offer)"

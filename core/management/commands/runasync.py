@@ -7,7 +7,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--development",
+            "--devl",
             action="store_true",
             help="Running development",
         )
@@ -26,7 +26,7 @@ class Command(BaseCommand):
             "--reload",
         ]
 
-        if options["development"]:
+        if options["devl"]:
             uvicorn_command.append("--reload-include")
             uvicorn_command.append("html")
         try:

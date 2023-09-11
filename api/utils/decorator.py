@@ -61,7 +61,7 @@ def mail_validator(view_func):
             )
 
         data = {
-            "development": {
+            "devl": {
                 "from": "pirman.abdurohman@moladin.com",
                 "to": "tjatur.permadi@moladin.com",
                 "cc": "pirman.abdurohman@moladin.com",
@@ -76,7 +76,7 @@ def mail_validator(view_func):
                 ],
             },
         }
-        if mail_env not in ["development", "prod"]:
+        if mail_env not in ["devl", "prod"]:
             return JsonResponse(
                 {"success": False, "message": "Mail env not match, email not sending"},
                 status=404,
