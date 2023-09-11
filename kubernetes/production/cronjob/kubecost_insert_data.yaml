@@ -1,8 +1,8 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: cms-create-report-devl
-  namespace: cost-management-system-release
+  name: kubecost-insert-data
+  namespace: cost-management-system
 spec:
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
@@ -14,13 +14,13 @@ spec:
           - args:
             - /bin/sh
             - -c
-            - python send_report.py
+            - python kubecost_insert_data.py
             envFrom:
             - secretRef:
                 name: cost-management-system-cold-app-secret
-            image: asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-management-system:cronjob-send-report-devl
+            image: asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-management-system:cronjob
             imagePullPolicy: Always
-            name: cms-create-report
+            name: kubecost-insert-data
             terminationMessagePath: /dev/termination-log
             terminationMessagePolicy: File
           dnsPolicy: ClusterFirst
@@ -28,5 +28,5 @@ spec:
           schedulerName: default-scheduler
           securityContext: {}
           terminationGracePeriodSeconds: 30
-  schedule: '0 9 * * 0'
-  suspend: false
+  schedule: '1 8 * * *'
+  suspend: true

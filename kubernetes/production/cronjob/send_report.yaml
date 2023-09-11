@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: cms-create-report-devl
+  name: cms-create-report-prod
   namespace: cost-management-system-release
 spec:
   concurrencyPolicy: Forbid
@@ -18,7 +18,7 @@ spec:
             envFrom:
             - secretRef:
                 name: cost-management-system-cold-app-secret
-            image: asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-management-system:cronjob-send-report-devl
+            image: asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-management-system:cronjob-send-report-prod
             imagePullPolicy: Always
             name: cms-create-report
             terminationMessagePath: /dev/termination-log
@@ -28,5 +28,5 @@ spec:
           schedulerName: default-scheduler
           securityContext: {}
           terminationGracePeriodSeconds: 30
-  schedule: '0 9 * * 0'
+  schedule: '0 13 * * 0'
   suspend: false

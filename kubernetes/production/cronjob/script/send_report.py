@@ -22,7 +22,7 @@ yesterday_formatted = yesterday.strftime("%Y-%m-%d")
 today_formatted = today.strftime("%Y-%m-%d")
 
 # url = f"{APP_URL}/api/create-report?date={yesterday_formatted}&period=weekly&send-mail={ENV}"
-url = f"{APP_URL}/api/create-report?date={today_formatted}&period=weekly&send-mail=devl&csv-import=true"
+url = f"{APP_URL}/api/create-report?date={today_formatted}&period=weekly&send-mail={ENV}&csv-import=true"
 try:
     response = requests.get(url, auth=auth_credentials)
     if response.status_code == 200:
