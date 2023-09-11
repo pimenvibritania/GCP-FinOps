@@ -8,7 +8,7 @@
 build/
 env
 /staticfiles/
-
+/static/csv
 #src
 *.sqlite*
 
