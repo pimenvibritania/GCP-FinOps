@@ -1,7 +1,8 @@
 import os
 
 GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT")
-BIGQUERY_TABLE = os.getenv("BIGQUERY_TABLE")
+BIGQUERY_MDI_TABLE = os.getenv("BIGQUERY_MDI_TABLE")
+BIGQUERY_MFI_TABLE = os.getenv("BIGQUERY_MFI_TABLE")
 
 CURRENT_PATH = os.path.abspath(__file__)
 CURRENT_DIR_PATH = os.path.dirname(CURRENT_PATH)
