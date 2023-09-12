@@ -29,4 +29,5 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
 ]
 
+handler404 = "home.views.error_views.not_found"
 handler403 = "home.views.error_views.unauthenticated"

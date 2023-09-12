@@ -7,5 +7,5 @@ def unauthenticated(request, exception):
     )
 
 
-def not_found(request):
+def not_found(request, exception):
     return render(request, "pages/error/not_found.html")
