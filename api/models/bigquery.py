@@ -113,6 +113,108 @@ class BigQuery:
                 GROUP BY proj, svc
             """
 
+            # MFI Query
+
+            if period == "monthly":
+                current_period_costs_mfi = cross_billing(
+                    cls(),
+                    query_template,
+                    BIGQUERY_MFI_TABLE,
+                    BIGQUERY_MDI_TABLE,
+                    current_period_from,
+                    current_period_to,
+                )
+                previous_period_costs_mfi = cross_billing(
+                    cls(),
+                    query_template,
+                    BIGQUERY_MFI_TABLE,
+                    BIGQUERY_MDI_TABLE,
+                    previous_period_from,
+                    previous_period_to,
+                )
+
+            else:
+                query_current_period_mfi = query_template.format(
+                    BIGQUERY_TABLE=BIGQUERY_MFI_TABLE,
+                    start_date=current_period_from,
+                    end_date=current_period_to,
+                )
+
+                query_previous_period_mfi = query_template.format(
+                    BIGQUERY_TABLE=BIGQUERY_MFI_TABLE,
+                    start_date=previous_period_from,
+                    end_date=previous_period_to,
+                )
+
+                current_period_results_mfi = (
+                    cls().client.query(query_current_period_mfi).result()
+                )
+                previous_period_results_mfi = (
+                    cls().client.query(query_previous_period_mfi).result()
+                )
+
+                current_period_costs_mfi = {}
+                for row in current_period_results_mfi:
+                    current_period_costs_mfi[(row.svc, row.proj)] = row.total_cost
+
+                previous_period_costs_mfi = {}
+                for row in previous_period_results_mfi:
+                    previous_period_costs_mfi[(row.svc, row.proj)] = row.total_cost
+
+            csv_cost = None
+
+            if csv_import is not None or period == "monthly":
+                gcp_services = cls().get_services()
+                csv_path = "static/import/mfi"
+                csv_cost = mapping_csv(
+                    current_period_from,
+                    current_period_to,
+                    previous_period_from,
+                    previous_period_to,
+                    gcp_services,
+                    csv_path,
+                )
+
+            for service, project in set(current_period_costs_mfi.keys()).union(
+                previous_period_costs_mfi.keys()
+            ):
+                current_period_cost = current_period_costs_mfi.get(
+                    (service, project), 0
+                )
+                previous_period_cost = previous_period_costs_mfi.get(
+                    (service, project), 0
+                )
+                cost_difference = current_period_cost - previous_period_cost
+
+                if project in TF_PROJECT_MFI:
+                    for tf in project_mfi.keys():
+                        project_mfi[tf] = mapping_services(
+                            project,
+                            service,
+                            index_weight,
+                            current_period_cost,
+                            previous_period_cost,
+                            project_mfi,
+                            tf,
+                            "MFI",
+                            csv_import=csv_cost,
+                        )
+
+                elif project is None and service == "Support":
+                    for tf in project_mfi.keys():
+                        project_mfi[tf] = mapping_services(
+                            "Shared Support",
+                            service,
+                            index_weight,
+                            current_period_cost,
+                            previous_period_cost,
+                            project_mfi,
+                            tf,
+                            "MFI",
+                        )
+                else:
+                    pass
+
             # MDI Query
             query_current_period_mdi = query_template.format(
                 BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
@@ -202,88 +304,6 @@ class BigQuery:
                             "MDI",
                         )
 
-                else:
-                    pass
-
-            # MFI Query
-            query_current_period_mfi = query_template.format(
-                BIGQUERY_TABLE=BIGQUERY_MFI_TABLE,
-                start_date=current_period_from,
-                end_date=current_period_to,
-            )
-
-            query_previous_period_mfi = query_template.format(
-                BIGQUERY_TABLE=BIGQUERY_MFI_TABLE,
-                start_date=previous_period_from,
-                end_date=previous_period_to,
-            )
-
-            current_period_results_mfi = (
-                cls().client.query(query_current_period_mfi).result()
-            )
-            previous_period_results_mfi = (
-                cls().client.query(query_previous_period_mfi).result()
-            )
-
-            current_period_costs_mfi = {}
-            for row in current_period_results_mfi:
-                current_period_costs_mfi[(row.svc, row.proj)] = row.total_cost
-
-            previous_period_costs_mfi = {}
-            for row in previous_period_results_mfi:
-                previous_period_costs_mfi[(row.svc, row.proj)] = row.total_cost
-
-            csv_cost = None
-
-            if csv_import is not None:
-                gcp_services = cls().get_services()
-                csv_path = "static/import/mfi"
-                csv_cost = mapping_csv(
-                    current_period_from,
-                    current_period_to,
-                    previous_period_from,
-                    previous_period_to,
-                    gcp_services,
-                    csv_path,
-                )
-
-            for service, project in set(current_period_costs_mfi.keys()).union(
-                previous_period_costs_mfi.keys()
-            ):
-                current_period_cost = current_period_costs_mfi.get(
-                    (service, project), 0
-                )
-                previous_period_cost = previous_period_costs_mfi.get(
-                    (service, project), 0
-                )
-                cost_difference = current_period_cost - previous_period_cost
-
-                if project in TF_PROJECT_MFI:
-                    for tf in project_mfi.keys():
-                        project_mfi[tf] = mapping_services(
-                            project,
-                            service,
-                            index_weight,
-                            current_period_cost,
-                            previous_period_cost,
-                            project_mfi,
-                            tf,
-                            "MFI",
-                            csv_import=csv_cost,
-                        )
-
-                elif project is None and service == "Support":
-                    for tf in project_mfi.keys():
-                        project_mfi[tf] = mapping_services(
-                            "Shared Support",
-                            service,
-                            index_weight,
-                            current_period_cost,
-                            previous_period_cost,
-                            project_mfi,
-                            tf,
-                            "MFI",
-                        )
                 else:
                     pass
 

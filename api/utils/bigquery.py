@@ -212,3 +212,68 @@ def mapping_services(
     )
 
     return project_family[tf]
+
+
+def cross_billing(
+    bigquery, query_template, mfi_dataset, mdi_dataset, from_date, to_date
+):
+    from_date_f = datetime.strptime(from_date, "%Y-%m-%d").date()
+    to_date_f = datetime.strptime(to_date, "%Y-%m-%d").date()
+
+    last_august = datetime(2023, 8, 31).date()
+    first_september = datetime(2023, 9, 1).date()
+
+    if from_date_f <= last_august and to_date_f >= first_september:
+        from_query = query_template.format(
+            BIGQUERY_TABLE=mdi_dataset,
+            start_date=from_date,
+            end_date=last_august.strftime("%Y-%m-%d"),
+        )
+
+        to_query = query_template.format(
+            BIGQUERY_TABLE=mfi_dataset,
+            start_date=first_september.strftime("%Y-%m-%d"),
+            end_date=to_date,
+        )
+
+        from_query_result = bigquery.client.query(from_query).result()
+        to_query_result = bigquery.client.query(to_query).result()
+
+        total_cost = {}
+        for row in from_query_result:
+            total_cost[(row.svc, row.proj)] = row.total_cost
+
+        for row in to_query_result:
+            total_cost[(row.svc, row.proj)] = (
+                total_cost.get((row.svc, row.proj), 0) + row.total_cost
+            )
+
+        return total_cost
+
+    elif from_date_f <= last_august and to_date_f < first_september:
+        query = query_template.format(
+            BIGQUERY_TABLE=mdi_dataset,
+            start_date=from_date,
+            end_date=to_date,
+        )
+
+        query_result = bigquery.client.query(query).result()
+        total_cost = {}
+        for row in query_result:
+            total_cost[(row.svc, row.proj)] = row.total_cost
+
+        return total_cost
+    elif from_date_f >= first_september:
+        query = query_template.format(
+            BIGQUERY_TABLE=mfi_dataset,
+            start_date=from_date,
+            end_date=to_date,
+        )
+        query_result = bigquery.client.query(query).result()
+        total_cost = {}
+        for row in query_result:
+            total_cost[(row.svc, row.proj)] = row.total_cost
+
+        return total_cost
+    else:
+        print("Range unknown", from_date, to_date)
