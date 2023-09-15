@@ -1,8 +1,9 @@
 from django.db import models
 from home.models.tech_family import TechFamily
+from home.models.base_model import BaseModel
 
 
-class ReportLogger(models.Model):
+class ReportLogger(BaseModel):
     class Meta:
         db_table = "report_log"
 

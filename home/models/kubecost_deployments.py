@@ -2,8 +2,9 @@ from django.db import models
 from ..utils.enumerate import EnvironmentType, ProjectType
 from .services import Services
 from .kubecost_clusters import KubecostClusters
+from home.models.base_model import BaseModel
 
-class KubecostDeployments(models.Model):
+class KubecostDeployments(BaseModel):
     class Meta:
         db_table = "kubecost_deployments"
         constraints = [

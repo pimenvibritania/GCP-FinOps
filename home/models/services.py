@@ -2,8 +2,9 @@ from django.db import models
 from ..utils.enumerate import ProjectType, ServiceType
 from .tech_family import TechFamily
 from django.db.models import Q
+from home.models.base_model import BaseModel
 
-class Services(models.Model):
+class Services(BaseModel):
     class Meta:
         db_table = "services"
         constraints = [
