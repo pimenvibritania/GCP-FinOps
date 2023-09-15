@@ -1,9 +1,10 @@
 from django.db import models
 from ..utils.enumerate import ProjectType
 from django.db.models import Q
+from home.models.base_model import BaseModel
 
 
-class TechFamily(models.Model):
+class TechFamily(BaseModel):
     class Meta:
         db_table = "tech_family"
         constraints = [
