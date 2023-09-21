@@ -2,16 +2,15 @@ from home.models.kubecost_clusters import KubecostClusters
 from home.models.services import Services
 from home.models.tech_family import TechFamily
 from home.models.kubecost_namespaces import KubecostNamespaces, KubecostNamespacesMap
-from ..serializers import (
+from api.serializers import (
     KubecostClusterSerializer,
     ServiceSerializer,
     KubecostDeployments,
     KubecostNamespaceMapSerializer,
 )
 from django.db.utils import IntegrityError
-from ..utils.date import Date
-from ..utils.conversion import Conversion
-from kubernetes import config
+from api.utils.date import Date
+from api.utils.conversion import Conversion
 from datetime import datetime, timedelta
 from django.core.cache import cache
 import subprocess
@@ -20,10 +19,24 @@ import os
 import requests
 import json
 from kubernetes import client, config
+import logging
+import re
 
 
 REDIS_TTL = int(os.getenv("REDIS_TTL"))
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
+
+
+# Logger Config
+class CustomLogger(logging.Logger):
+    def __init__(self, name):
+        super().__init__(name)
+        self.setLevel(logging.NOTSET)
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.NOTSET)
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        self.addHandler(handler)
+logger = CustomLogger(__name__)
 
 
 def send_slack(message):
@@ -213,7 +226,6 @@ class KubecostInsertData:
             KubecostNamespaces.objects.bulk_create(namespace_to_insert, ignore_conflicts=True)
         except IntegrityError as e:
             print("IntegrityError:", e)
-            pass
 
     @staticmethod
     def insert_cost_by_deployment(
@@ -321,7 +333,6 @@ class KubecostInsertData:
             KubecostDeployments.objects.bulk_create(deployment_to_insert, ignore_conflicts=True)
         except IntegrityError as e:
             print("IntegrityError:", e)
-            pass
 
     @staticmethod
     def insert_data(date):
@@ -623,32 +634,30 @@ class KubecostReport:
 
 
 class KubecostCheckStatus:
+
+    @staticmethod
     def check_status():
         kubecost_clusters = KubecostClusters.get_all()
-        current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        for obj in kubecost_clusters:
-            cluster_name = obj.cluster_name
-            location = obj.location
-            gcp_project = obj.gcp_project
-            company_project = obj.company_project
-            environment = obj.environment
+        for gke in kubecost_clusters:
+            cluster_name = gke.cluster_name
+            location = gke.location
+            gcp_project = gke.gcp_project
             kube_context = f"gke_{gcp_project}_{location}_{cluster_name}"
-            print(f"{current_datetime} - Run Cronjob kubecost_check_status.")
-            print(f"{current_datetime} - CLUSTER NAME: {cluster_name}")
+            logger.info("Kubecost Check Status Starting...")
+            logger.info(f"CLUSTER NAME: {cluster_name}")
 
             # Check Deployment Ready Status
             try:
-                print(f"{current_datetime} - Checking Deployment Status...")
+                logger.info("Checking Deployment Status...")
                 config.load_kube_config(context=kube_context)
                 apps_v1 = client.AppsV1Api()
 
-                deployments = apps_v1.list_namespaced_deployment(namespace="kubecost")
+                deployments = apps_v1.list_namespaced_deployment(namespace="kubecost")            
 
                 for deployment in deployments.items:
                     deployment_name = deployment.metadata.name
-                    if deployment_name == "kubecost-grafana":
-                        continue  # skip kubecost-grafana
+                    if deployment_name == "kubecost-grafana": continue  # skip kubecost-grafana
 
                     ready_replicas = deployment.status.ready_replicas
                     replicas = deployment.spec.replicas
@@ -660,18 +669,20 @@ class KubecostCheckStatus:
                     else:
                         deployment_ready = False
 
-                    if deployment_ready == False:
-                        send_slack(
-                            f"<!here>, *KUBECOST ALERT!!* :rotating_light: \nDeployment *'{deployment_name}'* is not Ready. Cluster: *'{cluster_name}'*"
-                        )
-                    print(f"{current_datetime} - Deployment: {deployment_name} - Ready: {deployment_ready}")
-            except Exception as e:
-                print("Error:", e)
+                    if deployment_ready == True:
+                        logger.info(f"Deployment: {deployment_name} - Ready: {deployment_ready}")
+                    else:
+                        logger.warning(f"Deployment: {deployment_name} - Ready: {deployment_ready}")
+                        send_slack(f"<!here>, *KUBECOST ALERT!!* :rotating_light: \nDeployment *'{deployment_name}'* is not Ready. Cluster: *'{cluster_name}'*")
+                        logger.info("Slack notif sent!")
+            except client.ApiException as e:
+                logger.error(f"Exception when calling Kubernetes API: {str(e)}")                
+                continue
 
             # Check Data Exist
             try:
-                print(f"{current_datetime} - Checking Kubecost Data Exist...")
-                command = f"kubectl cost namespace --context={kube_context} --historical --window 1d | wc -l"
+                logger.info("Checking Kubecost Data Exist...")
+                command = f"kubectl cost namespace --context={kube_context} --historical --window 1d"
 
                 result = subprocess.run(
                     command,
@@ -680,15 +691,19 @@ class KubecostCheckStatus:
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                 )
+            
                 if result.returncode == 0:
                     output = result.stdout.strip()
-                    total_line = int(output)
-                    if total_line <= 6:  # no data when execute 'kubectl cost'
-                        send_slack(
-                            f"<!here>, *KUBECOST ALERT!!* :rotating_light: \n*No Data Kubecost for Today*. Cluster: *'{cluster_name}'*."
-                        )
+                    pattern = r"USD\s+(\d+\.\d+)"
+                    usd_value = re.search(pattern, output).group(1)
+                    cost = float(usd_value)
+                    if cost == 0:
+                        logger.warning("No Kubecost Data for the Last 1 Day!")
+                        send_slack(f"<!here>, *KUBECOST ALERT!!* :rotating_light: \n*No Kubecost Data for the Last 1 Day*. Cluster: *'{cluster_name}'*.")
                 else:
-                    print(f"{current_datetime} - Error:", result.stderr)
+                    print("Error:", result.stderr)
 
             except Exception as e:
-                print(f"{current_datetime} - An error occurred:", str(e))
+                print("An error occurred:", str(e))
+
+
