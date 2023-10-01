@@ -19,3 +19,5 @@ service-account.json
 
 /home/templates/temp
 media/
+
+Pipfile*
