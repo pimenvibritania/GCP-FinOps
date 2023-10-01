@@ -1,7 +1,10 @@
+from datetime import datetime, timedelta
+from api.models.__constant import *
 from api.serializers import TFSerializer
 from api.utils.conversion import Conversion
 from home.models.tech_family import TechFamily
-from api.models.__constant import *
+import pandas as pd
+import os
 
 
 def get_tech_family():
@@ -53,6 +56,60 @@ def get_tf_collection(data, search, date, conversion_rate):
     return collection
 
 
+def calculate_csv_cost(csv_path, environment, date, service_name):
+    date_str = date.strftime("%Y-%m-%d")
+    csv_file = f"{csv_path}/{environment}/{date_str}.csv"
+
+    if os.path.exists(csv_file):
+        csv_read = pd.read_csv(csv_file)
+        csv_row = csv_read[csv_read["Service"] == service_name]
+        if not csv_row.empty:
+            return csv_row["Cost"].values[0]
+
+    return 0
+
+
+def mapping_csv(
+    current_period_from,
+    current_period_to,
+    previous_period_from,
+    previous_period_to,
+    gcp_services,
+    csv_path,
+):
+    result = {"current_cost": {}, "previous_cost": {}}
+    for environment in ["development", "staging", "production"]:
+        result["current_cost"][environment] = {}
+        result["previous_cost"][environment] = {}
+
+        current_start_date = datetime.strptime(current_period_from, "%Y-%m-%d")
+        current_end_date = datetime.strptime(current_period_to, "%Y-%m-%d")
+        previous_start_date = datetime.strptime(previous_period_from, "%Y-%m-%d")
+        previous_end_date = datetime.strptime(previous_period_to, "%Y-%m-%d")
+
+        for _, service_name in gcp_services.items():
+            result["current_cost"][environment][service_name] = 0
+            result["previous_cost"][environment][service_name] = 0
+
+            current_date = current_start_date
+            while current_date <= current_end_date:
+                result["current_cost"][environment][service_name] += calculate_csv_cost(
+                    csv_path, environment, current_date, service_name
+                )
+                current_date += timedelta(days=1)
+
+            previous_date = previous_start_date
+            while previous_date <= previous_end_date:
+                result["previous_cost"][environment][
+                    service_name
+                ] += calculate_csv_cost(
+                    csv_path, environment, previous_date, service_name
+                )
+                previous_date += timedelta(days=1)
+
+    return result
+
+
 def mapping_services(
     gcp_project,
     service_name,
@@ -62,6 +119,7 @@ def mapping_services(
     project_family,
     tf,
     organization,
+    csv_import=None,
 ):
     environment = (
         "All Environment"
@@ -81,6 +139,18 @@ def mapping_services(
 
     current_cost = current_period_cost * (weight_index_percent / 100)
     previous_cost = previous_period_cost * (weight_index_percent / 100)
+
+    if csv_import is not None and environment in [
+        "development",
+        "staging",
+        "production",
+    ]:
+        current_cost += csv_import["current_cost"][environment][service_name] * (
+            weight_index_percent / 100
+        )
+        previous_cost += csv_import["previous_cost"][environment][service_name] * (
+            weight_index_percent / 100
+        )
 
     diff_cost = current_cost - previous_cost
 
@@ -142,3 +212,68 @@ def mapping_services(
     )
 
     return project_family[tf]
+
+
+def cross_billing(
+    bigquery, query_template, mfi_dataset, mdi_dataset, from_date, to_date
+):
+    from_date_f = datetime.strptime(from_date, "%Y-%m-%d").date()
+    to_date_f = datetime.strptime(to_date, "%Y-%m-%d").date()
+
+    last_august = datetime(2023, 8, 31).date()
+    first_september = datetime(2023, 9, 1).date()
+
+    if from_date_f <= last_august and to_date_f >= first_september:
+        from_query = query_template.format(
+            BIGQUERY_TABLE=mdi_dataset,
+            start_date=from_date,
+            end_date=last_august.strftime("%Y-%m-%d"),
+        )
+
+        to_query = query_template.format(
+            BIGQUERY_TABLE=mfi_dataset,
+            start_date=first_september.strftime("%Y-%m-%d"),
+            end_date=to_date,
+        )
+
+        from_query_result = bigquery.client.query(from_query).result()
+        to_query_result = bigquery.client.query(to_query).result()
+
+        total_cost = {}
+        for row in from_query_result:
+            total_cost[(row.svc, row.proj)] = row.total_cost
+
+        for row in to_query_result:
+            total_cost[(row.svc, row.proj)] = (
+                total_cost.get((row.svc, row.proj), 0) + row.total_cost
+            )
+
+        return total_cost
+
+    elif from_date_f <= last_august and to_date_f < first_september:
+        query = query_template.format(
+            BIGQUERY_TABLE=mdi_dataset,
+            start_date=from_date,
+            end_date=to_date,
+        )
+
+        query_result = bigquery.client.query(query).result()
+        total_cost = {}
+        for row in query_result:
+            total_cost[(row.svc, row.proj)] = row.total_cost
+
+        return total_cost
+    elif from_date_f >= first_september:
+        query = query_template.format(
+            BIGQUERY_TABLE=mfi_dataset,
+            start_date=from_date,
+            end_date=to_date,
+        )
+        query_result = bigquery.client.query(query).result()
+        total_cost = {}
+        for row in query_result:
+            total_cost[(row.svc, row.proj)] = row.total_cost
+
+        return total_cost
+    else:
+        print("Range unknown", from_date, to_date)

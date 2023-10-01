@@ -1,4 +1,5 @@
 {% extends 'layouts/base_dashboard.html' %}
+{% load socialaccount %}
 
 {% block title %} CMS | Login Page {% endblock title %}
 {% block body %} class="sign-in-basic" {% endblock body %}
@@ -8,6 +9,7 @@
 {% include 'includes/navigation_transparent.html' %}
 
 {% endblock header %}
+{% include "socialaccount/snippets/provider_list.html" with process="login" %}
 
 {% block content %}
 
@@ -44,6 +46,14 @@
                   <button type="submit" class="btn bg-gradient-primary w-100 my-4 mb-2">LOGIN</button>
                 </div>
               </form>
+            <div class="text-center">
+                <button class="btn bg-gradient-primary w-100 my-2">
+                    <a href="{% provider_login_url 'google'%}?next=/">
+                        <i class="fab fa-google"></i>
+                        Login with Google
+                    </a>
+                </button>
+            </div>
             </div>
           </div>
         </div>

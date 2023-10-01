@@ -1,0 +1,329 @@
+<!-- Tech Family Datatable -->
+<script>
+    $(document).ready(function () {
+        const table = $('#techFamilyDatatable').DataTable({
+            "ajax": "/api/tech-family",
+            "columns": [
+                {
+                    "data": "id",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center text-sm"
+                },
+                {
+                    "data": "name",
+                    "render": function (data, type, row) {
+                        return '<p class="text-xs font-weight-bold text-uppercase mb-0">' + data + '</p>';
+                    },
+                    "className": "align-middle text-center text-sm"
+                },
+                {
+                    "data": "pic",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center"
+                },
+                {
+                    "data": "pic_email",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center"
+                },
+                {
+                    "data": "project",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center"
+                },
+                {
+                    "data": null,
+                    "render": function (data, type, row) {
+                        return '<a href="#" class="text-secondary font-weight-bold text-xs" title="Edit Tech Family" data-bs-toggle="modal" data-bs-target="#editModal" data-tf-id="' + row.id + '" data-tf-name="' + row.name + '" data-tf-pic="' + row.pic + '" data-tf-email="' + row.pic_email + '" data-tf-project="' + row.project + '" data-original-title="Edit">Edit</a>';
+                    },
+                    "className": "align-middle"
+                },
+                {
+                    "data": null,
+                    "render": function (data, type, row) {
+                        return '<a href="#" class="text-secondary font-weight-bold text-xs" title="Delete Tech Famliy" data-bs-toggle="modal" data-bs-target="#deleteModal" data-tf-id="' + row.id + '" data-tf-name="' + row.name + '" data-original-title="Delete">Delete</a>';
+                    },
+                    "className": "align-middle"
+                }
+
+            ],
+            processing: true,
+            stateSave: true,
+            paging: true,
+            pageLength: 10,
+            lengthChange: true,
+            autoWidth: false,
+            searching: true,
+            bInfo: true,
+            bSort: true,
+            scrollX: true,
+            fixedHeader: true,
+            "columnDefs": [{
+                "targets": [5, 6],
+                "orderable": false
+            }],
+            language: {
+                paginate: {
+                    "previous": "<",
+                    "next": ">"
+                },
+            },
+            dom: '<"container-fluid"<"row"<"col"l><"col"f>>>rti<"container-fluid"<"row mt-2"<"col"B><"col"p>>>',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<i class="fas fa-file-excel"></i>',
+                    className: 'btn btn-secondary',
+                    titleAttr: 'Excel',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4]
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="fas fa-file-pdf"></i>',
+                    className: 'btn btn-secondary',
+                    titleAttr: 'PDF',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4]
+                    },
+                    tableHeader: {
+                        alignment: 'center'
+                    },
+                    // FOnt size and optimization
+                    customize: function (doc) {
+                        doc.styles.tableHeader.alignment = 'center'; // Header postition
+                        doc.styles.tableBodyOdd.alignment = 'center'; // Header postition
+                        doc.styles.tableBodyEven.alignment = 'center'; // Header postition
+                        doc.styles.tableHeader.fontSize = 7; // Header postition
+                        doc.defaultStyle.fontSize = 6; // Header postition
+                        // To get 100% width of the table
+                        doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
+                    }
+                },
+            ]
+        });
+    });
+</script>
+
+<!-- Tech Family Modal Script -->
+<script>
+    $('#deleteModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var tfId = button.data('tf-id');
+        var tfName = button.data('tf-name');
+        $('#deleteModalTfId').val(tfId);
+        $('#deleteModalTfName').val(tfName);
+        $('#tfNamePlaceholder').text(tfName);
+    });
+
+    $('#editModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var tfId = button.data('tf-id');
+        var tfName = button.data('tf-name');
+        var tfPic = button.data('tf-pic');
+        var tfEmail = button.data('tf-email');
+        var tfProject = button.data('tf-project');
+        $('#editModalTfId').val(tfId);
+        $('#editModalTfName').val(tfName);
+        $('#editModalTfPic').val(tfPic);
+        $('#editModalTfEmail').val(tfEmail);
+        $('#editModalTfProject').val(tfProject);
+        $('#editModalTfProject').text(tfProject);
+    });
+</script>
+
+<!-- Tech Family Modal Add Button -->
+<script>
+    $(document).ready(function () {
+        $("#addTechFamilyButton").click(function () {
+            var formData = $("#addTechFamilyForm").serialize();
+            $.ajax({
+                type: "POST",
+                url: "/api/tech-family",
+                headers: { "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val() },
+                data: formData,
+                success: function (response) {
+                    $("#addModal").modal("hide");
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'SUCCESS!',
+                        text: `Tech Family ${response.data.name} added successfully.`,
+                        showConfirmButton: true
+                    }).then(function () {
+                        window.location.href = '/tech-family';
+                    });
+                },
+                error: function (xhr, status, error) {
+                    $("#addModal").modal("hide");
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response && response.message) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'FAILED!',
+                                text: response.message,
+                                showConfirmButton: true
+                            }).then(function () {
+                                window.location.href = '/tech-family';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'FAILED!',
+                                text: 'An error occurred while adding the tech family.',
+                                showConfirmButton: true
+                            }).then(function () {
+                                window.location.href = '/tech-family';
+                            });
+                        }
+                    } catch (parseError) {
+                        console.error("Error parsing response:", parseError);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'FAILED!',
+                            text: 'An error occurred while adding the tech family.',
+                            showConfirmButton: true
+                        }).then(function () {
+                            window.location.href = '/tech-family';
+                        });
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<!-- Tech Family Modal Edit Button -->
+<script>
+    $(document).ready(function () {
+        $("#editTechFamilyButton").click(function () {
+            var formData = $("#editTechFamilyForm").serialize();
+            $.ajax({
+                type: "PUT",
+                url: "/api/tech-family",
+                headers: { "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val() },
+                data: formData,
+                success: function (response) {
+                    $("#editModal").modal("hide");
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'SUCCESS!',
+                        text: `Tech Family ${response.data.name} updated successfully.`,
+                        showConfirmButton: true
+                    }).then(function () {
+                        window.location.href = '/tech-family';
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.log(error)
+                    $("#editModal").modal("hide");
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response && response.message) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'FAILED!',
+                                text: response.message,
+                                showConfirmButton: true
+                            }).then(function () {
+                                window.location.href = '/tech-family';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'FAILED!',
+                                text: 'An error occurred while updating the tech family.',
+                                showConfirmButton: true
+                            }).then(function () {
+                                window.location.href = '/tech-family';
+                            });
+                        }
+                    } catch (parseError) {
+                        console.error("Error parsing response:", parseError);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'FAILED!',
+                            text: 'An error occurred while updating the tech family.',
+                            showConfirmButton: true
+                        }).then(function () {
+                            window.location.href = '/tech-family';
+                        });
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<!-- Tech Family Modal Delete Button -->
+<script>
+    $(document).ready(function () {
+        $("#deleteTechFamilyButton").click(function () {
+            var formData = $("#deleteTechFamilyForm").serialize();
+            var tfName = $("#deleteModalTfName").val();
+            console.log(tfName)
+            $.ajax({
+                type: "DELETE",
+                url: "/api/tech-family",
+                headers: { "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val() },
+                data: formData,
+                success: function (response) {
+                    $("#deleteModal").modal("hide");
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'SUCCESS!',
+                        text: `Tech Family ${tfName} deleted successfully.`,
+                        showConfirmButton: true
+                    }).then(function () {
+                        window.location.href = '/tech-family';
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.log(error)
+                    $("#deleteModal").modal("hide");
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response && response.message) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'FAILED!',
+                                text: response.message,
+                                showConfirmButton: true
+                            }).then(function () {
+                                window.location.href = '/tech-family';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'FAILED!',
+                                text: 'An error occurred while deleting the tech family.',
+                                showConfirmButton: true
+                            }).then(function () {
+                                window.location.href = '/tech-family';
+                            });
+                        }
+                    } catch (parseError) {
+                        console.error("Error parsing response:", parseError);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'FAILED!',
+                            text: 'An error occurred while deleting the tech family.',
+                            showConfirmButton: true
+                        }).then(function () {
+                            window.location.href = '/tech-family';
+                        });
+                    }
+                }
+            });
+        });
+    });
+</script>

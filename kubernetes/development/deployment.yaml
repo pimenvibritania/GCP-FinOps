@@ -4,7 +4,7 @@ metadata:
   labels:
     app: cost-management-system-app
   name: cost-management-system-app-deployment
-  namespace: cost-management-system-release
+  namespace: cost-management-system
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
@@ -29,7 +29,7 @@ spec:
             name: cost-management-system-cold-app-secret
         - secretRef:
             name: cost-management-system-hot-app-secret
-        image: asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-management-system:v0.0.2-test
+        image: asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-management-system:v0.0.2
         imagePullPolicy: IfNotPresent
         resources:
           limits:

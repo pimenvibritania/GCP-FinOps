@@ -1,11 +1,18 @@
 from django.db import models
 from ..utils.enumerate import ProjectType
 from django.db.models import Q
+from home.models.base_model import BaseModel
 
 
-class TechFamily(models.Model):
+class TechFamily(BaseModel):
     class Meta:
         db_table = "tech_family"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name'], 
+                name='unique_name'
+            )
+        ]
 
     name = models.CharField(max_length=100)
     pic = models.CharField(max_length=100)
@@ -46,3 +53,13 @@ class TechFamily(models.Model):
     @staticmethod
     def included_mfi():
         return ["mofi", "defi", "platform_mfi"]
+
+    def get_data(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'pic': self.pic,
+            'pic_email': self.pic_email,
+            'slug': self.slug,
+            'project': self.project
+        }

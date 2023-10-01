@@ -1,0 +1,12 @@
+Service,ServiceID,Cost
+Compute Engine,6F81-5844-456A,447738.93
+Cloud SQL,9662-B51E-5089,109068.13
+Networking,E505-1604-58F8,62055.3
+Kubernetes Engine,CCD8-9BF1-090E,36624
+Cloud Memorystore for Redis,5AF5-2C11-D467,24171.84
+Support,2062-016F-44A2,20435.2
+Cloud Key Management Service (KMS),EE2F-D110-890C,988.74
+Cloud Storage,95FF-2EF5-5EA1,526.56
+BigQuery,24E6-581D-38E5,0
+Cloud Logging,5490-F7B7-8DF6,0
+Cloud Monitoring,58CD-E7C3-72CA,0

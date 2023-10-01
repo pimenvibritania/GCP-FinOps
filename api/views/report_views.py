@@ -20,6 +20,8 @@ from django.core.cache import cache
 async def create_report(request, date=None, period=None):
     date = request.GET.get("date")
     period = request.GET.get("period")
+    csv_import = request.GET.get("csv-import")
+
     cache_key = f"cms-report-{date}-{period}"
     if cache.get(cache_key):
         payload = cache.get(cache_key)
@@ -27,7 +29,9 @@ async def create_report(request, date=None, period=None):
         loop = asyncio.get_event_loop()
 
         async_tasks = [
-            loop.run_in_executor(None, BigQuery.get_periodical_cost, date, period),
+            loop.run_in_executor(
+                None, BigQuery.get_periodical_cost, date, period, csv_import
+            ),
             loop.run_in_executor(None, KubecostReport.report, date, period),
         ]
 
@@ -192,7 +196,6 @@ async def send_email_task(
         <strong>Your PDF password is: {pdf_password}</strong>
     """
     email_content += password_html
-    print(pdf_link, encrypted_pdf_pass)
     await Logger.log_report(
         created_by="Admin",
         tech_family=tech_family,

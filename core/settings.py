@@ -84,7 +84,6 @@ CACHES = {
     }
 }
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -94,12 +93,17 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
     "theme_material_kit",
     "home",
     "api",
     "rest_framework",
     "django_crontab",
     "core",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 ]
 
 MIDDLEWARE = [
@@ -212,14 +216,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGIN_REDIRECT_URL = "/"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-
-CRONJOBS = [
-    # ("1 8 * * *", "api.cron.insert_kubecost_data"),
-    # ("1 8,9,10,11,12,13,14,15,16,17 * * *", "api.cron.check_kubecost_status"),
-]
 
 GOOGLE_APPLICATION_CREDENTIALS = os.path.join(BASE_DIR, "service-account.json")
 GOOGLE_CLOUD_STORAGE_BUCKET_NAME = os.getenv("GCS_BUCKET")
@@ -228,3 +225,32 @@ GOOGLE_CLOUD_STORAGE_FOLDER_NAME = os.getenv("GCS_FOLDER")
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 ENCRYPTION_KEY = os.getenv("APPLICATION_KEY")
+
+SITE_ID = int(os.getenv("OAUTH_SITE_ID"))
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    }
+}
+
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+
+SOCIALACCOUNT_ADAPTER = "home.utils.adapter.CustomGoogleOAuth2Adapter"
+
+OAUTH_EMAIL_WHITELIST = str(os.getenv("OAUTH_EMAIL_WHITELIST")).split(",")

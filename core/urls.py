@@ -15,12 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from home.views.error_views import not_found
 from api import urls as api_url
 
 urlpatterns = [
-    path('', include('home.urls')),
+    path("", include("home.urls")),
     path("admin/", admin.site.urls),
-    path("material/", include('theme_material_kit.urls')),
-    path('api-auth/', include('rest_framework.urls')),
-    path('api/', include(api_url)),
+    path("material/", include("theme_material_kit.urls")),
+    path("api-auth/", include("rest_framework.urls")),
+    path("api/", include(api_url)),
+    path("accounts/login/", not_found),
+    path("accounts/signup/", not_found),
+    path("accounts/", include("allauth.urls")),
 ]
+
+handler404 = "home.views.error_views.not_found"
+handler403 = "home.views.error_views.unauthenticated"

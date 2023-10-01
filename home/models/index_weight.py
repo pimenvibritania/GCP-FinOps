@@ -3,9 +3,10 @@ from ..utils.enumerate import EnvironmentType
 from .tech_family import TechFamily
 from ..utils.serializer import IndexWeightSerializer
 from django.core import serializers
+from home.models.base_model import BaseModel
 
 
-class IndexWeight(models.Model):
+class IndexWeight(BaseModel):
     class Meta:
         db_table = "index_weight"
 

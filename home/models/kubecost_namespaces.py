@@ -2,9 +2,11 @@ from django.db import models, connection
 from ..utils.enumerate import EnvironmentType, ProjectType
 from .services import Services
 from .kubecost_clusters import KubecostClusters
+from home.models.base_model import BaseModel
 import json
 
-class KubecostNamespaces(models.Model):
+
+class KubecostNamespaces(BaseModel):
     class Meta:
         db_table = "kubecost_namespaces"
         constraints = [

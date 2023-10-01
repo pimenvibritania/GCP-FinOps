@@ -1,0 +1,27 @@
+{% extends 'layouts/base_error.html' %}
+{% load static %}
+
+{% block title %} CMS | 403 FORBIDDEN {% endblock title %}
+
+{% block content %}
+<main>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 align-self-center">
+        <img src="https://images.glints.com/unsafe/glints-dashboard.s3.amazonaws.com/company-logo/99a4fb009d14f8155ffa8d67bba5c957.png" alt="Girl in a jacket" width="500" height="500">
+      </div>
+      <div class="col-md-6 align-self-center text-center">
+        <h1>403</h1>
+        <h2>Not this time, Access FORBIDDEN!.</h2>
+        <p>The request was understood, but it has not been fulfilled.
+            You do not have the necessary credentials or permissions to view this resource.
+            <br/>
+            Exception: <strong>{{ exception }}</strong>
+        </p>
+        <a href="/" class="btn blue mx-auto">HOME</a>
+
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock content %}

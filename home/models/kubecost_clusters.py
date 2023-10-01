@@ -1,7 +1,8 @@
 from django.db import models
 from ..utils.enumerate import EnvironmentType, ProjectType
+from home.models.base_model import BaseModel
 
-class KubecostClusters(models.Model):
+class KubecostClusters(BaseModel):
     class Meta:
         db_table = "kubecost_clusters"
         constraints = [
