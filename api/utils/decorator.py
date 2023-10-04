@@ -91,7 +91,8 @@ def mail_validator(view_func):
 def whatsapp_validator(view_func):
     @wraps(view_func)
     async def _wrapped_view(request, *args, **kwargs):
-        no_telp = args[2]
+        subject, context, no_telp, pdf_link, pdf_password = args
+            
         whatsapp_env = request.GET.get("send-wa")
         if whatsapp_env is None:
             return JsonResponse(

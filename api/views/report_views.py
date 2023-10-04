@@ -148,47 +148,40 @@ async def send_whatsapp(request, subject, context, no_telp, pdf_link, pdf_passwo
     end = cost_status_gcp.find('</')
     cost_status = cost_status_gcp[start:end]
 
-    message = f"""*{subject}*
-    
-*Service Owner:* {context['em_name']} {context['project_name']}
+    message = render_to_string("whatsapp_template.html", {
+        "subject": subject,
+        "cost_status": cost_status,
+        "em_name": context['em_name'],
+        "project_name": context['project_name'],
+        "previous_total_idr_gcp": context['previous_total_idr_gcp'],
+        "previous_total_usd_gcp": context['previous_total_usd_gcp'],
+        "current_total_idr_gcp": context['current_total_idr_gcp'],
+        "current_total_usd_gcp": context['current_total_usd_gcp'],
+        "pdf_link": pdf_link,
+        "pdf_password": pdf_password
+    })
 
-*Cost status: {cost_status}*
-
-*Summary cost comparison:*
-Previous period: {context['previous_total_idr_gcp']} | {context['previous_total_usd_gcp']} USD
-*This period: {context['current_total_idr_gcp']} | {context['current_total_usd_gcp']} USD*
-
-*PDF Link:* {pdf_link}
-*PDF Pass:* {pdf_password}
-
-Best Regards,
-DevOps Team
-"""
-        
     async with AsyncClient() as client:
-        tasks = []
         for contact in contacts:
             print(f"Sending Whatsapp to {contact['name']} ({context['project_name']})")
-            task = client.post(
-                os.getenv("WHATSAPP_URL"),
-                headers={
-                    "Content-type": "application/json", 
-                    "Authorization": os.getenv("WHATSAPP_TOKEN")},
-                json={
-                    "queueName": "Cost Management System",
-                    "number": contact['telpon'],
-                    "message": message
-                }
-            )
-            tasks.append(task)
-
-        responses = await asyncio.gather(*tasks)
-
-        for response in responses:
-                    if response.status_code != 200:
-                        raise ValueError(response.text)
-
-        # return response
+            try:
+                response = await client.post(
+                    url=os.getenv("WHATSAPP_URL"),
+                    headers={
+                        "Content-type": "application/json", 
+                        "Authorization": os.getenv("WHATSAPP_TOKEN")},
+                    json={
+                        "queueName": "Cost Management System",
+                        "number": contact['telpon'],
+                        "message": message
+                    }
+                )
+                if response.status_code != 200:
+                    raise ValueError(response.text)
+                else:
+                    print(f"Message sent successfully to {contact['name']}")
+            except Exception as e:
+                print(f"Error sending message to {contact['name']}: {str(e)}")
 
 
 @mail_validator
@@ -256,7 +249,7 @@ async def send_email_task(
         link=pdf_link,
         pdf_password=encrypted_pdf_pass,
     )
-    await send_mail(request, subject, to_email, pdf_filename, pdf_file, email_content)
+    # await send_mail(request, subject, to_email, pdf_filename, pdf_file, email_content)
     await send_whatsapp(request, subject, context, no_telp, pdf_link, pdf_password)
 
     os.remove(pdf_file)
