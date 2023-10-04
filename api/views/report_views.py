@@ -12,6 +12,7 @@ from httpx import AsyncClient
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.core.cache import cache
+import json
 
 
 @date_validator
@@ -138,6 +139,58 @@ def get_idle_cost(idle_data, search_data, index_weight):
     }
 
 
+@whatsapp_validator
+async def send_whatsapp(request, subject, context, no_telp, pdf_link, pdf_password):
+    contacts = json.loads(request["no_telp"])
+
+    cost_status_gcp = context['cost_status_gcp']
+    start = cost_status_gcp.find('>') + 1
+    end = cost_status_gcp.find('</')
+    cost_status = cost_status_gcp[start:end]
+
+    message = f"""*{subject}*
+    
+*Service Owner:* {context['em_name']} {context['project_name']}
+
+*Cost status: {cost_status}*
+
+*Summary cost comparison:*
+Previous period: {context['previous_total_idr_gcp']} | {context['previous_total_usd_gcp']} USD
+*This period: {context['current_total_idr_gcp']} | {context['current_total_usd_gcp']} USD*
+
+*PDF Link:* {pdf_link}
+*PDF Pass:* {pdf_password}
+
+Best Regards,
+DevOps Team
+"""
+        
+    async with AsyncClient() as client:
+        tasks = []
+        for contact in contacts:
+            print(f"Sending Whatsapp to {contact['name']} ({context['project_name']})")
+            task = client.post(
+                os.getenv("WHATSAPP_URL"),
+                headers={
+                    "Content-type": "application/json", 
+                    "Authorization": os.getenv("WHATSAPP_TOKEN")},
+                json={
+                    "queueName": "Cost Management System",
+                    "number": contact['telpon'],
+                    "message": message
+                }
+            )
+            tasks.append(task)
+
+        responses = await asyncio.gather(*tasks)
+
+        for response in responses:
+                    if response.status_code != 200:
+                        raise ValueError(response.text)
+
+        # return response
+
+
 @mail_validator
 async def send_mail(
     request,
@@ -171,7 +224,7 @@ async def send_mail(
 
 
 async def send_email_task(
-    request, subject, to_email, template_path, context, em_name, tech_family
+    request, subject, to_email, template_path, context, em_name, tech_family, no_telp
 ):
     email_content = render_to_string(template_path, context)
     pdf_filename = (
@@ -204,6 +257,8 @@ async def send_email_task(
         pdf_password=encrypted_pdf_pass,
     )
     await send_mail(request, subject, to_email, pdf_filename, pdf_file, email_content)
+    await send_whatsapp(request, subject, context, no_telp, pdf_link, pdf_password)
+
     os.remove(pdf_file)
 
 
@@ -241,6 +296,7 @@ def formatting_report(request, payload_data):
         to_email = kubecost_payload[data]["pic_email"]
         template_path = "email_template.html"
         em_name = kubecost_payload[data]["pic"]
+        no_telp = kubecost_payload[data]["pic_telp"]
         subject = f"!!! Hi {em_name}, your GCP Cost on {date_time} !!!"
         tech_family = kubecost_payload[data]["tech_family"]
         project_name = f"({tech_family} - {kubecost_payload[data]['project']})"
@@ -444,6 +500,7 @@ def formatting_report(request, payload_data):
                         context,
                         em_name,
                         tech_family,
+                        no_telp
                     )
                 )
             )
