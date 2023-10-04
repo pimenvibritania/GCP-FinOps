@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright (c) 2019 - present [AppSeed](http://appseed.us/)
+Copyright (c) 2023
 
 <br />
 
@@ -27,6 +27,3 @@ Copyright (c) 2019 - present [AppSeed](http://appseed.us/)
 | Separate sale of our UI Elements | NO |
 
 <br />
-
----
-For more information regarding licensing, please contact the AppSeed Service < *support@appseed.us* >

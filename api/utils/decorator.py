@@ -5,7 +5,7 @@ from .validator import Validator
 from rest_framework import status
 
 
-def date_validator(view_func):
+def date_async_validator(view_func):
     @wraps(view_func)
     async def _wrapped_view(request, *args, **kwargs):
         date = request.GET.get("date")
@@ -15,6 +15,62 @@ def date_validator(view_func):
                 validated_date.message, status=validated_date.status_code
             )
         return await view_func(request, *args, **kwargs)
+
+    return _wrapped_view
+
+
+def date_api_view_validator(view_func):
+    @wraps(view_func)
+    def _wrapped_view(cls, request, *args, **kwargs):
+        date = request.GET.get("date")
+        validated_date = Validator.date(date)
+        if validated_date.status_code != status.HTTP_200_OK:
+            return JsonResponse(
+                validated_date.message, status=validated_date.status_code
+            )
+        return view_func(cls, request, *args, **kwargs)
+
+    return _wrapped_view
+
+
+def date_range_api_view_validator(view_func):
+    @wraps(view_func)
+    def _wrapped_view(cls, request, *args, **kwargs):
+        date_start = request.GET.get("date-start")
+        validated_date_start = Validator.date(
+            date_start, "`date-start` query parameter required!"
+        )
+
+        if validated_date_start.status_code != status.HTTP_200_OK:
+            return JsonResponse(
+                validated_date_start.message, status=validated_date_start.status_code
+            )
+
+        request.GET._mutable = True
+
+        date_end = request.GET.get("date-end")
+        if date_end is not None:
+            validated_date_end = Validator.date(
+                date_end, "`date-end` query parameter required!"
+            )
+            if validated_date_end.status_code != status.HTTP_200_OK:
+                return JsonResponse(
+                    validated_date_end.message, status=validated_date_end.status_code
+                )
+
+            validated_ranged_date = Validator.date_range(date_start, date_end)
+            if validated_ranged_date.status_code != status.HTTP_200_OK:
+                return JsonResponse(
+                    validated_ranged_date.message,
+                    status=validated_ranged_date.status_code,
+                )
+            request.GET["ranged-date"] = True
+        else:
+            request.GET["ranged-date"] = False
+
+        request.GET._mutable = False
+
+        return view_func(cls, request, *args, **kwargs)
 
     return _wrapped_view
 

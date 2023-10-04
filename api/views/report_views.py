@@ -14,7 +14,7 @@ from django.template.loader import render_to_string
 from django.core.cache import cache
 
 
-@date_validator
+@date_async_validator
 @period_validator
 @user_async_validator
 async def create_report(request, date=None, period=None):

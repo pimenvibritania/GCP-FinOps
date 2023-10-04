@@ -6,6 +6,9 @@ from home.models.services import Services
 from home.models.kubecost_deployments import KubecostDeployments
 from home.models.kubecost_namespaces import KubecostNamespaces, KubecostNamespacesMap
 from home.models.logger import ReportLogger
+from home.models.gcp_services import GCPServices
+from home.models.gcp_projects import GCPProjects
+from home.models.gcp_costs import GCPCosts
 
 
 class BQQueryParamSerializer(serializers.Serializer):
@@ -129,4 +132,64 @@ class ReportLoggerSerializer(serializers.ModelSerializer):
             "link",
             "pdf_password",
             "created_at",
+        ]
+
+
+class GCPServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GCPServices
+        fields = [
+            "name",
+            "sku",
+            "created_at",
+        ]
+
+
+class GCPProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GCPProjects
+        fields = [
+            "identity",
+            "name",
+            "environment",
+            "created_at",
+        ]
+
+    def validate(self, data):
+        env = ["development", "staging", "production"]
+        if data["environment"] not in env:
+            raise serializers.ValidationError(
+                {"environment": f"must be one of development, staging or production"}
+            )
+        return data
+
+
+class GCPCostSerializer(serializers.ModelSerializer):
+    tech_family = serializers.PrimaryKeyRelatedField(
+        queryset=TechFamily.objects.all(), many=False
+    )
+
+    gcp_project = serializers.PrimaryKeyRelatedField(
+        queryset=GCPProjects.objects.all(), many=False
+    )
+
+    gcp_service = serializers.PrimaryKeyRelatedField(
+        queryset=GCPServices.objects.all(), many=False
+    )
+
+    index_weight = serializers.PrimaryKeyRelatedField(
+        queryset=IndexWeight.objects.all(), many=False
+    )
+
+    class Meta:
+        model = GCPCosts
+        fields = [
+            "usage_date",
+            "cost",
+            "project_cost",
+            "conversion_rate",
+            "gcp_project",
+            "gcp_service",
+            "index_weight",
+            "tech_family",
         ]

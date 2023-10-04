@@ -1,8 +1,6 @@
 from django.db import models, connection
 from ..utils.enumerate import EnvironmentType
 from .tech_family import TechFamily
-from ..utils.serializer import IndexWeightSerializer
-from django.core import serializers
 from home.models.base_model import BaseModel
 
 
@@ -23,9 +21,10 @@ class IndexWeight(BaseModel):
         return self.environment
 
     @classmethod
-    def get_index_weight(cls, from_date, to_date):
+    def get_index_weight(cls):
         query = f"""
                 SELECT 
+                    t1.id,
                     t1.value AS value, 
                     t1.environment, 
                     tf.project, 
@@ -44,11 +43,14 @@ class IndexWeight(BaseModel):
             result = cursor.fetchall()
 
         organized_data = {}
-        for value, environment, project, slug in result:
+        for index_id, value, environment, project, slug in result:
             if project not in organized_data:
                 organized_data[project] = {}
             if slug not in organized_data[project]:
                 organized_data[project][slug] = {}
-            organized_data[project][slug][environment] = value
+            organized_data[project][slug][environment] = {
+                "id": index_id,
+                "value": value,
+            }
 
         return organized_data

@@ -4,13 +4,13 @@ from .tech_family import TechFamily
 from django.db.models import Q
 from home.models.base_model import BaseModel
 
+
 class Services(BaseModel):
     class Meta:
         db_table = "services"
         constraints = [
             models.UniqueConstraint(
-                fields=['name', 'project'], 
-                name='unique_name_project'
+                fields=["name", "project"], name="unique_name_project"
             )
         ]
 
@@ -23,20 +23,20 @@ class Services(BaseModel):
 
     def __str__(self):
         return self.name
-    
+
     @classmethod
     def get_all(cls):
         return cls.objects.all()
-    
+
     @classmethod
     def get_service(cls, project):
-        return cls.objects.filter(project=project).values('id', 'name')
-    
+        return cls.objects.filter(project=project).values("id", "name")
+
     def get_data(self):
         return {
-            'id': self.id,
-            'name': self.name,
-            'service_type': self.service_type,
-            'project': self.project,
-            'tech_family': self.tech_family.name
+            "id": self.id,
+            "name": self.name,
+            "service_type": self.service_type,
+            "project": self.project,
+            "tech_family": self.tech_family.name,
         }

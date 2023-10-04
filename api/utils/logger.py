@@ -1,3 +1,5 @@
+import logging
+
 from home.models.tech_family import TechFamily
 from asgiref.sync import sync_to_async
 from home.models.logger import ReportLogger
@@ -17,3 +19,15 @@ class Logger:
         return await sync_to_async(instance.save)(
             force_insert=False, force_update=False, using=None, update_fields=None
         )
+
+
+class CustomLogger(logging.Logger):
+    def __init__(self, name):
+        super().__init__(name)
+        self.setLevel(logging.NOTSET)
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.NOTSET)
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        )
+        self.addHandler(handler)

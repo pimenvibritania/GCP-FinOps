@@ -6,7 +6,7 @@ from ..utils.exception import (
 from django.contrib.auth import authenticate
 from asgiref.sync import sync_to_async
 from dateutil.parser import parse
-
+from datetime import datetime
 import base64
 
 
@@ -15,16 +15,38 @@ class Validator:
         self.status_code = 200
 
     @classmethod
-    def date(cls, value):
+    def date(cls, value, message=None):
         try:
             if value is None:
-                return BadRequestException("date query parameter is required")
+                if message is None:
+                    message = "date query parameter is required"
+                return BadRequestException(message)
+
             parsed_date = parse(value)
+
             if parsed_date.strftime("%Y-%m-%d") != value:
                 return UnprocessableEntityException(
                     "Date format must be 'Y-m-d' (e.g., '2023-08-07')"
                 )
             return cls()
+        except ValueError:
+            return UnprocessableEntityException(
+                "Invalid date format. Must be 'Y-m-d' (e.g., '2023-08-07')"
+            )
+
+    @classmethod
+    def date_range(cls, date_start, date_end):
+        try:
+            start_date = datetime.strptime(date_start, "%Y-%m-%d")
+            end_date = datetime.strptime(date_end, "%Y-%m-%d")
+
+            if start_date <= end_date:
+                return cls()
+            else:
+                return UnprocessableEntityException(
+                    "Invalid date range, date-start must be lower than date-end! "
+                )
+
         except ValueError:
             return UnprocessableEntityException(
                 "Invalid date format. Must be 'Y-m-d' (e.g., '2023-08-07')"

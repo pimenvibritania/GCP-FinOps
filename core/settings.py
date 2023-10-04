@@ -220,9 +220,11 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 GOOGLE_APPLICATION_CREDENTIALS = os.path.join(BASE_DIR, "service-account.json")
 GOOGLE_CLOUD_STORAGE_BUCKET_NAME = os.getenv("GCS_BUCKET")
-GOOGLE_CLOUD_STORAGE_FOLDER_NAME = os.getenv("GCS_FOLDER")
+GOOGLE_CLOUD_STORAGE_PDF_REPORT_FOLDER_NAME = os.getenv("GCS_PDF_REPORT_FOLDER")
+GOOGLE_CLOUD_STORAGE_LOGS_FOLDER_NAME = os.getenv("GCS_LOGS_FOLDER")
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+LOGS_DIR = os.path.join(BASE_DIR, "logs")
 
 ENCRYPTION_KEY = os.getenv("APPLICATION_KEY")
 

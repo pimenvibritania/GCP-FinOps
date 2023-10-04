@@ -134,7 +134,7 @@ def mapping_services(
         if (organization == "ANDROID" or service_name == ATLAS_SERVICE_NAME)
         else 16.66
         if (service_name == "Support" and gcp_project == "Shared Support")
-        else index_weight[organization][tf][environment]
+        else index_weight[organization][tf][environment]["value"]
     )
 
     current_cost = current_period_cost * (weight_index_percent / 100)
