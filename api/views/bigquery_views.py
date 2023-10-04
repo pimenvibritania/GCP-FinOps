@@ -66,6 +66,7 @@ class BigQueryIndexWeight(generics.ListCreateAPIView):
 
         return Response(data=data, status=status.HTTP_200_OK)
 
+    @user_is_admin
     def post(self, request, *args, **kwargs):
         data = {
             "value": request.data.get("value"),

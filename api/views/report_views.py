@@ -14,6 +14,7 @@ from django.template.loader import render_to_string
 from django.core.cache import cache
 
 
+@user_is_admin
 @async_date_validator
 @async_period_validator
 @user_async_validator

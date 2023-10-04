@@ -25,6 +25,7 @@ class TechFamilyViews(APIView):
 
         return Response(response, status=status.HTTP_200_OK)
 
+    @user_is_admin
     def post(self, request, *args, **kwargs):
         data = {
             "name": request.data.get("tf_name"),
@@ -52,6 +53,7 @@ class TechFamilyViews(APIView):
         
         return Response({"success": False, "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+    @user_is_admin
     def put(self, request, *args, **kwargs):
         tf_id = request.data.get('tf_id')
         try:
@@ -88,6 +90,7 @@ class TechFamilyViews(APIView):
 
         return Response({"success": False, "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+    @user_is_admin
     def delete(self, request, *args, **kwargs):
         tf_id = request.data.get('tf_id')
         try:
