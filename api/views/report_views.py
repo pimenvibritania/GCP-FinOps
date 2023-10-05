@@ -249,7 +249,7 @@ async def send_email_task(
         link=pdf_link,
         pdf_password=encrypted_pdf_pass,
     )
-    # await send_mail(request, subject, to_email, pdf_filename, pdf_file, email_content)
+    await send_mail(request, subject, to_email, pdf_filename, pdf_file, email_content)
     await send_whatsapp(request, subject, context, no_telp, pdf_link, pdf_password)
 
     os.remove(pdf_file)
