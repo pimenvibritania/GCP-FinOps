@@ -474,6 +474,7 @@ class KubecostReport:
                     "pic": tf.pic,
                     "pic_email": tf.pic_email,
                     "project": tf.project,
+                    "pic_telp": tf.pic_telp,
                     "data": {
                         "date": f"{start_date_this_period} - {end_date_this_period}",
                         "services": [],
