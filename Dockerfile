@@ -29,8 +29,8 @@ RUN gcloud container clusters get-credentials mof-prod-regional-cluster --zone a
 RUN gcloud container clusters get-credentials shared-devl-cluster --zone asia-southeast2-a --project moladin-shared-devl
 RUN gcloud container clusters get-credentials shared-stag-regional-cluster --zone asia-southeast2 --project moladin-shared-stag
 RUN gcloud container clusters get-credentials shared-prod-regional-cluster --zone asia-southeast2 --project moladin-shared-prod
-RUN gcloud container clusters get-credentials wholesale-prod-cluster --zone asia-southeast2-a --project moladin-wholesale-prod
-RUN gcloud container clusters get-credentials frame-prod-cluster --zone asia-southeast2-a --project moladin-frame-prod
+# RUN gcloud container clusters get-credentials wholesale-prod-cluster --zone asia-southeast2-a --project moladin-wholesale-prod
+# RUN gcloud container clusters get-credentials frame-prod-cluster --zone asia-southeast2-a --project moladin-frame-prod
 
 # gunicorn
 # CMD ["gunicorn", "--config", "gunicorn-cfg.py", "core.wsgi"]
