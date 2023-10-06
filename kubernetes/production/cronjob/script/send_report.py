@@ -18,11 +18,14 @@ auth_credentials = (CRONJOB_USER, CRONJOB_PASSWORD)
 
 today = datetime.now()
 yesterday = today - timedelta(days=1)
-yesterday_formatted = yesterday.strftime("%Y-%m-%d")
+two_days_ago = today - timedelta(days=2)
+
 today_formatted = today.strftime("%Y-%m-%d")
+yesterday_formatted = yesterday.strftime("%Y-%m-%d")
+two_days_ago_formatted = two_days_ago.strftime("%Y-%m-%d")
 
 # url = f"{APP_URL}/api/create-report?date={yesterday_formatted}&period=weekly&send-mail={ENV}"
-url = f"{APP_URL}/api/create-report?date={today_formatted}&period=weekly&send-mail={ENV}&csv-import=true"
+url = f"{APP_URL}/api/create-report?date={two_days_ago_formatted}&period=weekly&send-mail={ENV}&csv-import=true"
 try:
     response = requests.get(url, auth=auth_credentials)
     if response.status_code == 200:
