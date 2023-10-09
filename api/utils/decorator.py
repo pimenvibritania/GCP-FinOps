@@ -1,3 +1,4 @@
+import os
 import threading
 from functools import wraps
 from django.http import JsonResponse
@@ -118,9 +119,8 @@ def mail_validator(view_func):
 
         data = {
             "devl": {
-                "from": "DevOps Engineer <noreply@moladin.com>",
-                "to": "tjatur.permadi@moladin.com",
-                "cc": "devops-engineer@moladin.com",
+                "from": os.getenv("FROM_MAIL_DEV"),
+                "to": os.getenv("TO_MAIL_DEV"),
             },
             "prod": {
                 "from": "DevOps Engineer <noreply@moladin.com>",
@@ -148,18 +148,18 @@ def whatsapp_validator(view_func):
     @wraps(view_func)
     async def _wrapped_view(request, *args, **kwargs):
         subject, context, no_telp, pdf_link, pdf_password = args
-            
+
         whatsapp_env = request.GET.get("send-wa")
         if whatsapp_env is None:
             return JsonResponse(
                 {"success": False, "message": "Not sending whatsapp"}, status=404
             )
-        
+
         data = {
             "devl": '[{"name": "Maulana", "telpon": "6287757634192"},{"name": "Ibrahim", "telpon": "6287757634192"}]',
             "prod": no_telp,
         }
-        
+
         if whatsapp_env not in ["devl", "prod"]:
             return JsonResponse(
                 {"success": False, "message": "WhatsApp env not match, wa not sending"},
@@ -168,9 +168,9 @@ def whatsapp_validator(view_func):
         request = {"data": request, "no_telp": data[whatsapp_env]}
 
         return await view_func(request, *args, **kwargs)
-    
+
     return _wrapped_view
-        
+
 
 def background(f):
     """

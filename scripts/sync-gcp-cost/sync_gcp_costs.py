@@ -55,7 +55,7 @@ def client():
     return bigquery.Client(project=GOOGLE_CLOUD_PROJECT, credentials=credentials)
 
 
-def get_daily_cost(date):
+def get_daily_cost(usage_date):
     query_template = """
                 SELECT 
                     project.id as project_id, 
@@ -67,12 +67,19 @@ def get_daily_cost(date):
                 GROUP BY project_id, service_id, service_name
             """
 
-    query_mfi = query_template.format(
-        BIGQUERY_TABLE=BIGQUERY_MFI_TABLE, date_start=date
-    )
+    usage_date_f = datetime.strptime(usage_date, "%Y-%m-%d").date()
+    target_date_str = "2023-09-01"
+    target_date_f = datetime.strptime(target_date_str, "%Y-%m-%d").date()
+
+    if usage_date_f < target_date_f:
+        mfi_table = BIGQUERY_MDI_TABLE
+    else:
+        mfi_table = BIGQUERY_MFI_TABLE
+
+    query_mfi = query_template.format(BIGQUERY_TABLE=mfi_table, date_start=usage_date)
 
     query_mdi = query_template.format(
-        BIGQUERY_TABLE=BIGQUERY_MDI_TABLE, date_start=date
+        BIGQUERY_TABLE=BIGQUERY_MDI_TABLE, date_start=usage_date
     )
 
     bq_client = client()

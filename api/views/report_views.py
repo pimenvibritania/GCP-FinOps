@@ -82,7 +82,7 @@ def get_idle_cost(idle_data, search_data, index_weight):
         if search_for_project == project:
             cluster_name = item["cluster_name"]
             environment = item["environment"]
-            iw = index_weight[search_for_project][search_data][environment]
+            iw = index_weight[search_for_project][search_data][environment]["value"]
             cost_this_period = item["cost_this_period"] * (iw / 100)
             cost_prev_period = item["cost_prev_period"] * (iw / 100)
             total_current_idle_cost += cost_this_period
@@ -143,23 +143,26 @@ def get_idle_cost(idle_data, search_data, index_weight):
 async def send_whatsapp(request, subject, context, no_telp, pdf_link, pdf_password):
     contacts = json.loads(request["no_telp"])
 
-    cost_status_gcp = context['cost_status_gcp']
-    start = cost_status_gcp.find('>') + 1
-    end = cost_status_gcp.find('</')
+    cost_status_gcp = context["cost_status_gcp"]
+    start = cost_status_gcp.find(">") + 1
+    end = cost_status_gcp.find("</")
     cost_status = cost_status_gcp[start:end]
 
-    message = render_to_string("whatsapp_template.html", {
-        "subject": subject,
-        "cost_status": cost_status,
-        "em_name": context['em_name'],
-        "project_name": context['project_name'],
-        "previous_total_idr_gcp": context['previous_total_idr_gcp'],
-        "previous_total_usd_gcp": context['previous_total_usd_gcp'],
-        "current_total_idr_gcp": context['current_total_idr_gcp'],
-        "current_total_usd_gcp": context['current_total_usd_gcp'],
-        "pdf_link": pdf_link,
-        "pdf_password": pdf_password
-    })
+    message = render_to_string(
+        "whatsapp_template.html",
+        {
+            "subject": subject,
+            "cost_status": cost_status,
+            "em_name": context["em_name"],
+            "project_name": context["project_name"],
+            "previous_total_idr_gcp": context["previous_total_idr_gcp"],
+            "previous_total_usd_gcp": context["previous_total_usd_gcp"],
+            "current_total_idr_gcp": context["current_total_idr_gcp"],
+            "current_total_usd_gcp": context["current_total_usd_gcp"],
+            "pdf_link": pdf_link,
+            "pdf_password": pdf_password,
+        },
+    )
 
     async with AsyncClient() as client:
         for contact in contacts:
@@ -168,13 +171,14 @@ async def send_whatsapp(request, subject, context, no_telp, pdf_link, pdf_passwo
                 response = await client.post(
                     url=os.getenv("WHATSAPP_URL"),
                     headers={
-                        "Content-type": "application/json", 
-                        "Authorization": os.getenv("WHATSAPP_TOKEN")},
+                        "Content-type": "application/json",
+                        "Authorization": os.getenv("WHATSAPP_TOKEN"),
+                    },
                     json={
                         "queueName": "Cost Management System",
-                        "number": contact['telpon'],
-                        "message": message
-                    }
+                        "number": contact["telpon"],
+                        "message": message,
+                    },
                 )
                 if response.status_code != 200:
                     raise ValueError(response.text)
@@ -493,7 +497,7 @@ def formatting_report(request, payload_data):
                         context,
                         em_name,
                         tech_family,
-                        no_telp
+                        no_telp,
                     )
                 )
             )
