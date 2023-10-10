@@ -1,0 +1,28 @@
+# docker build -t asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-management-system:base .
+FROM python:3.9
+
+WORKDIR /root
+
+# Install common software & Dependency
+RUN apt-get update && apt-get install software-properties-common wget curl apt-transport-https ca-certificates gnupg gnupg2 git tar -y
+
+# Install Gcloud SDK
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+RUN apt-get update && apt-get install google-cloud-cli -y
+RUN apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
+RUN echo "export USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> ~/.bashrc
+RUN . ~/.bashrc
+
+# Install kubectl
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+RUN install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# Install krew
+COPY install_krew.sh .
+RUN chmod +x install_krew.sh
+RUN ./install_krew.sh
+ENV PATH="/root/.krew/bin:$PATH"
+
+# Install kubecost cost plugin
+RUN kubectl krew install cost
