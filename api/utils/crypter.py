@@ -1,4 +1,5 @@
-from Crypto.Cipher import AES
+# from Crypto.Cipher import AES
+from Cryptodome.Cipher import AES
 from core import settings
 import base64
 

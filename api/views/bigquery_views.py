@@ -1,11 +1,13 @@
 import datetime
 import os
 
+from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from api.models.bigquery import BigQuery
 from api.serializers import TFSerializer, IndexWeightSerializer
 from api.utils.decorator import date_validator, period_validator, user_is_admin
+from api.utils.validator import Validator
 from home.models.tech_family import TechFamily
 from home.models.index_weight import IndexWeight
 from itertools import chain
@@ -62,7 +64,7 @@ class BigQueryIndexWeight(generics.ListCreateAPIView):
         from_date = request.GET.get("from_date")
         to_date = request.GET.get("to_date")
 
-        data = IndexWeight.get_index_weight(from_date, to_date)
+        data = IndexWeight.get_index_weight()
 
         return Response(data=data, status=status.HTTP_200_OK)
 

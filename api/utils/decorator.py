@@ -23,14 +23,14 @@ def async_date_validator(view_func):
 
 def date_validator(view_func):
     @wraps(view_func)
-    def _wrapped_view(request, *args, **kwargs):
+    def _wrapped_view(cls, request, *args, **kwargs):
         date = request.GET.get("date")
         validated_date = Validator.date(date)
         if validated_date.status_code != status.HTTP_200_OK:
             return JsonResponse(
                 validated_date.message, status=validated_date.status_code
             )
-        return view_func(request, *args, **kwargs)
+        return view_func(cls, request, *args, **kwargs)
 
     return _wrapped_view
 

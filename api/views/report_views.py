@@ -164,7 +164,7 @@ async def send_whatsapp(request, subject, context, no_telp, pdf_link, pdf_passwo
         },
     )
 
-    async with AsyncClient() as client:
+    async with AsyncClient(timeout=60) as client:
         for contact in contacts:
             print(f"Sending Whatsapp to {contact['name']} ({context['project_name']})")
             try:
