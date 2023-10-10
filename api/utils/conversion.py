@@ -1,3 +1,5 @@
+from typing import Union
+
 from babel.numbers import format_currency, parse_decimal
 
 
@@ -28,9 +30,9 @@ class Conversion:
         return cls.usd_format(value / rate)
 
     @classmethod
-    def get_percentage(cls, from_value, to_value):
-        if to_value == 0 or from_value == 0:
-            return 100
+    def get_percentage(cls, from_value, to_value) -> Union[float, str]:
+        if to_value == 0:
+            return "New"
 
         # percent = round(abs(min((from_value - to_value) / abs(to_value) * 100, 100)), 2)
         percent = round(((from_value - to_value) / to_value) * 100, 2)
