@@ -7,6 +7,14 @@ from api.views.bigquery_views import (
     BigQueryTechFamily,
     BigQueryIndexWeight,
 )
+
+from api.views.gcp_views import (
+    GCPServiceViews,
+    GCPProjectViews,
+    GCPCostViews,
+)
+
+from api.views.gcp_sync_views import SyncGCPServices, SyncGCPProjects, SyncGCPCosts
 from api.views.kubecost_views import (
     KubecostClusterViews,
     KubecostNamespaceViews,
@@ -14,8 +22,9 @@ from api.views.kubecost_views import (
     KubecostNamespaceMapViews,
     KubecostInsertDataViews,
     KubecostReportViews,
-    KubecostCheckStatusViews
+    KubecostCheckStatusViews,
 )
+
 from api.views.service_views import ServiceViews
 from api.views.tech_family_views import TechFamilyViews
 
@@ -23,6 +32,12 @@ urlpatterns = [
     path("gcp/periodical-cost", BigQueryPeriodicalCost.as_view()),
     path("gcp/index-weight", BigQueryIndexWeight.as_view()),
     path("gcp/tech-family", BigQueryTechFamily.as_view()),
+    path("gcp/services", GCPServiceViews.as_view()),
+    path("gcp/projects", GCPProjectViews.as_view()),
+    path("gcp/costs", GCPCostViews.as_view()),
+    path("gcp/sync/services", SyncGCPServices.as_view()),
+    path("gcp/sync/projects", SyncGCPProjects.as_view()),
+    path("gcp/sync/costs", SyncGCPCosts.as_view()),
     path("services", ServiceViews.as_view()),
     path("tech-family", TechFamilyViews.as_view()),
     path("kubecost/clusters", KubecostClusterViews.as_view()),

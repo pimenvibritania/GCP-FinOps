@@ -7,6 +7,7 @@ from home.models.tech_family import TechFamily
 from django.db.models import Q
 from django.db import IntegrityError
 
+
 class ServiceViews(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -62,35 +63,37 @@ class ServiceViews(APIView):
             "name": request.data.get("service_name"),
             "service_type": request.data.get("service_type"),
             "project": request.data.get("project"),
-            "tech_family": TechFamily.objects.get(name = request.data.get('tech_family')).id
+            "tech_family": TechFamily.objects.get(
+                name=request.data.get("tech_family")
+            ).id,
         }
 
         serializer = ServiceSerializer(data=data)
         try:
             if serializer.is_valid():
                 serializer.save()
-                response = {
-                    "success": True,
-                    "data": serializer.data
-                }
+                response = {"success": True, "data": serializer.data}
                 return Response(response, status=status.HTTP_201_CREATED)
         except IntegrityError:
             response = {
                 "success": False,
-                "message": f"Duplicate entry for {request.data.get('service_name')}."
+                "message": f"Duplicate entry for {request.data.get('service_name')}.",
             }
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response({"success": False, "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            {"success": False, "message": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     def put(self, request, *args, **kwargs):
-        service_id = request.data.get('service_id')
+        service_id = request.data.get("service_id")
         try:
-            service = Services.objects.get(id = service_id)
+            service = Services.objects.get(id=service_id)
         except Services.DoesNotExist:
             response = {
                 "success": False,
-                "message": f"Service with ID {service_id} does not exist."
+                "message": f"Service with ID {service_id} does not exist.",
             }
             return Response(response, status=status.HTTP_404_NOT_FOUND)
 
@@ -98,34 +101,36 @@ class ServiceViews(APIView):
             "name": request.data.get("service_name"),
             "service_type": request.data.get("service_type"),
             "project": request.data.get("project"),
-            "tech_family": TechFamily.objects.get(name = request.data.get('tech_family')).id
+            "tech_family": TechFamily.objects.get(
+                name=request.data.get("tech_family")
+            ).id,
         }
         serializer = ServiceSerializer(service, data=data)
         try:
             if serializer.is_valid():
                 serializer.save()
-                response = {
-                    "success": True,
-                    "data": serializer.data
-                }
+                response = {"success": True, "data": serializer.data}
                 return Response(response, status=status.HTTP_200_OK)
         except IntegrityError:
             response = {
                 "success": False,
-                "message": f"Duplicate entry for {request.data.get('service_name')}."
+                "message": f"Duplicate entry for {request.data.get('service_name')}.",
             }
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"success": False, "message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"success": False, "message": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     def delete(self, request, *args, **kwargs):
-        service_id = request.data.get('service_id')
+        service_id = request.data.get("service_id")
         try:
-            service = Services.objects.get(id = service_id)
+            service = Services.objects.get(id=service_id)
         except Services.DoesNotExist:
             response = {
                 "success": False,
-                "message": f"Service with ID {service_id} does not exist."
+                "message": f"Service with ID {service_id} does not exist.",
             }
             return Response(response, status=status.HTTP_404_NOT_FOUND)
 
@@ -133,7 +138,7 @@ class ServiceViews(APIView):
 
         response = {
             "success": True,
-            "message": f"Service with ID {service_id} has been deleted."
+            "message": f"Service with ID {service_id} has been deleted.",
         }
 
         return Response(response, status=status.HTTP_200_OK)

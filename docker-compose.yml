@@ -1,7 +1,7 @@
 version: '3.8'
 services:
-  appseed-app:
-    container_name: appseed_app
+  cms-app:
+    container_name: cms_app
     restart: always
     build: .
     networks:
@@ -18,7 +18,7 @@ services:
     networks:
       - web_network
     depends_on: 
-      - appseed-app
+      - cms-app
 networks:
   db_network:
     driver: bridge

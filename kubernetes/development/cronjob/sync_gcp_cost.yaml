@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: cms-create-report-devl
+  name: cms-sync-gcp-cost-devl
   namespace: cost-management-system
 spec:
   concurrencyPolicy: Forbid
@@ -14,13 +14,13 @@ spec:
           - args:
             - /bin/sh
             - -c
-            - python send_report.py
+            - python sync_gcp_cost.py
             envFrom:
             - secretRef:
                 name: cost-management-system-cold-app-secret
-            image: asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-management-system:cronjob-send-report-devl
+            image: asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-management-system:cronjob-sync-gcp-cost-devl
             imagePullPolicy: Always
-            name: cms-create-report
+            name: cms-sync-gcp-cost
             terminationMessagePath: /dev/termination-log
             terminationMessagePolicy: File
           dnsPolicy: ClusterFirst
@@ -28,5 +28,5 @@ spec:
           schedulerName: default-scheduler
           securityContext: {}
           terminationGracePeriodSeconds: 30
-  schedule: '0 9 * * 0'
-  suspend: false
+  schedule: '1 8 * * *'
+  suspend: True

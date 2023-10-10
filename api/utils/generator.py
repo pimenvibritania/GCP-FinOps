@@ -2,9 +2,9 @@ from google.cloud import storage
 from weasyprint import HTML
 from core import settings
 from PyPDF2 import PdfReader, PdfWriter
+import datetime
 
 import os
-import datetime
 import random
 import string
 import shutil
@@ -23,16 +23,21 @@ def clear_media():
     shutil.rmtree(MEDIA_ROOT)
 
 
-def upload_file(local_encrypted_filepath, filename):
+def upload_file(local_filepath, bucket_folder, filename, content_type=None):
     storage_client = storage.Client.from_service_account_json(
         settings.GOOGLE_APPLICATION_CREDENTIALS
     )
     bucket = storage_client.bucket(settings.GOOGLE_CLOUD_STORAGE_BUCKET_NAME)
-    bucket_folder = settings.GOOGLE_CLOUD_STORAGE_FOLDER_NAME
-    blob = bucket.blob(f"pdf-report/{bucket_folder}/{filename}")
-    blob.upload_from_filename(local_encrypted_filepath, content_type="application/pdf")
+    # bucket_folder = settings.GOOGLE_CLOUD_STORAGE_PDF_REPORT_FOLDER_NAME
+    blob = bucket.blob(f"{bucket_folder}/{filename}")
+    blob.upload_from_filename(local_filepath, content_type=content_type)
 
-    return blob.public_url
+    # return blob.public_url
+    return blob.generate_signed_url(
+        version="v4",
+        expiration=datetime.timedelta(hours=3),
+        method="GET",
+    )
 
 
 def pdf(filename, content, password):
@@ -60,7 +65,14 @@ def pdf(filename, content, password):
 
     os.remove(local_pdf_path)
 
+    bucket_folder = settings.GOOGLE_CLOUD_STORAGE_PDF_REPORT_FOLDER_NAME
+
     return (
-        upload_file(local_encrypted_filepath, encrypted_filename),
+        upload_file(
+            local_encrypted_filepath,
+            bucket_folder,
+            encrypted_filename,
+            content_type="application/pdf",
+        ),
         local_encrypted_filepath,
     )

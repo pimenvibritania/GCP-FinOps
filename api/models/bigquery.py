@@ -26,6 +26,15 @@ class BigQuery:
             project=GOOGLE_CLOUD_PROJECT, credentials=self.credentials
         )
 
+    @staticmethod
+    def parse_environment(environment):
+        if "devl" in environment:
+            return "development"
+        elif "stag" in environment:
+            return "staging"
+        else:
+            return "production"
+
     @classmethod
     def get_conversion_rate(cls, input_date):
         date = datetime.strptime(input_date, "%Y-%m-%d")
@@ -70,9 +79,7 @@ class BigQuery:
 
             current_period_str = f"{current_period_from} - {current_period_to}"
 
-            index_weight = IndexWeight.get_index_weight(
-                current_period_from, current_period_to
-            )
+            index_weight = IndexWeight.get_index_weight()
 
             platform_mfi = get_tf_collection(
                 mfi_project, "platform_mfi", current_period_str, conversion_rate
@@ -319,14 +326,126 @@ class BigQuery:
     @classmethod
     def get_services(cls):
         query_template = f"""
-            SELECT service.id as svc_id, service.description as svc
-            FROM `{BIGQUERY_MFI_TABLE}`
-            GROUP BY svc_id, svc
-            ORDER BY svc ASC
-        """
+                SELECT service.id as svc_id, service.description as svc
+                FROM `{BIGQUERY_MFI_TABLE}`
+                GROUP BY svc_id, svc
+                ORDER BY svc ASC
+            """
         result_query = cls().client.query(query_template).result()
         result = {}
         for row in result_query:
             result[row.svc_id] = row.svc
 
         return result
+
+    @classmethod
+    def get_merged_services(cls):
+        query_template = """
+            SELECT service.id as svc_id, service.description as svc
+            FROM `{BIGQUERY_TABLE}`
+            GROUP BY svc_id, svc
+            ORDER BY svc ASC
+        """
+
+        query_mfi = query_template.format(
+            BIGQUERY_TABLE=BIGQUERY_MFI_TABLE,
+        )
+
+        query_mdi = query_template.format(
+            BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
+        )
+
+        result_query_mfi = cls().client.query(query_mfi).result()
+        result_query_mdi = cls().client.query(query_mdi).result()
+
+        result_mfi = {}
+        for row in result_query_mfi:
+            result_mfi[row.svc_id] = row.svc
+
+        result_mdi = {}
+        for row in result_query_mdi:
+            result_mdi[row.svc_id] = row.svc
+
+        merged_result = {**result_mfi, **result_mdi}
+        mapped_list = [
+            {"sku": key, "name": value} for key, value in merged_result.items()
+        ]
+
+        return mapped_list
+
+    @classmethod
+    def get_merged_projects(cls):
+        query_template = """
+                SELECT project.id as project_id, project.name as project_name
+                FROM `{BIGQUERY_TABLE}`
+                GROUP BY project_id, project_name
+                ORDER BY project_id ASC
+            """
+
+        query_mfi = query_template.format(
+            BIGQUERY_TABLE=BIGQUERY_MFI_TABLE,
+        )
+
+        query_mdi = query_template.format(
+            BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
+        )
+
+        result_query_mfi = cls().client.query(query_mfi).result()
+        result_query_mdi = cls().client.query(query_mdi).result()
+
+        result_mfi = {}
+        for row in result_query_mfi:
+            result_mfi[row.project_id] = row.project_name
+
+        result_mdi = {}
+        for row in result_query_mdi:
+            result_mdi[row.project_id] = row.project_name
+
+        merged_result = {**result_mfi, **result_mdi}
+        mapped_list = [
+            {"identity": key, "name": value, "environment": cls.parse_environment(key)}
+            for key, value in merged_result.items()
+            if key is not None
+        ]
+
+        return mapped_list
+
+    @classmethod
+    def get_daily_cost(cls, date):
+        query_template = """
+                    SELECT 
+                        project.id as project_id, 
+                        service.id as service_id, 
+                        service.description as service_name,  
+                        SUM(cost) AS total_cost
+                    FROM `{BIGQUERY_TABLE}`
+                    WHERE DATE(usage_start_time) = "{date_start}"
+                    GROUP BY project_id, service_id, service_name
+                """
+
+        query_mfi = query_template.format(
+            BIGQUERY_TABLE=BIGQUERY_MFI_TABLE, date_start=date
+        )
+
+        query_mdi = query_template.format(
+            BIGQUERY_TABLE=BIGQUERY_MDI_TABLE, date_start=date
+        )
+
+        result_query_mfi = cls().client.query(query_mfi).result()
+        result_query_mdi = cls().client.query(query_mdi).result()
+
+        if result_query_mfi.total_rows == 0:
+            result_mfi = None
+        else:
+            result_mfi = {}
+            for row in result_query_mfi:
+                result_mfi[(row.project_id, row.service_id)] = row.total_cost
+
+        if result_query_mdi.total_rows == 0:
+            result_mdi = None
+        else:
+            result_mdi = {}
+            for row in result_query_mdi:
+                result_mdi[(row.project_id, row.service_id)] = row.total_cost
+
+        return result_mfi, result_mdi

@@ -26,17 +26,8 @@
 - 🚀 `Deployment` 
   - `CI/CD` flow via `Render`
 
-## [1.0.4] 2022-05-30
-### Improvements
-
-- Built with [Material Kit Generator](https://appseed.us/generator/material-kit/)  
-  - Timestamp: `2022-05-31 07:49`
-
 ## [1.0.3] 2022-05-25
 ### Improvements
-
-- Built with [Material Kit Generator](https://appseed.us/generator/material-kit/)  
-  - Timestamp: `2022-05-25 22:04`
 - Codebase refactoring
 - Added CDN Support
   - via `.env` **ASSETS_ROOT** 

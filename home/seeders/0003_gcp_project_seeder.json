@@ -1,0 +1,26 @@
+[
+  {
+    "model": "home.gcpprojects",
+    "pk": 1,
+    "fields": {
+        "is_deleted": false,
+        "deleted_at": null,
+        "identity": "shared-support-prod",
+        "name": "Shared Support for Production",
+        "environment": "production",
+        "created_at": "2023-10-02T08:15:35.871Z"
+    }
+  },
+  {
+    "model": "home.gcpprojects",
+    "pk": 2,
+    "fields": {
+        "is_deleted": false,
+        "deleted_at": null,
+        "identity": "shared-atlas-all-dt",
+        "name": "MongoDB Atlas for All Environment (Dana Tunai)",
+        "environment": "all",
+        "created_at": "2023-10-02T08:15:35.871Z"
+    }
+  }
+]

@@ -34,8 +34,12 @@ class CustomLogger(logging.Logger):
         self.setLevel(logging.NOTSET)
         handler = logging.StreamHandler()
         handler.setLevel(logging.NOTSET)
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        )
         self.addHandler(handler)
+
+
 logger = CustomLogger(__name__)
 
 
@@ -147,7 +151,9 @@ class KubecostInsertData:
         rows.pop()
 
         service_list = KubecostInsertData.get_service_list(company_project)
-        service_multiple_ns = KubecostInsertData.get_service_multiple_ns(company_project)
+        service_multiple_ns = KubecostInsertData.get_service_multiple_ns(
+            company_project
+        )
 
         cluster_instance = KubecostClusters.objects.get(id=cluster_id)
 
@@ -223,7 +229,9 @@ class KubecostInsertData:
         print("Insert cost by namespace...")
         namespace_to_insert = [KubecostNamespaces(**data) for data in data_list]
         try:
-            KubecostNamespaces.objects.bulk_create(namespace_to_insert, ignore_conflicts=True)
+            KubecostNamespaces.objects.bulk_create(
+                namespace_to_insert, ignore_conflicts=True
+            )
         except IntegrityError as e:
             print("IntegrityError:", e)
 
@@ -258,7 +266,9 @@ class KubecostInsertData:
         rows.pop()
 
         service_list = KubecostInsertData.get_service_list(company_project)
-        service_multiple_ns = KubecostInsertData.get_service_multiple_ns(company_project)
+        service_multiple_ns = KubecostInsertData.get_service_multiple_ns(
+            company_project
+        )
 
         cluster_instance = KubecostClusters.objects.get(id=cluster_id)
 
@@ -330,7 +340,9 @@ class KubecostInsertData:
         print("Insert cost by deployment...")
         deployment_to_insert = [KubecostDeployments(**data) for data in data_list]
         try:
-            KubecostDeployments.objects.bulk_create(deployment_to_insert, ignore_conflicts=True)
+            KubecostDeployments.objects.bulk_create(
+                deployment_to_insert, ignore_conflicts=True
+            )
         except IntegrityError as e:
             print("IntegrityError:", e)
 
@@ -635,7 +647,6 @@ class KubecostReport:
 
 
 class KubecostCheckStatus:
-
     @staticmethod
     def check_status():
         kubecost_clusters = KubecostClusters.get_all()
@@ -654,11 +665,12 @@ class KubecostCheckStatus:
                 config.load_kube_config(context=kube_context)
                 apps_v1 = client.AppsV1Api()
 
-                deployments = apps_v1.list_namespaced_deployment(namespace="kubecost")            
+                deployments = apps_v1.list_namespaced_deployment(namespace="kubecost")
 
                 for deployment in deployments.items:
                     deployment_name = deployment.metadata.name
-                    if deployment_name == "kubecost-grafana": continue  # skip kubecost-grafana
+                    if deployment_name == "kubecost-grafana":
+                        continue  # skip kubecost-grafana
 
                     ready_replicas = deployment.status.ready_replicas
                     replicas = deployment.spec.replicas
@@ -671,13 +683,19 @@ class KubecostCheckStatus:
                         deployment_ready = False
 
                     if deployment_ready == True:
-                        logger.info(f"Deployment: {deployment_name} - Ready: {deployment_ready}")
+                        logger.info(
+                            f"Deployment: {deployment_name} - Ready: {deployment_ready}"
+                        )
                     else:
-                        logger.warning(f"Deployment: {deployment_name} - Ready: {deployment_ready}")
-                        send_slack(f"<!here>, *KUBECOST ALERT!!* :rotating_light: \nDeployment *'{deployment_name}'* is not Ready. Cluster: *'{cluster_name}'*")
+                        logger.warning(
+                            f"Deployment: {deployment_name} - Ready: {deployment_ready}"
+                        )
+                        send_slack(
+                            f"<!here>, *KUBECOST ALERT!!* :rotating_light: \nDeployment *'{deployment_name}'* is not Ready. Cluster: *'{cluster_name}'*"
+                        )
                         logger.info("Slack notif sent!")
             except client.ApiException as e:
-                logger.error(f"Exception when calling Kubernetes API: {str(e)}")                
+                logger.error(f"Exception when calling Kubernetes API: {str(e)}")
                 continue
 
             # Check Data Exist
@@ -692,7 +710,7 @@ class KubecostCheckStatus:
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                 )
-            
+
                 if result.returncode == 0:
                     output = result.stdout.strip()
                     pattern = r"USD\s+(\d+\.\d+)"
@@ -700,11 +718,11 @@ class KubecostCheckStatus:
                     cost = float(usd_value)
                     if cost == 0:
                         logger.warning("No Kubecost Data for the Last 1 Day!")
-                        send_slack(f"<!here>, *KUBECOST ALERT!!* :rotating_light: \n*No Kubecost Data for the Last 1 Day*. Cluster: *'{cluster_name}'*.")
+                        send_slack(
+                            f"<!here>, *KUBECOST ALERT!!* :rotating_light: \n*No Kubecost Data for the Last 1 Day*. Cluster: *'{cluster_name}'*."
+                        )
                 else:
                     print("Error:", result.stderr)
 
             except Exception as e:
                 print("An error occurred:", str(e))
-
-
