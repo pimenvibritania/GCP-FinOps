@@ -1,5 +1,5 @@
 # docker build -t asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-management-system:base .
-FROM python:3.9
+FROM python:3.11.6
 
 WORKDIR /root
 
