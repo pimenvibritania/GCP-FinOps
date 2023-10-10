@@ -29,6 +29,7 @@ from api.views.service_views import ServiceViews
 from api.views.tech_family_views import TechFamilyViews
 
 urlpatterns = [
+    # GCP
     path("gcp/periodical-cost", BigQueryPeriodicalCost.as_view()),
     path("gcp/index-weight", BigQueryIndexWeight.as_view()),
     path("gcp/tech-family", BigQueryTechFamily.as_view()),
@@ -38,8 +39,8 @@ urlpatterns = [
     path("gcp/sync/services", SyncGCPServices.as_view()),
     path("gcp/sync/projects", SyncGCPProjects.as_view()),
     path("gcp/sync/costs", SyncGCPCosts.as_view()),
-    path("services", ServiceViews.as_view()),
-    path("tech-family", TechFamilyViews.as_view()),
+
+    # Kubecost
     path("kubecost/clusters", KubecostClusterViews.as_view()),
     path("kubecost/namespaces", KubecostNamespaceViews.as_view()),
     path("kubecost/deployments", KubecostDeploymentViews.as_view()),
@@ -47,6 +48,11 @@ urlpatterns = [
     path("kubecost/insert-data", KubecostInsertDataViews.as_view()),
     path("kubecost/report", KubecostReportViews.as_view()),
     path("kubecost/check-status", KubecostCheckStatusViews.as_view()),
+
+    # General
+    path("services", ServiceViews.as_view()),
+    path("tech-family", TechFamilyViews.as_view()),
+
     path(
         "docs/",
         TemplateView.as_view(

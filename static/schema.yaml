@@ -19,6 +19,7 @@ info:
 servers:
   - url: https://cost-management-system.moladin.com
   - url: https://cost-management.moladin.com
+  - url: http://0.0.0.0:5005
 tags:
   - name: GCP
     description: GCP Cost
@@ -27,9 +28,47 @@ tags:
     description: Kubernetes Cost
 
 paths:
-  /api/create-index:
+  /api/gcp/periodical-cost:
+    get:
+      operationId: get_periodical_cost
+      tags:
+        - GCP
+      summary: Get Periodical Cost
+      description: Get Periodical Cost
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: Date / current date (yyyy-mm-dd)
+        - in: query
+          name: period
+          required: true
+          schema:
+            type: string
+            format: string
+          description: Fill with weekly or monthly
+      responses:
+        '200':
+          description: No response body
+  /api/gcp/index-weight:
+    get:
+      operationId: get_index_weight
+      tags:
+        - GCP
+      summary: Get Index Weight
+      description: Get Index Weight
+      security:
+        - basicAuth: [ ]
+      responses:
+        '200':
+          description: No response body
     post:
-      operationId: create_index_create
+      operationId: create_index_weight
       tags:
       - GCP
       summary: Create Index Weight
@@ -75,48 +114,157 @@ paths:
       - GCP
       security:
       - basicAuth: []
-      - {}
       responses:
         '200':
           description: No response body
-  /api/get-project:
+  /api/tech-family:
     get:
-      operationId: get_project_retrieve
-      summary: Get projects
-      description: Get project based on date and period
+      operationId: get_tech_family
+      tags:
+        - General
+      security:
+        - basicAuth: [ ]
+      responses:
+        '200':
+          description: No response body
+  /api/gcp/services:
+    get:
+      operationId: get_gcp_services
+      summary: Get GCP Services
+      description: Get GCP Services
+      tags:
+        - GCP
+      security:
+        - basicAuth: [ ]
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: create_gcp_service
+      tags:
+        - GCP
+      summary: Create GCP Service
+      description: Create GCP Service
+      security:
+        - basicAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GCPService'
+        required: true
+      responses:
+        '200':
+          description: No response body
+  /api/gcp/projects:
+    get:
+      operationId: get_gcp_project
+      summary: Get GCP projects
+      description: Get GCP projects
+      tags:
+      - GCP
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+
+    post:
+      operationId: create_gcp_project
+      tags:
+        - GCP
+      summary: Create GCP Project
+      description: Create GCP Project
+      security:
+        - basicAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GCPProject'
+        required: true
+      responses:
+        '200':
+          description: No response body
+
+  /api/gcp/costs:
+    get:
+      operationId: get_gcp_costs
+      summary: Get GCP Costs
+      description: Get GCP Costs
+      tags:
+        - GCP
+      security:
+        - basicAuth: [ ]
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: create_gcp_cost
+      tags:
+        - GCP
+      summary: Create GCP Cost
+      description: Create GCP Cost
+      security:
+        - basicAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GCPCost'
+        required: true
+      responses:
+        '200':
+          description: No response body
+
+
+  /api/gcp/sync/projects:
+    post:
+      operationId: sync_gcp_project
+      tags:
+        - GCP
+      summary: Sync GCP Project
+      description: Sync GCP Project
+      security:
+        - basicAuth: [ ]
+      responses:
+        '200':
+          description: No response body
+
+  /api/gcp/sync/services:
+    post:
+      operationId: sync_gcp_service
+      tags:
+        - GCP
+      summary: Sync GCP Service
+      description: Sync GCP Service
+      security:
+        - basicAuth: [ ]
+      responses:
+        '200':
+          description: No response body
+
+  /api/gcp/sync/costs:
+    post:
+      operationId: sync_gcp_service
+      tags:
+        - GCP
+      summary: Sync GCP Service
+      description: Sync GCP Service
+      security:
+        - basicAuth: [ ]
       parameters:
         - in: query
-          name: date
+          name: date-start
           required: true
           schema:
             type: string
             format: date-time
           description: Date / current date (yyyy-mm-dd)
-        - in: query
-          name: period
-          required: true
-          schema:
-            type: string
-            format: string
-          description: Fill with weekly or monthly
-      tags:
-      - GCP
-      security:
-      - basicAuth: []
-      - {}
       responses:
         '200':
           description: No response body
-  /api/get-tf:
-    get:
-      operationId: get_tf_retrieve
-      tags:
-      - GCP
-      security:
-      - basicAuth: []
-      responses:
-        '200':
-          description: No response body
+
   /api/kubecost/check-status:
     post:
       operationId: kubecost_check_status_create
@@ -247,6 +395,57 @@ components:
         tech_family_id:
           type: integer
           example: 2
+    GCPService:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "GCP Service"
+        sku:
+          type: string
+          example: "kmzway87aa"
+
+    GCPProject:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Moladin project"
+        identity:
+          type: string
+          example: "moladin-project"
+        environment:
+          type: string
+          example: "development"
+
+    GCPCost:
+      type: object
+      properties:
+        usage_date:
+          type: string
+          example: "2023-01-05"
+        cost:
+          type: number
+          example: 20000.00
+        project_cost:
+          type: number
+          example: 20000.00
+        conversion_rate:
+          type: number
+          example: 15000
+        gcp_project_id:
+          type: string
+          example: "moladin-mof-stag"
+        gcp_service_id:
+          type: string
+          example: "5490-F7B7-8DF6"
+        tech_family_slug:
+          type: string
+          example:  "defi_mfi"
+        index_weight_id:
+          type: integer
+          example: 233
+
 
   securitySchemes:
     basicAuth:
