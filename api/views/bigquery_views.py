@@ -1,12 +1,11 @@
 import datetime
 import os
 
-from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from api.models.bigquery import BigQuery
 from api.serializers import TFSerializer, IndexWeightSerializer
-from api.utils.validator import Validator
+from api.utils.decorator import date_validator, period_validator, user_is_admin
 from home.models.tech_family import TechFamily
 from home.models.index_weight import IndexWeight
 from itertools import chain
@@ -17,6 +16,9 @@ from rest_framework import generics
 class BigQueryPeriodicalCost(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @user_is_admin
+    @date_validator
+    @period_validator
     def get(self, request, *args, **kwargs) -> object:
         date = request.GET.get("date")
         period = request.GET.get("period")
@@ -64,6 +66,7 @@ class BigQueryIndexWeight(generics.ListCreateAPIView):
 
         return Response(data=data, status=status.HTTP_200_OK)
 
+    @user_is_admin
     def post(self, request, *args, **kwargs):
         data = {
             "value": request.data.get("value"),

@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from api.serializers import TFSerializer
+from api.utils.decorator import user_is_admin
 from home.models.tech_family import TechFamily
 from django.db.models import Q
 from django.db import IntegrityError
@@ -26,6 +27,7 @@ class TechFamilyViews(APIView):
 
         return Response(response, status=status.HTTP_200_OK)
 
+    @user_is_admin
     def post(self, request, *args, **kwargs):
         data = {
             "name": request.data.get("tf_name"),
@@ -53,6 +55,7 @@ class TechFamilyViews(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    @user_is_admin
     def put(self, request, *args, **kwargs):
         tf_id = request.data.get("tf_id")
         try:
@@ -89,6 +92,7 @@ class TechFamilyViews(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    @user_is_admin
     def delete(self, request, *args, **kwargs):
         tf_id = request.data.get("tf_id")
         try:

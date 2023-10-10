@@ -15,9 +15,9 @@ from django.core.cache import cache
 import json
 
 
-@date_async_validator
-@period_validator
-@user_async_validator
+@async_date_validator
+@async_period_validator
+@async_user_validator
 async def create_report(request, date=None, period=None):
     date = request.GET.get("date")
     period = request.GET.get("period")

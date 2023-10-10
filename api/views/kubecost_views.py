@@ -14,6 +14,7 @@ from ..models.kubecost import (
     KubecostInsertData,
     KubecostCheckStatus,
 )
+from ..utils.decorator import user_is_admin
 
 
 class KubecostClusterViews(APIView):
@@ -23,6 +24,7 @@ class KubecostClusterViews(APIView):
         data = get_kubecost_cluster()
         return Response(data, status=status.HTTP_200_OK)
 
+    @user_is_admin
     def post(self, request, *args, **kwargs):
         data = {
             "cluster_name": request.data.get("cluster_name"),
@@ -55,6 +57,7 @@ class KubecostDeploymentViews(APIView):
         data = {}
         return Response(data, status=status.HTTP_200_OK)
 
+    @user_is_admin
     def post(self, request, *args, **kwargs):
         data = {
             "cluster_name": request.data.get("cluster_name"),
@@ -83,6 +86,7 @@ class KubecostDeploymentViews(APIView):
 class KubecostInsertDataViews(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @user_is_admin
     def post(self, request, *args, **kwargs):
         date = request.data.get("date")
         try:
@@ -104,6 +108,7 @@ class KubecostNamespaceMapViews(APIView):
         data = get_namespace_map()
         return Response(data, status=status.HTTP_200_OK)
 
+    @user_is_admin
     def post(self, request, *args, **kwargs):
         data = {
             "namespace": request.data.get("namespace"),
@@ -152,6 +157,7 @@ class KubecostReportViews(APIView):
 class KubecostCheckStatusViews(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @user_is_admin
     def post(self, request, *args, **kwargs):
         try:
             KubecostCheckStatus.check_status()

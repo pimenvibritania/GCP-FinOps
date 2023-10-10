@@ -23,3 +23,6 @@ logs/
 
 scripts/sync-gcp-cost/.env
 scripts/sync-gcp-cost/service-account.json
+
+
+Pipfile*

@@ -64,7 +64,7 @@ class Validator:
             user = authenticate(username=username, password=password)
 
             if user:
-                return cls()
+                return cls(), user
             else:
                 return UnauthenticatedException(
                     "Invalid credentials, please check your username and password"

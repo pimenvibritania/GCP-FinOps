@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from api.serializers import ServiceSerializer
+from api.utils.decorator import user_is_admin
 from home.models.services import Services
 from home.models.tech_family import TechFamily
 from django.db.models import Q
@@ -58,6 +59,7 @@ class ServiceViews(APIView):
 
         return Response(response, status=status.HTTP_200_OK)
 
+    @user_is_admin
     def post(self, request, *args, **kwargs):
         data = {
             "name": request.data.get("service_name"),
@@ -86,6 +88,7 @@ class ServiceViews(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    @user_is_admin
     def put(self, request, *args, **kwargs):
         service_id = request.data.get("service_id")
         try:
@@ -123,6 +126,7 @@ class ServiceViews(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    @user_is_admin
     def delete(self, request, *args, **kwargs):
         service_id = request.data.get("service_id")
         try:
