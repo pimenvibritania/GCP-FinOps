@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from api.models.__constant import *
-from api.serializers import TFSerializer
+from api.serializers import TechFamilySerializer
 from api.utils.conversion import Conversion
 from home.models.tech_family import TechFamily
 import pandas as pd
@@ -9,10 +9,10 @@ import os
 
 def get_tech_family():
     mfi = TechFamily.get_tf_mfi()
-    mfi_serialize = TFSerializer(mfi, many=True)
+    mfi_serialize = TechFamilySerializer(mfi, many=True)
 
     mdi = TechFamily.get_tf_mdi()
-    mdi_serialize = TFSerializer(mdi, many=True)
+    mdi_serialize = TechFamilySerializer(mdi, many=True)
 
     return mfi_serialize.data, mdi_serialize.data
 

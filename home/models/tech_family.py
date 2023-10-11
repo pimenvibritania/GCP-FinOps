@@ -13,6 +13,7 @@ class TechFamily(BaseModel):
     pic = models.CharField(max_length=100)
     pic_email = models.EmailField(max_length=100)
     pic_telp = models.TextField(max_length=500, null=True, default=None)
+    limit_budget = models.FloatField()
     slug = models.CharField(max_length=100)
     project = models.CharField(max_length=100, choices=ProjectType.choices())
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False, blank=False)

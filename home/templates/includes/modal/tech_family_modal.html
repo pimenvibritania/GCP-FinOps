@@ -13,7 +13,7 @@
                 <div class="modal-body">
                     <div class="input-group mb-3">
                         <span class="btn border-secondary bg-light side-label"><i class="fas fa-user-alt"></i></span>
-                        <input type="text" class="form-control" name="tf_name" maxlength="100" placeholder="Tech Family Name" required>
+                        <input type="text" class="form-control" name="name" maxlength="100" placeholder="Tech Family Name" required>
                     </div>
                     <div class="input-group mb-3">
                         <span class="btn border-secondary bg-light side-label"><i class="fas fa-user-alt"></i></span>
@@ -69,7 +69,7 @@
                 <div class="modal-body">
                     <div class="input-group mb-3">
                         <span class="btn border-secondary bg-light side-label"><i class="fas fa-user-alt"></i></span>
-                        <input type="text" id="editModalTfName" class="form-control" name="tf_name" maxlength="100" placeholder="Tech Family Name" required>
+                        <input type="text" id="editModalTfName" class="form-control" name="name" maxlength="100" placeholder="Tech Family Name" required>
                     </div>
                     <div class="input-group mb-3">
                         <span class="btn border-secondary bg-light side-label"><i class="fas fa-user-alt"></i></span>
@@ -112,7 +112,7 @@
     <form id="deleteTechFamilyForm" autocomplete="off">
         {% csrf_token %}
         <input type="hidden" id="deleteModalTfId" name="tf_id" value="{{ tf.pk }}">
-        <input type="hidden" id="deleteModalTfName" name="tf_name" value="{{ tf.name }}">
+        <input type="hidden" id="deleteModalTfName" name="name" value="{{ tf.name }}">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">

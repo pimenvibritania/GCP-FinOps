@@ -15,13 +15,15 @@ class BQQueryParamSerializer(serializers.Serializer):
     date = serializers.DateField
 
 
-class TFSerializer(serializers.ModelSerializer):
+class TechFamilySerializer(serializers.ModelSerializer):
     class Meta:
         model = TechFamily
         fields = [
             "name",
             "pic",
             "pic_email",
+            "pic_telp",
+            "limit_budget",
             "slug",
             "project",
             "created_at",

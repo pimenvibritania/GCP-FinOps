@@ -127,6 +127,23 @@ paths:
       responses:
         '200':
           description: No response body
+    post:
+      operationId: create_tech_family
+      tags:
+        - General
+      summary: Create Tech Family
+      description: Create Tech Family
+      security:
+        - basicAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TechFamily'
+        required: true
+      responses:
+        '200':
+          description: No response body
   /api/gcp/services:
     get:
       operationId: get_gcp_services
@@ -366,7 +383,7 @@ paths:
     get:
       operationId: services_retrieve
       tags:
-      - services
+      - General
       security:
       - basicAuth: []
       responses:
@@ -375,7 +392,7 @@ paths:
     post:
       operationId: services_create
       tags:
-      - services
+      - General
       security:
       - basicAuth: []
       responses:
@@ -446,6 +463,27 @@ components:
           type: integer
           example: 233
 
+    TechFamily:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "MDI MDI"
+        pic:
+          type: string
+          example: "Jason"
+        email:
+          type: string
+          example: "jason@moladin.com"
+        phone_number:
+          type: string
+          example: "6281223232323"
+        limit_budget:
+          type: number
+          example: 1212121212
+        project:
+          type: string
+          example: "MDI"
 
   securitySchemes:
     basicAuth:

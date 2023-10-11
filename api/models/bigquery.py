@@ -3,7 +3,7 @@ from google.oauth2 import service_account
 from rest_framework.exceptions import ValidationError
 from home.models.tech_family import TechFamily
 from home.models.index_weight import IndexWeight
-from api.serializers import TFSerializer
+from api.serializers import TechFamilySerializer
 from api.utils.conversion import Conversion
 from api.utils.date import Date
 from api.utils.bigquery import *
