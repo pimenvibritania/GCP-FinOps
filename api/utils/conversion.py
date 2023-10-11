@@ -33,5 +33,7 @@ class Conversion:
     def get_percentage(cls, this_period, previous_period) -> Union[float, str]:
         if this_period == 0:
             return 0 if previous_period == 0 else 100
-        percent = round(((this_period - previous_period) / previous_period) * 100, 2)
+        if previous_period == 0:
+            return this_period
+        percent = abs(round(((this_period - previous_period) / previous_period) * 100, 2))
         return 0.01 if percent == 0.0 else percent
