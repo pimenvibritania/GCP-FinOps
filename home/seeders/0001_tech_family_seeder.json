@@ -1,5 +1,3 @@
-[SELECT `tech_family`.`id`, `tech_family`.`is_deleted`, `tech_family`.`deleted_at`, `tech_family`.`name`, `tech_family`.`pic`, `tech_family`.`pic_email`, `tech_family`.`pic_telp`, `tech_family`.`slug`, `tech_family`.`project`, `tech_family`.`created_at`, `tech_family`.`updated_at` FROM `tech_family` WHERE `tech_family`.`is_deleted` = %s ORDER BY `tech_family`.`id` ASC (False,)
-
 {
     "model": "home.techfamily",
     "pk": 1,
