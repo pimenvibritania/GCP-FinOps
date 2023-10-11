@@ -30,10 +30,8 @@ class Conversion:
         return cls.usd_format(value / rate)
 
     @classmethod
-    def get_percentage(cls, from_value, to_value) -> Union[float, str]:
-        if to_value == 0 or from_value == 0:
-            return 100
-
-        # percent = round(abs(min((from_value - to_value) / abs(to_value) * 100, 100)), 2)
-        percent = round(((from_value - to_value) / to_value) * 100, 2)
-        return 0.01 if percent == 0.00 else percent
+    def get_percentage(cls, this_period, previous_period) -> Union[float, str]:
+        if this_period == 0:
+            return 0 if previous_period == 0 else 100
+        percent = round(((this_period - previous_period) / previous_period) * 100, 2)
+        return 0.01 if percent == 0.0 else percent
