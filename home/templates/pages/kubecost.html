@@ -1,0 +1,106 @@
+{% extends 'layouts/base_dashboard.html' %}
+{% load static %}
+
+{% block title %} Tech Family {% endblock title %}
+
+{% block content %}
+<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    {% include 'includes/dashboard_navbar.html' %}
+
+    <div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <form action="/kubecost">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 col-12">
+                    <div class="row">
+                      <div class="col-sm-5">
+                        <h6 class="text-white text-capitalize ps-3">Kubecost</h6>
+                      </div>
+                      <div class="col-sm-2">
+                            <label for="date"><b>Date:</b></label>
+                            <input type="date" id="date" name="date" value="{{ input_date }}" required>
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-select" name="period" required>
+                            {% if input_period %}
+                                <option value="{{ input_period }}">{{ input_period }}</option>
+                            {% else %}
+                                <option value="" hidden>Select Period</option>
+                            {% endif %}
+                            <option disabled></option>
+                            <option value="weekly">weekly</option>
+                            <option value="monthly">monthly</option>
+                        </select>                
+                      </div>
+                      <div class="col-sm-2">
+                        <select class="form-select" name="tech_family" required>
+                            {% if input_tf %}
+                                <option value="{{ input_tf }}">{{ input_tf }}</option>
+                            {% else %}
+                                <option value="" hidden>Select Tech Family</option>
+                            {% endif %}
+                            <option disabled></option>
+                            {% for tf in tech_family %}
+                            <option value="{{ tf.slug }}">{{tf.slug}}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-sm-1">
+                        <input type="submit">
+                      </div>
+                    </div>
+                </form>
+
+                  </div>
+                  
+            </div>
+            <div class="card-body px-0 pb-2">
+                <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0" id="kubecostDatatable">
+                    <thead>
+                        <tr>
+                            <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Service Name</th>
+                            <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost per Env</th>
+                            <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Date Range</th>
+                            <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost Current</th>
+                            <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost Previous</th>
+                            <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Status Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in services %}
+                        <tr>
+                            <td class="align-middle text-center text-sm"><span class="text-xs font-weight-bold text-uppercase">{{ service.service_name }}</span></td>
+                            <td class="align-middle text-center text-sm"><span class="text-secondary text-xs font-weight-bold">{{ service.environment }}</span></td>
+                            <td class="align-middle text-center text-sm"><span class="text-secondary text-xs font-weight-bold">{{ date_range }}</span></td>
+                            <td class="align-middle text-center text-sm"><span class="text-secondary text-xs font-weight-bold">${{ service.cost_this_period }} USD</span></td>
+                            <td class="align-middle text-center text-sm"><span class="text-secondary text-xs font-weight-bold">${{ service.cost_prev_period }} USD</span></td>
+                            <td class="align-middle text-center text-sm">
+                                {% if service.cost_status == "UP" %}
+                                    <span style="color:#e74c3c">⬆ {{ service.cost_status_percent }}%</span>
+                                {% elif service.cost_status == "DOWN" %}
+                                    <span style="color:#1abc9c">⬇ {{ service.cost_status_percent }}%</span>
+                                {% else %}
+                                    <span class="text-secondary text-xs font-weight-bold">Equal</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</main>
+{% endblock content %}
+
+{% block javascript %}
+    {% include 'includes/script/kubecost_script.html' %}
+{% endblock javascript %}
