@@ -28,7 +28,7 @@ def parse_env(project):
         return "android"
 
 
-def get_tf_collection(data, search, date, conversion_rate):
+def get_tf_collection(data, search, date, conversion_rate, period):
     find_tf = lambda data_list, slug: next(
         record for record in data_list if record["slug"] == slug
     )
@@ -43,9 +43,12 @@ def get_tf_collection(data, search, date, conversion_rate):
             "range_date": date,
             "conversion_rate": Conversion.idr_format(conversion_rate),
             "summary": {
+                "cost_period": period,
                 "current_period": 0,
                 "previous_period": 0,
                 "cost_difference": 0,
+                "limit_budget_weekly": TechFamily.get_weekly_limit(search),
+                "limit_budget_monthly": TechFamily.get_monthly_limit(search),
                 "status": "",
             },
             "project_included": [],

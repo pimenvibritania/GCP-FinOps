@@ -51,6 +51,16 @@ class TechFamily(BaseModel):
     def included_mfi():
         return ["mofi", "defi", "platform_mfi"]
 
+    @classmethod
+    def get_monthly_limit(cls, slug):
+        data = ("slug", slug)
+        return cls.objects.get(data).limit_budget
+
+    @classmethod
+    def get_weekly_limit(cls, slug):
+        data = ("slug", slug)
+        return cls.objects.get(data).limit_budget / 4
+
     def get_data(self):
         return {
             "id": self.id,

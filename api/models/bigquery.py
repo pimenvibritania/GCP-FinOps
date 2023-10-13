@@ -82,23 +82,23 @@ class BigQuery:
             index_weight = IndexWeight.get_index_weight()
 
             platform_mfi = get_tf_collection(
-                mfi_project, "platform_mfi", current_period_str, conversion_rate
+                mfi_project, "platform_mfi", current_period_str, conversion_rate,period
             )
             mofi = get_tf_collection(
-                mfi_project, "mofi", current_period_str, conversion_rate
+                mfi_project, "mofi", current_period_str, conversion_rate, period
             )
             defi_mfi = get_tf_collection(
-                mfi_project, "defi_mfi", current_period_str, conversion_rate
+                mfi_project, "defi_mfi", current_period_str, conversion_rate, period
             )
 
             platform_mdi = get_tf_collection(
-                mdi_project, "platform_mdi", current_period_str, conversion_rate
+                mdi_project, "platform_mdi", current_period_str, conversion_rate, period
             )
             dana_tunai = get_tf_collection(
-                mdi_project, "dana_tunai", current_period_str, conversion_rate
+                mdi_project, "dana_tunai", current_period_str, conversion_rate, period
             )
             defi_mdi = get_tf_collection(
-                mdi_project, "defi_mdi", current_period_str, conversion_rate
+                mdi_project, "defi_mdi", current_period_str, conversion_rate, period
             )
 
             project_mfi = {
