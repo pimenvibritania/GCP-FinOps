@@ -19,11 +19,11 @@
                         <h6 class="text-white text-capitalize ps-3">Kubecost</h6>
                       </div>
                       <div class="col-sm-2">
-                            <label for="date"><b>Date:</b></label>
+                            <label for="date"><b>DATE:</b></label>
                             <input type="date" id="date" name="date" value="{{ input_date }}" required>
                       </div>
                       <div class="col-sm-2">
-                        <select class="form-select" name="period" required>
+                        <select class="form-select" name="period" required style="background-color: #7b809a;">
                             {% if input_period %}
                                 <option value="{{ input_period }}">{{ input_period }}</option>
                             {% else %}
@@ -35,7 +35,7 @@
                         </select>                
                       </div>
                       <div class="col-sm-2">
-                        <select class="form-select" name="tech_family" required>
+                        <select class="form-select" name="tech_family" required style="background-color: #7b809a;">
                             {% if input_tf %}
                                 <option value="{{ input_tf }}">{{ input_tf }}</option>
                             {% else %}
@@ -48,7 +48,7 @@
                         </select>
                       </div>
                       <div class="col-sm-1">
-                        <input type="submit">
+                        <input class="form-control btn btn-secondary btn-sm" type="submit">
                       </div>
                     </div>
                 </form>
