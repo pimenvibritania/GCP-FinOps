@@ -302,12 +302,26 @@ def formatting_report(request, payload_data):
         context["project_name"] = project_name
 
         if data not in KUBECOST_PROJECT:
+
+            cost_period = bigquery_payload[data]["data"]["summary"][
+                "cost_period"
+            ]
+
             current_total_idr_gcp = bigquery_payload[data]["data"]["summary"][
                 "current_period"
             ]
             previous_total_idr_gcp = bigquery_payload[data]["data"]["summary"][
                 "previous_period"
             ]
+
+            limit_budget_weekly = bigquery_payload[data]["data"]["summary"][
+                "limit_budget_weekly"
+            ]
+
+            limit_budget_monthly = bigquery_payload[data]["data"]["summary"][
+                "limit_budget_monthly"
+            ]
+
             rate_gcp = bigquery_payload[data]["data"]["conversion_rate"]
             cost_difference_idr_gcp = bigquery_payload[data]["data"]["summary"][
                 "cost_difference"
@@ -382,9 +396,20 @@ def formatting_report(request, payload_data):
 
                     table_template_gcp += row
 
+            if cost_period == "weekly":
+                limit_budget = limit_budget_weekly
+                alert_message = f"Your Weekly GCP Budget Exceeded! Please Review Spending!"
+            else:
+                limit_budget = limit_budget_monthly
+                alert_message = "Your Monthly GCP Budget Exceeded! Please Review Spending!"
+
             table_template_gcp += "</tbody>\n</table>"
             context_gcp = {
                 "cost_status_gcp": cost_status_gcp,
+                "cost_period": cost_period,
+                "limit_budget": limit_budget,
+                "alert_message": alert_message,
+                "total_cost_this_period": current_total_idr_gcp,
                 "previous_total_idr_gcp": Conversion.idr_format(previous_total_idr_gcp),
                 "previous_total_usd_gcp": Conversion.convert_usd(
                     previous_total_idr_gcp, rate_gcp
