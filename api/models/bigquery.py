@@ -3,7 +3,7 @@ from google.oauth2 import service_account
 from rest_framework.exceptions import ValidationError
 from home.models.tech_family import TechFamily
 from home.models.index_weight import IndexWeight
-from api.serializers import TFSerializer
+from api.serializers import TechFamilySerializer
 from api.utils.conversion import Conversion
 from api.utils.date import Date
 from api.utils.bigquery import *
@@ -82,23 +82,23 @@ class BigQuery:
             index_weight = IndexWeight.get_index_weight()
 
             platform_mfi = get_tf_collection(
-                mfi_project, "platform_mfi", current_period_str, conversion_rate
+                mfi_project, "platform_mfi", current_period_str, conversion_rate,period
             )
             mofi = get_tf_collection(
-                mfi_project, "mofi", current_period_str, conversion_rate
+                mfi_project, "mofi", current_period_str, conversion_rate, period
             )
             defi_mfi = get_tf_collection(
-                mfi_project, "defi_mfi", current_period_str, conversion_rate
+                mfi_project, "defi_mfi", current_period_str, conversion_rate, period
             )
 
             platform_mdi = get_tf_collection(
-                mdi_project, "platform_mdi", current_period_str, conversion_rate
+                mdi_project, "platform_mdi", current_period_str, conversion_rate, period
             )
             dana_tunai = get_tf_collection(
-                mdi_project, "dana_tunai", current_period_str, conversion_rate
+                mdi_project, "dana_tunai", current_period_str, conversion_rate, period
             )
             defi_mdi = get_tf_collection(
-                mdi_project, "defi_mdi", current_period_str, conversion_rate
+                mdi_project, "defi_mdi", current_period_str, conversion_rate, period
             )
 
             project_mfi = {

@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from api.models.bigquery import BigQuery
-from api.serializers import TFSerializer, IndexWeightSerializer
+from api.serializers import TechFamilySerializer, IndexWeightSerializer
 from api.utils.decorator import date_validator, period_validator, user_is_admin
 from api.utils.validator import Validator
 from home.models.tech_family import TechFamily
@@ -51,7 +51,7 @@ class BigQueryTechFamily(generics.ListAPIView):
             tf_mdi = TechFamily.get_tf_mdi()
             tf_mfi = TechFamily.get_tf_mfi()
 
-            data = TFSerializer(list(chain(tf_mdi, tf_mfi)), many=True)
+            data = TechFamilySerializer(list(chain(tf_mdi, tf_mfi)), many=True)
             cache.set(cache_key, data, timeout=int(os.getenv("REDIS_TTL")))
 
         return Response(data=data.data, status=status.HTTP_200_OK)

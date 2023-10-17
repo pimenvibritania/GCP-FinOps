@@ -13,6 +13,7 @@ class TechFamily(BaseModel):
     pic = models.CharField(max_length=100)
     pic_email = models.EmailField(max_length=100)
     pic_telp = models.TextField(max_length=500, null=True, default=None)
+    limit_budget = models.FloatField()
     slug = models.CharField(max_length=100)
     project = models.CharField(max_length=100, choices=ProjectType.choices())
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False, blank=False)
@@ -49,6 +50,16 @@ class TechFamily(BaseModel):
     @staticmethod
     def included_mfi():
         return ["mofi", "defi", "platform_mfi"]
+
+    @classmethod
+    def get_monthly_limit(cls, slug):
+        data = ("slug", slug)
+        return cls.objects.get(data).limit_budget
+
+    @classmethod
+    def get_weekly_limit(cls, slug):
+        data = ("slug", slug)
+        return cls.objects.get(data).limit_budget / 4
 
     def get_data(self):
         return {
