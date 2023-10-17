@@ -57,8 +57,11 @@ class Validator:
     def async_authenticate(cls, request):
         auth_header = request.META.get("HTTP_AUTHORIZATION")
         if auth_header and auth_header.startswith("Basic "):
+
+
             credentials = auth_header[len("Basic ") :]
             decoded_credentials = base64.b64decode(credentials).decode("utf-8")
+            print("decoded_credentials", decoded_credentials)
             username, password = decoded_credentials.split(":")
 
             user = authenticate(username=username, password=password)
@@ -66,10 +69,10 @@ class Validator:
             if user:
                 return cls(), user
             else:
-                return UnauthenticatedException(
+                return cls(), UnauthenticatedException(
                     "Invalid credentials, please check your username and password"
                 )
         else:
-            return UnauthenticatedException(
+            return cls(), UnauthenticatedException(
                 "Authentication credentials were not provided"
             )

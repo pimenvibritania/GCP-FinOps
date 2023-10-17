@@ -4,7 +4,7 @@ from functools import wraps
 from django.http import JsonResponse
 from .validator import Validator
 from rest_framework import status
-from api.utils.exception import UnauthorizedException
+from api.utils.exception import UnauthorizedException, UnauthenticatedException
 
 
 def async_date_validator(view_func):
@@ -133,6 +133,10 @@ def async_user_validator(view_func):
         validated_class, validated_user = await Validator.async_authenticate(
             request=request
         )
+
+        if isinstance(validated_user, UnauthenticatedException):
+            return JsonResponse(validated_user.message, status=validated_user.status_code)
+
         user_inactive(request)
         if validated_user.is_superuser is False:
             exception = UnauthorizedException("Unauthorized, only superuser!")
