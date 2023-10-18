@@ -35,5 +35,16 @@ class Conversion:
             return 0 if previous_period == 0 else 100
         if previous_period == 0:
             return this_period
-        percent = abs(round(((this_period - previous_period) / previous_period) * 100, 2))
+        percent = abs(
+            round(((this_period - previous_period) / previous_period) * 100, 2)
+        )
         return 0.01 if percent == 0.0 else percent
+
+    @staticmethod
+    def to_bool(value: str):
+        str_bool = value.lower().capitalize()
+
+        if str_bool == ("True" or "False"):
+            return eval(str_bool)
+        else:
+            return False
