@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: |-
     Efficient cost and budget management are paramount for ensuring the uninterrupted functionality of our business, as well as our various teams and units. This document delves into our comprehensive strategy encompassing five key phases to effectively manage costs and budgets. The approach outlined here will enable us to proactively monitor and control expenses related to Google Cloud Platform (GCP) and other resources. Furthermore, the document highlights the frequency of alerts, indicating that these vital notifications will be disseminated on both a weekly and monthly basis, enhancing our ability to maintain financial transparency and control.
-
+    
     
     Some useful links:
     - [Cost Management System Abstract](https://moladin.atlassian.net/wiki/spaces/IN/pages/739082289/Cost+Management+System)
@@ -70,11 +70,11 @@ paths:
     post:
       operationId: create_index_weight
       tags:
-      - GCP
+        - GCP
       summary: Create Index Weight
       description: Add new index weight base on living docs
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       requestBody:
         content:
           application/json:
@@ -111,9 +111,9 @@ paths:
             format: string
           description: Fill with development or stag
       tags:
-      - GCP
+        - GCP
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -179,9 +179,9 @@ paths:
       summary: Get GCP projects
       description: Get GCP projects
       tags:
-      - GCP
+        - GCP
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -286,9 +286,9 @@ paths:
     post:
       operationId: kubecost_check_status_create
       tags:
-      - Kubecost
+        - Kubecost
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -296,18 +296,18 @@ paths:
     get:
       operationId: kubecost_clusters_retrieve
       tags:
-      - Kubecost
+        - Kubecost
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       responses:
         '200':
           description: No response body
     post:
       operationId: kubecost_clusters_create
       tags:
-      - Kubecost
+        - Kubecost
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -315,18 +315,18 @@ paths:
     get:
       operationId: kubecost_deployments_retrieve
       tags:
-      - Kubecost
+        - Kubecost
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       responses:
         '200':
           description: No response body
     post:
       operationId: kubecost_deployments_create
       tags:
-      - Kubecost
+        - Kubecost
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -334,9 +334,9 @@ paths:
     post:
       operationId: kubecost_insert_data_create
       tags:
-      - Kubecost
+        - Kubecost
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -344,18 +344,18 @@ paths:
     get:
       operationId: kubecost_namespace_map_retrieve
       tags:
-      - Kubecost
+        - Kubecost
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       responses:
         '200':
           description: No response body
     post:
       operationId: kubecost_namespace_map_create
       tags:
-      - Kubecost
+        - Kubecost
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -363,9 +363,9 @@ paths:
     get:
       operationId: kubecost_namespaces_retrieve
       tags:
-      - Kubecost
+        - Kubecost
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -373,9 +373,9 @@ paths:
     get:
       operationId: kubecost_report_retrieve
       tags:
-      - Kubecost
+        - Kubecost
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -383,18 +383,35 @@ paths:
     get:
       operationId: services_retrieve
       tags:
-      - General
+        - General
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
       responses:
         '200':
           description: No response body
     post:
       operationId: services_create
       tags:
-      - General
+        - General
       security:
-      - basicAuth: []
+        - basicAuth: [ ]
+      responses:
+        '200':
+          description: No response body
+
+  /api/sync/services:
+    post:
+      operationId: sync_services
+      tags:
+        - General
+      security:
+        - basicAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncService'
+        required: true
       responses:
         '200':
           description: No response body
@@ -412,6 +429,7 @@ components:
         tech_family_id:
           type: integer
           example: 2
+
     GCPService:
       type: object
       properties:
@@ -458,7 +476,7 @@ components:
           example: "5490-F7B7-8DF6"
         tech_family_slug:
           type: string
-          example:  "defi_mfi"
+          example: "defi_mfi"
         index_weight_id:
           type: integer
           example: 233
@@ -485,6 +503,60 @@ components:
           type: string
           example: "MDI"
 
+    SyncService:
+      type: object
+      properties:
+        project_name:
+          type: string
+          example: "MFI"
+        service_name:
+          type: string
+          example: "new-service"
+        avp:
+          type: string
+          example: "Tjatur Permadi"
+        service_owner:
+          type: string
+          example: "Pirman Abdurohman"
+        platform:
+          type: string
+          example: "BACKEND"
+        tech_family:
+          type: string
+          example: "PLATFORM"
+        vertical_business:
+          type: string
+          example: "MOFI"
+        tribe:
+          type: string
+          example: "INTOOLS"
+        ready_to_scale:
+          type: string
+          example: "True"
+        health_check:
+          type: string
+          example: "/health"
+        probes:
+          type: string
+          example: "False"
+        sonarqube:
+          type: string
+          example: "True"
+        maps_api:
+          type: string
+          example: "False"
+        places_api:
+          type: string
+          example: "False"
+        affinity:
+          type: string
+          example: "True"
+        uptime:
+          type: string
+          example: "False"
+        environment:
+          type: string
+          example: "devl,stag,prod"
   securitySchemes:
     basicAuth:
       type: http
