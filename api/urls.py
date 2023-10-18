@@ -1,20 +1,17 @@
 from django.urls import path
 from django.views.generic import TemplateView
-from api.views.report_views import create_report
 
 from api.views.bigquery_views import (
     BigQueryPeriodicalCost,
     BigQueryTechFamily,
     BigQueryIndexWeight,
 )
-
+from api.views.gcp_sync_views import SyncGCPServices, SyncGCPProjects, SyncGCPCosts
 from api.views.gcp_views import (
     GCPServiceViews,
     GCPProjectViews,
     GCPCostViews,
 )
-
-from api.views.gcp_sync_views import SyncGCPServices, SyncGCPProjects, SyncGCPCosts
 from api.views.kubecost_views import (
     KubecostClusterViews,
     KubecostNamespaceViews,
@@ -24,8 +21,9 @@ from api.views.kubecost_views import (
     KubecostReportViews,
     KubecostCheckStatusViews,
 )
-
+from api.views.report_views import create_report
 from api.views.service_views import ServiceViews
+from api.views.sync_services import SyncServiceViews
 from api.views.tech_family_views import TechFamilyViews
 
 urlpatterns = [
@@ -39,7 +37,6 @@ urlpatterns = [
     path("gcp/sync/services", SyncGCPServices.as_view()),
     path("gcp/sync/projects", SyncGCPProjects.as_view()),
     path("gcp/sync/costs", SyncGCPCosts.as_view()),
-
     # Kubecost
     path("kubecost/clusters", KubecostClusterViews.as_view()),
     path("kubecost/namespaces", KubecostNamespaceViews.as_view()),
@@ -48,11 +45,10 @@ urlpatterns = [
     path("kubecost/insert-data", KubecostInsertDataViews.as_view()),
     path("kubecost/report", KubecostReportViews.as_view()),
     path("kubecost/check-status", KubecostCheckStatusViews.as_view()),
-
     # General
     path("services", ServiceViews.as_view()),
     path("tech-family", TechFamilyViews.as_view()),
-
+    path("sync/services", SyncServiceViews.as_view()),
     path(
         "docs/",
         TemplateView.as_view(
