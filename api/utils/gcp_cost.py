@@ -4,11 +4,9 @@ from rest_framework import status
 
 from api.models.__constant import *
 from api.models.bigquery import BigQuery
-
 # from api.utils.generator import upload_file
 from api.utils.logger import CustomLogger
 from api.views.gcp_views import GCPCostViews
-from core import settings
 from home.models import IndexWeight, GCPProjects
 
 logger = CustomLogger(__name__)
@@ -22,8 +20,8 @@ def insert_cost(request, usage_date, list_data):
     current_datetime = datetime.now()
     formatted_datetime = current_datetime.strftime("%Y%m%d-%H%M%S")
 
-    log_filename = f"gcp_cost_sync_{usage_date}__{formatted_datetime}.txt"
-    log_path = f"{settings.LOGS_DIR}/{log_filename}"
+    # log_filename = f"gcp_cost_sync_{usage_date}__{formatted_datetime}.txt"
+    # log_path = f"{settings.LOGS_DIR}/{log_filename}"
     # bucket_folder = settings.GOOGLE_CLOUD_STORAGE_LOGS_FOLDER_NAME
 
     for data in list_data:
@@ -139,10 +137,10 @@ def insert_cost(request, usage_date, list_data):
                         else:
                             logger.error(response.data)
 
-                        with open(log_path, "a+") as file_log:
-                            file_log.write("\n" + str(response.data))
+                        # with open(log_path, "a+") as file_log:
+                        #     file_log.write("\n" + str(response.data))
 
     # link = upload_file(log_path, bucket_folder, log_filename)
     link = os.getenv("MONITORING_URL")
-    os.remove(log_path)
+    # os.remove(log_path)
     return link
