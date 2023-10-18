@@ -1,12 +1,13 @@
+import os
+
 import mysql.connector.pooling
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
 db_host = os.getenv("DB_HOST")
 db_port = os.getenv("DB_PORT")
-db_user = os.getenv("DB_USER")
+db_user = os.getenv("DB_USERNAME")
 db_password = os.getenv("DB_PASSWORD")
 db_name = os.getenv("DB_NAME")
 
@@ -22,11 +23,14 @@ db_config = {
     "database": db_name,
 }
 
-connection_pool = mysql.connector.pooling.MySQLConnectionPool(**db_config)
-
 
 def get_connection():
-    return connection_pool.get_connection()
+    return mysql.connector.connect(**db_config)
+
+
+# def get_pool_connection():
+#     connection_pool = mysql.connector.pooling.MySQLConnectionPool(**db_config)
+#     return connection_pool.get_connection()
 
 
 def execute_query(query):

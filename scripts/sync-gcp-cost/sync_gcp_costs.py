@@ -1,9 +1,11 @@
 import multiprocessing
+import sys
 from datetime import datetime, timedelta
-from db import execute_query, commit_query
+
 from google.cloud import bigquery
 from google.oauth2 import service_account
-import sys
+
+from db import execute_query, commit_query
 
 BIGQUERY_MFI_TABLE = (
     "moladin-mof-devl.mof_devl_project.gcp_billing_export_v1_01B320_ECED51_5ED521"
@@ -315,7 +317,12 @@ def insert_cost(usage_date, list_data):
                         ]
                         request_data["index_weight_id"] = tf_index_weight_id
 
-                        post_cost(request_data)
+                        try:
+                            post_cost(request_data)
+                            print(request_data)
+                            print("Data was successfully inserted")
+                        except Exception as e:
+                            print(e)
 
 
 def worker_function(queue, usage_date):
