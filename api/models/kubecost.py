@@ -637,12 +637,23 @@ class KubecostReport:
                 },
             }
 
-            # final_data.append(unregistered_data)
             final_data["UNREGISTERED"] = unregistered_data
 
-            # json_data = json.dumps(final_data)
-            # print(json_data)
             cache.set(cache_key, final_data, timeout=REDIS_TTL)
+
+            del namespace_data
+            del deployment_data
+            del registered_service
+            del unregistered_namespace
+            del unregistered_deployment
+            del unregistered_service
+            del services_data
+            del data_by_tf
+            del tech_family
+            del service_dict
+            del result
+            del unregistered_data
+            
             return final_data
 
 
