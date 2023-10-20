@@ -1,27 +1,29 @@
-from home.models.kubecost_clusters import KubecostClusters
-from home.models.services import Services
-from home.models.tech_family import TechFamily
-from home.models.kubecost_namespaces import KubecostNamespaces, KubecostNamespacesMap
+import json
+import logging
+import os
+import re
+import subprocess
+from datetime import datetime, timedelta
+
+import math
+import requests
+from django.core.cache import cache
+from django.db import connection
+from django.db.utils import IntegrityError
+from kubernetes import client, config
+
 from api.serializers import (
     KubecostClusterSerializer,
     ServiceSerializer,
     KubecostDeployments,
     KubecostNamespaceMapSerializer,
 )
-from django.db.utils import IntegrityError
-from api.utils.date import Date
 from api.utils.conversion import Conversion
-from datetime import datetime, timedelta
-from django.core.cache import cache
-import subprocess
-import math
-import os
-import requests
-import json
-from kubernetes import client, config
-import logging
-import re
-
+from api.utils.date import Date
+from home.models.kubecost_clusters import KubecostClusters
+from home.models.kubecost_namespaces import KubecostNamespaces, KubecostNamespacesMap
+from home.models.services import Services
+from home.models.tech_family import TechFamily
 
 REDIS_TTL = int(os.getenv("REDIS_TTL"))
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
@@ -401,6 +403,7 @@ class KubecostReport:
         if cache.get(cache_key):
             return cache.get(cache_key)
         else:
+            connection.close_if_unusable_or_obsolete()
             (
                 start_date_this_period,
                 end_date_this_period,

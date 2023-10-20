@@ -10,8 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-import os, random, string
+import os
+import random
+import string
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()  # take environment variables from .env.
@@ -160,6 +163,8 @@ if DB_ENGINE and DB_NAME and DB_USERNAME:
             "PASSWORD": DB_PASS,
             "HOST": DB_HOST,
             "PORT": DB_PORT,
+            "CONN_HEALTH_CHECKS": True,
+            "CONN_MAX_AGE": 60,
         },
     }
 else:
