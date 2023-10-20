@@ -1,16 +1,12 @@
+from django.core.cache import cache
+from django.db import connection
 from google.cloud import bigquery
 from google.oauth2 import service_account
 from rest_framework.exceptions import ValidationError
-from home.models.tech_family import TechFamily
-from home.models.index_weight import IndexWeight
-from api.serializers import TechFamilySerializer
-from api.utils.conversion import Conversion
-from api.utils.date import Date
+
 from api.utils.bigquery import *
-from api.models.__constant import *
-from django.core.cache import cache
-from django.views.decorators.cache import cache_page
-import os
+from api.utils.date import Date
+from home.models.index_weight import IndexWeight
 
 
 class BigQuery:
@@ -65,6 +61,8 @@ class BigQuery:
         if cache.get(cache_key):
             return cache.get(cache_key)
         else:
+            connection.close_if_unusable_or_obsolete()
+
             conversion_rate = cls.get_conversion_rate(input_date)
             if conversion_rate is None:
                 raise ValidationError(f"There is no data on date: {input_date}")
@@ -82,7 +80,7 @@ class BigQuery:
             index_weight = IndexWeight.get_index_weight()
 
             platform_mfi = get_tf_collection(
-                mfi_project, "platform_mfi", current_period_str, conversion_rate,period
+                mfi_project, "platform_mfi", current_period_str, conversion_rate, period
             )
             mofi = get_tf_collection(
                 mfi_project, "mofi", current_period_str, conversion_rate, period
