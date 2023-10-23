@@ -49,6 +49,18 @@ class TechFamily(BaseModel):
         data = (column_name, value)
         return cls.objects.get(data).slug
 
+    @classmethod
+    def get_row_name_by_slug(cls, value):
+        data = cls.objects.get(("slug", value)).name
+        data_list = data.split()
+        return (
+            "PLATFORM"
+            if data_list[0] == "PLATFORM"
+            else "DEFI"
+            if data_list[0] == "DEFI"
+            else data
+        )
+
     @staticmethod
     def included_mdi():
         return ["dana_tunai", "platform_mdi"]

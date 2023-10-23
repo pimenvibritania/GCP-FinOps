@@ -29,7 +29,7 @@ def parsing_env(environment: str):
 
 def search_env(values: list, search):
     if search not in values:
-        return False
+        return ""
     else:
         return True
 
@@ -246,7 +246,7 @@ class SyncServiceViews(APIView):
                 data.get("avp"),
                 data.get("service_owner"),
                 data.get("platform"),
-                data.get("tech_family"),
+                TechFamily.get_row_name_by_slug(tech_family),
                 data.get("vertical_business"),
                 data.get("tribe"),
                 data.get("squad"),
