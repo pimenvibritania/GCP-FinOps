@@ -34,7 +34,7 @@ class Conversion:
         if this_period == 0:
             return 0 if previous_period == 0 else 100
         if previous_period == 0:
-            return this_period
+            return round(this_period, 2)
         percent = abs(
             round(((this_period - previous_period) / previous_period) * 100, 2)
         )
