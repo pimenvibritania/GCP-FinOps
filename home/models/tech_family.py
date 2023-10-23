@@ -1,7 +1,8 @@
 from django.db import models
-from ..utils.enumerate import ProjectType
 from django.db.models import Q
+
 from home.models.base_model import BaseModel
+from ..utils.enumerate import ProjectType
 
 
 class TechFamily(BaseModel):
@@ -42,6 +43,11 @@ class TechFamily(BaseModel):
     def get_id(cls, column_name, value):
         data = (column_name, value)
         return cls.objects.get(data).id
+
+    @classmethod
+    def get_slug(cls, column_name, value):
+        data = (column_name, value)
+        return cls.objects.get(data).slug
 
     @staticmethod
     def included_mdi():

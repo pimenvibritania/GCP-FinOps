@@ -1,12 +1,13 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.db import IntegrityError
+from django.db.models import Q
 from rest_framework import status, permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from api.serializers import ServiceSerializer
 from api.utils.decorator import user_is_admin
 from home.models.services import Services
 from home.models.tech_family import TechFamily
-from django.db.models import Q
-from django.db import IntegrityError
 
 
 class ServiceViews(APIView):
@@ -65,9 +66,9 @@ class ServiceViews(APIView):
             "name": request.data.get("service_name"),
             "service_type": request.data.get("service_type"),
             "project": request.data.get("project"),
-            "tech_family": TechFamily.objects.get(
-                name=request.data.get("tech_family")
-            ).id,
+            "tech_family": TechFamily.get_id(
+                "slug", request.data.get("tech_family_slug")
+            ),
         }
 
         serializer = ServiceSerializer(data=data)
