@@ -197,7 +197,7 @@ class BigQuery:
 
                 if project in TF_PROJECT_MFI:
                     for tf in project_mfi.keys():
-                        project_mfi[tf] = mapping_services(
+                        project_mfi, project_mfi[tf] = mapping_services(
                             project,
                             service,
                             index_weight,
@@ -212,7 +212,7 @@ class BigQuery:
 
                 elif project is None and service == "Support":
                     for tf in project_mfi.keys():
-                        project_mfi[tf] = mapping_services(
+                        project_mfi, project_mfi[tf] = mapping_services(
                             "Shared Support",
                             service,
                             index_weight,
@@ -271,7 +271,7 @@ class BigQuery:
 
                 if project in TF_PROJECT_MDI:
                     for tf in project_mdi.keys():
-                        project_mdi[tf] = mapping_services(
+                        project_mdi, project_mdi[tf] = mapping_services(
                             project,
                             service,
                             index_weight,
@@ -284,7 +284,7 @@ class BigQuery:
                         )
 
                 elif project in TF_PROJECT_ANDROID:
-                    project_mdi["defi_mdi"] = mapping_services(
+                    project_mdi, project_mdi["defi_mdi"] = mapping_services(
                         project,
                         service,
                         index_weight,
@@ -297,7 +297,7 @@ class BigQuery:
                     )
 
                 elif project is None and service == ATLAS_SERVICE_NAME:
-                    project_mdi["dana_tunai"] = mapping_services(
+                    project_mdi, project_mdi["dana_tunai"] = mapping_services(
                         ATLAS_SERVICE_NAME,
                         service,
                         index_weight,
@@ -311,7 +311,7 @@ class BigQuery:
 
                 elif project is None and service == "Support":
                     for tf in project_mdi.keys():
-                        project_mdi[tf] = mapping_services(
+                        project_mdi, project_mdi[tf] = mapping_services(
                             "Shared Support",
                             service,
                             index_weight,

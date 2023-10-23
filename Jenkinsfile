@@ -73,11 +73,14 @@ pipeline {
                             sh "getConsul.py ${consul}/hot ${consulToken} >> .env"
                             sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} SERVICE_ACCOUNT | sed "s/\'/\\"/g" > service-account.json'
                             sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
+                            sh 'consulMantisCommand.py --get ${consul}/hot ${consulToken} FEATURE_FLAG | sed "s/\'/\\"/g" > feature-flag.json'
+
                         } else if (env.BRANCH_NAME =~ /PROD.*$/){
                             sh "getConsul.py ${consul}/cold ${consulProdToken} > .env"
                             sh "getConsul.py ${consul}/hot ${consulProdToken} >> .env"
                             sh 'consulMantisCommand.py --get ${consul}/cold ${consulProdToken} SERVICE_ACCOUNT | sed "s/\'/\\"/g" > service-account.json'
                             sh 'consulMantisCommand.py --get ${consul}/cold ${consulProdToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
+                            sh 'consulMantisCommand.py --get ${consul}/hot ${consulProdToken} FEATURE_FLAG | sed "s/\'/\\"/g" > feature-flag.json'
                         }
                         // sh "getConsul.py ${consul}/cold ${consulToken} > .env"
                         // sh "getConsul.py ${consul}/hot ${consulToken} >> .env"
