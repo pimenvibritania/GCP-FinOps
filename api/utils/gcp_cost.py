@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from rest_framework import status
 
 from api.models.__constant import *
@@ -17,8 +15,8 @@ def insert_cost(request, usage_date, list_data):
     conversion_rate = BigQuery.get_conversion_rate(usage_date)
     index_weight = IndexWeight.get_index_weight()
 
-    current_datetime = datetime.now()
-    formatted_datetime = current_datetime.strftime("%Y%m%d-%H%M%S")
+    # current_datetime = datetime.now()
+    # formatted_datetime = current_datetime.strftime("%Y%m%d-%H%M%S")
 
     # log_filename = f"gcp_cost_sync_{usage_date}__{formatted_datetime}.txt"
     # log_path = f"{settings.LOGS_DIR}/{log_filename}"

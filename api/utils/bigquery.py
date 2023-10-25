@@ -157,11 +157,33 @@ def mapping_new_service(
             d["gcp_project"]: i for i, d in enumerate(found_dict["cost_services"])
         }
 
-        # print("exst", existing_projects)
         if gcp_project in existing_projects:
             index = existing_projects[gcp_project]
+
+            unpacked_found_iw = Conversion.unpack_percentages(
+                found_dict["cost_services"][index]["index_weight"]
+            )
+            current_iw = unpacked_found_iw + weight_index_percent
+
+            found_diff_cost = found_dict["cost_services"][index]["cost_difference"]
+            calculated_diff_cost = found_diff_cost + diff_cost
+
+            status_cost = (
+                "UP"
+                if calculated_diff_cost > 0
+                else "DOWN"
+                if calculated_diff_cost < 0
+                else "EQUAL"
+            )
+
             found_dict["cost_services"][index]["cost_this_period"] += current_cost
             found_dict["cost_services"][index]["cost_prev_period"] += previous_cost
+            found_dict["cost_services"][index]["cost_status"] = status_cost
+            found_dict["cost_services"][index]["cost_difference"] = calculated_diff_cost
+            found_dict["cost_services"][index][
+                "cost_status_percent"
+            ] += cost_status_percentage
+            found_dict["cost_services"][index]["index_weight"] = f"{current_iw} %"
         else:
             found_dict["cost_services"].extend(new_svc["cost_services"])
 
@@ -247,14 +269,6 @@ def mapping_services(
             set(tech_family_projects) - set(excluded_services_tf)
         )
         if tf in excluded_services_tf:
-            # print(
-            #     "exc",
-            #     service_name,
-            #     excluded_services_tf,
-            #     included_services_tf,
-            #     tech_family_projects,
-            #     gcp_project,
-            # )
             current_separated_cost = current_cost / len(included_services_tf)
             previous_separated_cost = previous_cost / len(included_services_tf)
             separated_weight_index_percent = weight_index_percent / len(
