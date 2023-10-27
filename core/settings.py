@@ -265,4 +265,4 @@ OAUTH_EMAIL_WHITELIST = str(os.getenv("OAUTH_EMAIL_WHITELIST")).split(",")
 with open(f"{BASE_DIR}/feature-flag.json", "r") as feature_flag_json:
     feature_flag = json.load(feature_flag_json)
 
-EXCLUDED_GCP_SERVICES = feature_flag["excluded_services"]
+EXCLUDED_GCP_SERVICES = feature_flag.get("excluded_services")
