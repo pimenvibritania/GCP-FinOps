@@ -112,10 +112,10 @@ class BigQuery:
             }
 
             query_template = """
-                SELECT project.id as proj, service.description as svc, SUM(cost) AS total_cost
+                SELECT project.id as proj, service.description as svc, service.id as svc_id, SUM(cost) AS total_cost
                 FROM `{BIGQUERY_TABLE}`
                 WHERE DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
-                GROUP BY proj, svc
+                GROUP BY proj, svc, svc_id
             """
 
             # MFI Query
@@ -160,11 +160,15 @@ class BigQuery:
 
                 current_period_costs_mfi = {}
                 for row in current_period_results_mfi:
-                    current_period_costs_mfi[(row.svc, row.proj)] = row.total_cost
+                    current_period_costs_mfi[
+                        (row.svc, row.proj, row.svc_id)
+                    ] = row.total_cost
 
                 previous_period_costs_mfi = {}
                 for row in previous_period_results_mfi:
-                    previous_period_costs_mfi[(row.svc, row.proj)] = row.total_cost
+                    previous_period_costs_mfi[
+                        (row.svc, row.proj, row.svc_id)
+                    ] = row.total_cost
 
             csv_cost = None
 
@@ -180,20 +184,20 @@ class BigQuery:
                     csv_path,
                 )
 
-            for service, project in set(current_period_costs_mfi.keys()).union(
-                previous_period_costs_mfi.keys()
-            ):
+            for service, project, service_id in set(
+                current_period_costs_mfi.keys()
+            ).union(previous_period_costs_mfi.keys()):
                 current_period_cost = current_period_costs_mfi.get(
-                    (service, project), 0
+                    (service, project, service_id), 0
                 )
                 previous_period_cost = previous_period_costs_mfi.get(
-                    (service, project), 0
+                    (service, project, service_id), 0
                 )
                 cost_difference = current_period_cost - previous_period_cost
 
                 if project in TF_PROJECT_MFI:
                     for tf in project_mfi.keys():
-                        project_mfi[tf] = mapping_services(
+                        project_mfi, project_mfi[tf] = mapping_services(
                             project,
                             service,
                             index_weight,
@@ -202,12 +206,13 @@ class BigQuery:
                             project_mfi,
                             tf,
                             "MFI",
+                            service_id,
                             csv_import=csv_cost,
                         )
 
                 elif project is None and service == "Support":
                     for tf in project_mfi.keys():
-                        project_mfi[tf] = mapping_services(
+                        project_mfi, project_mfi[tf] = mapping_services(
                             "Shared Support",
                             service,
                             index_weight,
@@ -216,6 +221,7 @@ class BigQuery:
                             project_mfi,
                             tf,
                             "MFI",
+                            service_id,
                         )
                 else:
                     pass
@@ -242,26 +248,30 @@ class BigQuery:
 
             current_period_costs_mdi = {}
             for row in current_period_results_mdi:
-                current_period_costs_mdi[(row.svc, row.proj)] = row.total_cost
+                current_period_costs_mdi[
+                    (row.svc, row.proj, row.svc_id)
+                ] = row.total_cost
 
             previous_period_costs_mdi = {}
             for row in previous_period_results_mdi:
-                previous_period_costs_mdi[(row.svc, row.proj)] = row.total_cost
+                previous_period_costs_mdi[
+                    (row.svc, row.proj, row.svc_id)
+                ] = row.total_cost
 
-            for service, project in set(current_period_costs_mdi.keys()).union(
-                previous_period_costs_mdi.keys()
-            ):
+            for service, project, service_id in set(
+                current_period_costs_mdi.keys()
+            ).union(previous_period_costs_mdi.keys()):
                 current_period_cost = current_period_costs_mdi.get(
-                    (service, project), 0
+                    (service, project, service_id), 0
                 )
                 previous_period_cost = previous_period_costs_mdi.get(
-                    (service, project), 0
+                    (service, project, service_id), 0
                 )
                 cost_difference = current_period_cost - previous_period_cost
 
                 if project in TF_PROJECT_MDI:
                     for tf in project_mdi.keys():
-                        project_mdi[tf] = mapping_services(
+                        project_mdi, project_mdi[tf] = mapping_services(
                             project,
                             service,
                             index_weight,
@@ -270,10 +280,11 @@ class BigQuery:
                             project_mdi,
                             tf,
                             "MDI",
+                            service_id,
                         )
 
                 elif project in TF_PROJECT_ANDROID:
-                    project_mdi["defi_mdi"] = mapping_services(
+                    project_mdi, project_mdi["defi_mdi"] = mapping_services(
                         project,
                         service,
                         index_weight,
@@ -282,10 +293,11 @@ class BigQuery:
                         project_mdi,
                         "defi_mdi",
                         "ANDROID",
+                        service_id,
                     )
 
                 elif project is None and service == ATLAS_SERVICE_NAME:
-                    project_mdi["dana_tunai"] = mapping_services(
+                    project_mdi, project_mdi["dana_tunai"] = mapping_services(
                         ATLAS_SERVICE_NAME,
                         service,
                         index_weight,
@@ -294,11 +306,12 @@ class BigQuery:
                         project_mdi,
                         "dana_tunai",
                         "MDI",
+                        service_id,
                     )
 
                 elif project is None and service == "Support":
                     for tf in project_mdi.keys():
-                        project_mdi[tf] = mapping_services(
+                        project_mdi, project_mdi[tf] = mapping_services(
                             "Shared Support",
                             service,
                             index_weight,
@@ -307,6 +320,7 @@ class BigQuery:
                             project_mdi,
                             tf,
                             "MDI",
+                            service_id,
                         )
 
                 else:

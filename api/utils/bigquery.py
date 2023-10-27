@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
+
+import pandas as pd
+
 from api.models.__constant import *
 from api.serializers import TechFamilySerializer
 from api.utils.conversion import Conversion
+from core.settings import EXCLUDED_GCP_SERVICES
 from home.models.tech_family import TechFamily
-import pandas as pd
-import os
 
 
 def get_tech_family():
@@ -113,6 +115,108 @@ def mapping_csv(
     return result
 
 
+def mapping_new_service(
+    gcp_project,
+    service_name,
+    environment,
+    weight_index_percent,
+    current_cost,
+    previous_cost,
+    diff_cost,
+    status_cost,
+    cost_status_percentage,
+    project_family,
+    tf,
+):
+    new_svc = {
+        "name": service_name,
+        "cost_services": [
+            {
+                "environment": environment,
+                "index_weight": f"{weight_index_percent} %",
+                "cost_this_period": current_cost,
+                "cost_prev_period": previous_cost,
+                "cost_difference": diff_cost,
+                "cost_status": status_cost,
+                "cost_status_percent": cost_status_percentage,
+                "gcp_project": gcp_project,
+            }
+        ],
+    }
+
+    found_dict = next(
+        (
+            item
+            for item in project_family[tf]["data"]["services"]
+            if item["name"] == new_svc["name"]
+        ),
+        None,
+    )
+    if found_dict:
+        existing_projects = {
+            d["gcp_project"]: i for i, d in enumerate(found_dict["cost_services"])
+        }
+
+        if gcp_project in existing_projects:
+            index = existing_projects[gcp_project]
+
+            unpacked_found_iw = Conversion.unpack_percentages(
+                found_dict["cost_services"][index]["index_weight"]
+            )
+            current_iw = unpacked_found_iw + weight_index_percent
+
+            found_diff_cost = found_dict["cost_services"][index]["cost_difference"]
+            calculated_diff_cost = found_diff_cost + diff_cost
+
+            status_cost = (
+                "UP"
+                if calculated_diff_cost > 0
+                else "DOWN"
+                if calculated_diff_cost < 0
+                else "EQUAL"
+            )
+
+            found_dict["cost_services"][index]["cost_this_period"] += current_cost
+            found_dict["cost_services"][index]["cost_prev_period"] += previous_cost
+            found_dict["cost_services"][index]["cost_status"] = status_cost
+            found_dict["cost_services"][index]["cost_difference"] = calculated_diff_cost
+            found_dict["cost_services"][index][
+                "cost_status_percent"
+            ] += cost_status_percentage
+            found_dict["cost_services"][index]["index_weight"] = f"{current_iw} %"
+        else:
+            found_dict["cost_services"].extend(new_svc["cost_services"])
+
+        sorted_data = sorted(
+            found_dict["cost_services"],
+            key=lambda x: x["cost_status_percent"],
+            reverse=True,
+        )
+        found_dict["cost_services"] = sorted_data
+
+    else:
+        project_family[tf]["data"]["services"].append(new_svc)
+
+    if gcp_project not in project_family[tf]["data"]["project_included"]:
+        project_family[tf]["data"]["project_included"].append(gcp_project)
+
+    project_family[tf]["data"]["summary"]["current_period"] += current_cost
+    project_family[tf]["data"]["summary"]["previous_period"] += previous_cost
+    project_family[tf]["data"]["summary"]["cost_difference"] = (
+        project_family[tf]["data"]["summary"]["current_period"]
+        - project_family[tf]["data"]["summary"]["previous_period"]
+    )
+    project_family[tf]["data"]["summary"]["status"] = (
+        "UP"
+        if project_family[tf]["data"]["summary"]["cost_difference"] > 0
+        else "DOWN"
+        if project_family[tf]["data"]["summary"]["cost_difference"] < 0
+        else "EQUAL"
+    )
+
+    return project_family
+
+
 def mapping_services(
     gcp_project,
     service_name,
@@ -122,6 +226,7 @@ def mapping_services(
     project_family,
     tf,
     organization,
+    service_id,
     csv_import=None,
 ):
     environment = (
@@ -155,66 +260,70 @@ def mapping_services(
             weight_index_percent / 100
         )
 
+    excluded_services_tf = EXCLUDED_GCP_SERVICES[service_id]
+    is_excluded_service = True if len(excluded_services_tf) != 0 else False
+    # If there is excluded service by service_id
+    if is_excluded_service:
+        tech_family_projects = MFI_PROJECT if organization == "MFI" else MDI_PROJECT
+        included_services_tf = list(
+            set(tech_family_projects) - set(excluded_services_tf)
+        )
+        if tf in excluded_services_tf:
+            current_separated_cost = current_cost / len(included_services_tf)
+            previous_separated_cost = previous_cost / len(included_services_tf)
+            separated_weight_index_percent = weight_index_percent / len(
+                included_services_tf
+            )
+            diff_cost = current_separated_cost - previous_separated_cost
+
+            status_cost = (
+                "UP" if diff_cost > 0 else "DOWN" if diff_cost < 0 else "EQUAL"
+            )
+
+            cost_status_percentage = Conversion.get_percentage(
+                current_cost, previous_cost
+            )
+
+            for included_tf in included_services_tf:
+                project_family = mapping_new_service(
+                    gcp_project,
+                    service_name,
+                    environment,
+                    separated_weight_index_percent,
+                    current_separated_cost,
+                    previous_separated_cost,
+                    diff_cost,
+                    status_cost,
+                    cost_status_percentage,
+                    project_family,
+                    included_tf,
+                )
+
+            current_cost = 0
+            previous_cost = 0
+            weight_index_percent = 0
+
     diff_cost = current_cost - previous_cost
 
     status_cost = "UP" if diff_cost > 0 else "DOWN" if diff_cost < 0 else "EQUAL"
 
     cost_status_percentage = Conversion.get_percentage(current_cost, previous_cost)
 
-    new_svc = {
-        "name": service_name,
-        "cost_services": [
-            {
-                "environment": environment,
-                "index_weight": f"{weight_index_percent} %",
-                "cost_this_period": current_cost,
-                "cost_prev_period": previous_cost,
-                "cost_difference": diff_cost,
-                "cost_status": status_cost,
-                "cost_status_percent": cost_status_percentage,
-                "gcp_project": gcp_project,
-            }
-        ],
-    }
-
-    found_dict = next(
-        (
-            item
-            for item in project_family[tf]["data"]["services"]
-            if item["name"] == new_svc["name"]
-        ),
-        None,
-    )
-    if found_dict:
-        found_dict["cost_services"].extend(new_svc["cost_services"])
-        sorted_data = sorted(
-            found_dict["cost_services"],
-            key=lambda x: x["cost_status_percent"],
-            reverse=True,
-        )
-        found_dict["cost_services"] = sorted_data
-
-    else:
-        project_family[tf]["data"]["services"].append(new_svc)
-
-    if gcp_project not in project_family[tf]["data"]["project_included"]:
-        project_family[tf]["data"]["project_included"].append(gcp_project)
-
-    project_family[tf]["data"]["summary"]["current_period"] += current_cost
-    project_family[tf]["data"]["summary"]["previous_period"] += previous_cost
-    project_family[tf]["data"]["summary"]["cost_difference"] = (
-        project_family[tf]["data"]["summary"]["current_period"]
-        - project_family[tf]["data"]["summary"]["previous_period"]
-    )
-    project_family[tf]["data"]["summary"]["status"] = (
-        "UP"
-        if project_family[tf]["data"]["summary"]["cost_difference"] > 0
-        else "DOWN"
-        if project_family[tf]["data"]["summary"]["cost_difference"] < 0
-        else "EQUAL"
+    new_project_family = mapping_new_service(
+        gcp_project,
+        service_name,
+        environment,
+        weight_index_percent,
+        current_cost,
+        previous_cost,
+        diff_cost,
+        status_cost,
+        cost_status_percentage,
+        project_family,
+        tf,
     )
 
-    return project_family[tf]
+    return new_project_family, new_project_family[tf]
 
 
 def cross_billing(

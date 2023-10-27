@@ -1,5 +1,3 @@
-from typing import Union
-
 from babel.numbers import format_currency, parse_decimal
 
 
@@ -30,7 +28,7 @@ class Conversion:
         return cls.usd_format(value / rate)
 
     @classmethod
-    def get_percentage(cls, this_period, previous_period) -> Union[float, str]:
+    def get_percentage(cls, this_period, previous_period) -> float:
         if this_period == 0:
             return 0 if previous_period == 0 else 100
         if previous_period == 0:
@@ -39,6 +37,10 @@ class Conversion:
             round(((this_period - previous_period) / previous_period) * 100, 2)
         )
         return 0.01 if percent == 0.0 else percent
+
+    @classmethod
+    def unpack_percentages(cls, value: str) -> float:
+        return float(value.replace("%", ""))
 
     @staticmethod
     def to_bool(value: str):

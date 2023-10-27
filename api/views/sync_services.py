@@ -75,7 +75,13 @@ def mapping_host(platform, env, host_url):
         stag_host = [url for url in host_url if "staging" in url]
         prod_host = [url for url in host_url if "production" in url]
 
-    return dev_host if env == "devl" else stag_host if env == "stag" else prod_host
+    return (
+        dev_host[0]
+        if env == "devl"
+        else stag_host[0]
+        if env == "stag"
+        else prod_host[0]
+    )
 
 
 def add_uptime_monitor(
@@ -104,7 +110,8 @@ def add_uptime_monitor(
                 responses.append(
                     {
                         "environment": env,
-                        "host": kuma_host,
+                        "kuma_host": kuma_host,
+                        "service_host": service_host,
                         "message": response.get("msg"),
                     }
                 )
@@ -187,7 +194,7 @@ class SyncServiceViews(APIView):
             }
         except Exception as e:
             return Response(
-                {"success": False, "message": str(e)},
+                {"success": False, "message": f"Error when validating data: {str(e)}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -280,7 +287,7 @@ class SyncServiceViews(APIView):
             data["kuma"] = kuma_response
         except Exception as e:
             return Response(
-                {"success": False, "message": str(e)},
+                {"success": False, "message": "Error when inserting: " + str(e)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

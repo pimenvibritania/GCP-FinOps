@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+import json
 import os
 import random
 import string
@@ -261,3 +261,8 @@ LOGOUT_REDIRECT_URL = "/"
 SOCIALACCOUNT_ADAPTER = "home.utils.adapter.CustomGoogleOAuth2Adapter"
 
 OAUTH_EMAIL_WHITELIST = str(os.getenv("OAUTH_EMAIL_WHITELIST")).split(",")
+
+with open(f"{BASE_DIR}/feature-flag.json", "r") as feature_flag_json:
+    feature_flag = json.load(feature_flag_json)
+
+EXCLUDED_GCP_SERVICES = feature_flag.get("excluded_services")
