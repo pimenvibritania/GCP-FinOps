@@ -47,23 +47,47 @@ def validate_project(project_name):
     return project_name, worksheet_name
 
 
-def get_kuma_host(env, project_name):
-    host_mappings = {
-        ("MFI", "devl"): "https://uptime-kuma.development.mofi.id",
-        ("MFI", "stag"): "https://uptime-kuma.staging.mofi.id",
-        ("MFI", "prod"): "https://uptime-kuma.production.mofi.id",
-        ("MDI", "devl"): "https://uptime-kuma.development.jinny.id",
-        ("MDI", "stag"): "https://uptime-kuma.staging.jinny.id",
-        ("MDI", "prod"): "https://uptime-kuma.production.jinny.id",
+def get_kuma_credentials(env, project_name):
+    data_mappings = {
+        ("MFI", "devl"): {
+            "host": "https://uptime-kuma.development.mofi.id",
+            "username": os.getenv("UPTIME_KUMA_USERNAME_MFI_DEVL"),
+            "password": os.getenv("UPTIME_KUMA_PASSWORD_MFI_DEVL"),
+        },
+        ("MFI", "stag"): {
+            "host": "https://uptime-kuma.staging.mofi.id",
+            "username": os.getenv("UPTIME_KUMA_USERNAME_MFI_STAG"),
+            "password": os.getenv("UPTIME_KUMA_PASSWORD_MFI_STAG"),
+        },
+        ("MFI", "prod"): {
+            "host": "https://uptime-kuma.production.mofi.id",
+            "username": os.getenv("UPTIME_KUMA_USERNAME_MFI_PROD"),
+            "password": os.getenv("UPTIME_KUMA_PASSWORD_MFI_PROD"),
+        },
+        ("MDI", "devl"): {
+            "host": "https://uptime-kuma.development.jinny.id",
+            "username": os.getenv("UPTIME_KUMA_USERNAME_MDI_DEVL"),
+            "password": os.getenv("UPTIME_KUMA_PASSWORD_MDI_DEVL"),
+        },
+        ("MDI", "stag"): {
+            "host": "https://uptime-kuma.staging.jinny.id",
+            "username": os.getenv("UPTIME_KUMA_USERNAME_MDI_STAG"),
+            "password": os.getenv("UPTIME_KUMA_PASSWORD_MDI_STAG"),
+        },
+        ("MDI", "prod"): {
+            "host": "https://uptime-kuma.production.jinny.id",
+            "username": os.getenv("UPTIME_KUMA_USERNAME_MDI_PROD"),
+            "password": os.getenv("UPTIME_KUMA_PASSWORD_MDI_PROD"),
+        },
     }
 
-    if (project_name, env) in host_mappings:
-        return host_mappings[(project_name, env)]
+    if (project_name, env) in data_mappings:
+        return data_mappings[(project_name, env)]
     else:
         raise ValueError("Uptime kuma host not valid!")
 
 
-def mapping_host(platform, env, host_url):
+def get_service_host(platform, env, host_url):
     if platform == "frontend":
         dev_host = [url for url in host_url if "dev-" in url]
         stag_host = [url for url in host_url if "staging-" in url]
@@ -91,33 +115,41 @@ def add_uptime_monitor(
     platform: str,
     host_url: list,
 ):
-    kuma_username = os.getenv("UPTIME_KUMA_USERNAME")
-    kuma_password = os.getenv("UPTIME_KUMA_PASSWORD")
-
     responses = []
 
     for env in environment:
-        kuma_host = get_kuma_host(env, project_name)
-        service_host = mapping_host(platform, env, host_url)
+        kuma_credentials = get_kuma_credentials(env, project_name)
+        kuma_host = kuma_credentials["host"]
+        service_host = get_service_host(platform, env, host_url)
 
         with UptimeKumaApi(kuma_host) as api:
             try:
+                kuma_username = kuma_credentials["username"]
+                kuma_password = kuma_credentials["password"]
                 api.login(kuma_username, kuma_password)
+            except Exception as e:
+                raise ValueError(f"Failed when login Kuma on {kuma_host} | " + str(e))
+
+            try:
                 response = api.add_monitor(
                     type=MonitorType.HTTP, name=service_name, url=str(service_host)
                 )
 
-                responses.append(
-                    {
-                        "environment": env,
-                        "kuma_host": kuma_host,
-                        "service_host": service_host,
-                        "message": response.get("msg"),
-                    }
-                )
+                response_data = {
+                    "environment": env,
+                    "kuma_host": kuma_host,
+                    "service_host": service_host,
+                    "message": response.get("msg"),
+                }
+
+                print("Success: ", response_data)
+
+                responses.append(response_data)
 
             except Exception as e:
-                raise ValueError(str(e))
+                raise ValueError(
+                    f"Failed when add monitor Kuma on {kuma_host} | " + str(e)
+                )
 
     return responses
 
@@ -228,6 +260,16 @@ class SyncServiceViews(APIView):
             if status_code != status.HTTP_201_CREATED:
                 raise ValueError(response["message"])
 
+        except Exception as e:
+            return Response(
+                {
+                    "success": False,
+                    "message": "error when insert into cms db : " + str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
             creds = ServiceAccountCredentials.from_json_keyfile_name(
                 "service-account.json", scope
             )
@@ -242,9 +284,7 @@ class SyncServiceViews(APIView):
             service_names = worksheet.col_values(1)[1:]
 
             if service_name in service_names:
-                return Response(
-                    "Service already exist", status=status.HTTP_400_BAD_REQUEST
-                )
+                raise ValueError("Service already exist on Living Docs")
 
             total_rows = len(service_names) + 1
 
@@ -252,7 +292,7 @@ class SyncServiceViews(APIView):
                 data.get("service_name"),
                 data.get("avp"),
                 data.get("service_owner"),
-                data.get("platform"),
+                data.get("platform").upper(),
                 TechFamily.get_row_name_by_slug(tech_family),
                 data.get("vertical_business"),
                 data.get("tribe"),
@@ -275,7 +315,16 @@ class SyncServiceViews(APIView):
                 [row_data],
                 value_input_option=ValueInputOption.user_entered,
             )
+        except Exception as e:
+            return Response(
+                {
+                    "success": False,
+                    "message": "Error when updating living documents: " + str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
+        try:
             kuma_response = add_uptime_monitor(
                 environments,
                 service_name,
@@ -287,7 +336,10 @@ class SyncServiceViews(APIView):
             data["kuma"] = kuma_response
         except Exception as e:
             return Response(
-                {"success": False, "message": "Error when inserting: " + str(e)},
+                {
+                    "success": False,
+                    "message": "Error when inserting into Kuma: " + str(e),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
