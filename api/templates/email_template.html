@@ -1,122 +1,142 @@
 {% autoescape off %}
-<!DOCTYPE html>
-<html lang="">
-  <head>
-      <style>
-        @page {
-            size: Letter;
-            margin: 0.44in;
-            font-size: 12px;
-        }
-        @font-face {
-            font-size: 12px;
-        }
-        body {
-            font-size: 12px;
-        }
+    <!DOCTYPE html>
+    <html lang="">
+    <head>
+        <style>
+            @page {
+                size: Letter;
+                margin: 0.44in;
+                font-size: 12px;
+            }
 
-        table {
-          border-collapse: collapse;
-          width: 100%;
-        }
-        
-        th, td {
-          padding: 8px;
-          text-align: left;
-          border-bottom: 1px solid #ddd;
-        }
-        
-        th {
-          background-color: #f2f2f2;
-        }
+            @font-face {
+                font-size: 12px;
+            }
 
-        .alert {
-          padding: 20px;
-          background-color: #f44336; /* Red */
-          color: white;
-          margin-bottom: 15px;
-        }
-      </style>
-      <title>Cost Report</title>
-  </head>
-  <body>
+            body {
+                font-size: 12px;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            th, td {
+                padding: 8px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
+
+            .alert {
+                padding: 20px;
+                background-color: #f44336; /* Red */
+                color: white;
+                margin-bottom: 15px;
+            }
+        </style>
+        <title>Cost Report</title>
+    </head>
+    <body>
     <p><strong>Trial</strong> - Cost reminder</p>
-    <p>Dear all,<br />
-    We hope this email finds you well. <br/>
-    As part of our commitment to transparency and to keep you informed about our cloud infrastructure expenses. <br/>
-    We are pleased to share with you the summary of our Google Cloud Platform (GCP) usage and costs for the period of period.
-    <br/>Please find the cost status and comparison details below:</p>
-    <p><strong>Service Owner</strong>: {{em_name}} - {{project_name}}</p>
+    <p>Dear all,<br/>
+        We hope this email finds you well. <br/>
+        As part of our commitment to transparency and to keep you informed about our cloud infrastructure expenses.
+        <br/>
+        We are pleased to share with you the summary of our Google Cloud Platform (GCP) usage and costs for the period
+        of period.
+        <br/>Please find the cost status and comparison details below:</p>
+    <p><strong>Service Owner</strong>: {{ em_name }} - {{ project_name }}</p>
     <hr/>
     <!-- GCP SECTION -->
     {% if gcp_exist %}
 
         <u><h3>GCP SERVICES</h3></u>
 
-        {% if total_cost_this_period > limit_budget %}
+        {#        {% if total_cost_this_period > limit_budget %}#}
+        {##}
+        {#            <div class="alert">#}
+        {#                <b>DANGER!</b> {{ alert_message}} Your limit budget is <b>Rp{{ limit_budget }} IDR</b>#}
+        {#            </div>#}
+        {##}
+        {#        {% endif %}#}
 
-            <div class="alert">
-                <b>DANGER!</b> {{ alert_message}} Your limit budget is <b>Rp{{ limit_budget }} IDR</b>
-            </div>
-
-        {% endif %}
-
-        <p><strong>Cost status</strong> : {{cost_status_gcp}}</p>
+        <p><strong>Cost status</strong> : {{ cost_status_gcp }}</p>
         <strong>Summary cost comparation:</strong>
-        <p>Previous period : {{previous_total_idr_gcp}} | {{previous_total_usd_gcp}} USD<br/>
-        <strong>This period : {{current_total_idr_gcp}} | {{current_total_usd_gcp}} USD</strong><br/>
-        <br/>Date range : {{date_range_gcp}}<br/>
-        Current GCP Rate IDR: {{current_rate_gcp}}</p>
-        <strong>Your cost difference from previous period: {{cost_difference_idr_gcp}} | {{cost_difference_usd_gcp}} USD</strong>
+        <p>Previous period : {{ previous_total_idr_gcp }} | {{ previous_total_usd_gcp }} USD<br/>
+            <strong>This period : {{ current_total_idr_gcp }} | {{ current_total_usd_gcp }} USD</strong><br/>
+            <br/>Date range : {{ date_range_gcp }}<br/>
+            Current GCP Rate IDR: {{ current_rate_gcp }}</p>
+        <strong>Your cost difference from previous period: {{ cost_difference_idr_gcp }} | {{ cost_difference_usd_gcp }}
+            USD</strong>
         <br/>
-        <p><strong>Detailed Cost Comparison from Previous period - Our Services on All Environments on GCP Services:</strong></p>
-        {{services_gcp}}
+        <p><strong>Detailed Cost Comparison from Previous period - Our Services on All Environments on GCP
+            Services:</strong></p>
+        {{ services_gcp }}
         <br/>
-        Note: We are thrilled to share a sneak peek of an exciting new feature that will be arriving in our next update! Our development team has been hard at work to bring you enhanced cost  acuration and detailed cost breakdown per environment, providing you with unparalleled visibility into your GCP Services. Thankyou!
+        Note: We are thrilled to share a sneak peek of an exciting new feature that will be arriving in our next update!
+        Our development team has been hard at work to bring you enhanced cost  acuration and detailed cost breakdown per
+        environment, providing you with unparalleled visibility into your GCP Services. Thankyou!
         <hr/>
     {% endif %}
     <!-- END GCP SECTION -->
     <!-- KUBECOST SECTION -->
     <u><h3>KUBECOST</h3></u>
-    <p><strong>Cost status</strong> : {{cost_status_kubecost}}</p>
+    <p><strong>Cost status</strong> : {{ cost_status_kubecost }}</p>
     <strong>Summary cost comparation:</strong>
-    <p>Previous period : {{previous_total_usd_kubecost}} USD<br/>
-    <strong>This period : {{current_total_usd_kubecost}} USD</strong><br/>
+    <p>Previous period : {{ previous_total_usd_kubecost }} USD<br/>
+        <strong>This period : {{ current_total_usd_kubecost }} USD</strong><br/>
 
-    <strong>Your cost difference from previous period: {{cost_summary_kubecost}} USD</strong>
+        <strong>Your cost difference from previous period: {{ cost_summary_kubecost }} USD</strong>
+        <br/>
+    <p><strong>Detailed Cost Comparison from Previous period - Our Services on All Environments on Kubernetes Services
+        (CPU & Memory Usages):</strong></p>
+    {{ services_kubecost }}
     <br/>
-    <p><strong>Detailed Cost Comparison from Previous period - Our Services on All Environments on Kubernetes Services (CPU & Memory Usages):</strong></p>
-    {{services_kubecost}}
-    <br/>
-    Note: We are thrilled to share a sneak peek of an exciting new feature that will be arriving in our next update! Our development team has been hard at work to bring you enhanced cost  acuration and detailed cost breakdown per environment, providing you with unparalleled visibility into your GCP Services. Thankyou! 
+    Note: We are thrilled to share a sneak peek of an exciting new feature that will be arriving in our next update! Our
+    development team has been hard at work to bring you enhanced cost acuration and detailed cost breakdown per
+    environment, providing you with unparalleled visibility into your GCP Services. Thankyou!
     <hr/>
     <!-- END KUBECOST SECTION -->
     <!-- IDLE COST -->
     {% if table_idle_cost %}
-    <u><h3>IDLE COST</h3></u>
-    <strong>Cost status this period :</strong> {{cost_total_status_idle}}<br/>
-    
-    <br><strong>Summary cost comparation:</strong><br/><strong>Total idle cost this period: {{total_current_idle_cost}} USD </strong><br/>
-    Total idle cost previous period: {{total_previous_idle_cost}} USD </p>
-    <p><strong>Idle cost comparison from Previous period - on Kubernetes Services (CPU & Memory Usages):</strong></p>
-    {{table_idle_cost}}
-    <br/>
-    Note: We are thrilled to share a sneak peek of an exciting new feature that will be arriving in our next update! Our development team has been hard at work to bring you enhanced cost  acuration and detailed cost breakdown per environment, providing you with unparalleled visibility into your GCP Services. Thankyou! 
-    <hr/>
+        <u><h3>IDLE COST</h3></u>
+        <strong>Cost status this period :</strong> {{ cost_total_status_idle }}<br/>
+
+        <br><strong>Summary cost comparation:</strong><br/>
+        <strong>Total idle cost this period: {{ total_current_idle_cost }} USD </strong><br/>
+        Total idle cost previous period: {{ total_previous_idle_cost }} USD </p>
+        <p><strong>Idle cost comparison from Previous period - on Kubernetes Services (CPU & Memory Usages):</strong>
+        </p>
+        {{ table_idle_cost }}
+        <br/>
+        Note: We are thrilled to share a sneak peek of an exciting new feature that will be arriving in our next update!
+        Our development team has been hard at work to bring you enhanced cost  acuration and detailed cost breakdown per
+        environment, providing you with unparalleled visibility into your GCP Services. Thankyou!
+        <hr/>
     {% endif %}
     <!-- END IDLE COST -->
-    <p>We understand the significance of cost management and aim to keep you informed about any fluctuations to ensure transparency and accountability. 
-    As part of our efforts to offer better insights, we have integrated a weighted analysis of our services. 
-    This weighting mechanism, based on the parameters provided in the spreadsheet <a href="https://docs.google.com/spreadsheets/d/1L9XDJa4yDsSSEy26RwbNQEOFvvf6t43VuC74VRZctkA/edit#gid=0" target="_blank" rel="noopener noreferrer">Living Documents - Moladin Service List</a> helps us identify key cost drivers and understand their impact on the overall cost structure. 
-    This approach enables us to focus on areas that require attention and optimize costs effectively to every tech family on moladin.
-    <br/>
-    If you have any questions or concerns regarding the cost differences or any other related matter, 
-    please feel free to reach out to our dedicated support team at [contact email/phone].</p>
+    <p>We understand the significance of cost management and aim to keep you informed about any fluctuations to ensure
+        transparency and accountability.
+        As part of our efforts to offer better insights, we have integrated a weighted analysis of our services.
+        This weighting mechanism, based on the parameters provided in the spreadsheet <a
+                href="https://docs.google.com/spreadsheets/d/1L9XDJa4yDsSSEy26RwbNQEOFvvf6t43VuC74VRZctkA/edit#gid=0"
+                target="_blank" rel="noopener noreferrer">Living Documents - Moladin Service List</a> helps us identify
+        key cost drivers and understand their impact on the overall cost structure.
+        This approach enables us to focus on areas that require attention and optimize costs effectively to every tech
+        family on moladin.
+        <br/>
+        If you have any questions or concerns regarding the cost differences or any other related matter,
+        please feel free to reach out to our dedicated support team at [contact email/phone].</p>
     Thank you for your attention to this matter. We appreciate your continued trust and partnership.</p>
 
-    <p><br />
-    Best Regards,<br />
-    Infra Team</p>
-  </body>
-</html>
+    <p><br/>
+        Best Regards,<br/>
+        Infra Team</p>
+    </body>
+    </html>
 {% endautoescape %}
