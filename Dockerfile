@@ -28,7 +28,7 @@ RUN python manage.py collectstatic
 
 # generate kubeconfig for kubecost
 RUN gcloud auth activate-service-account --project=moladin-infra-prod --key-file=kubecost_sa.json
-RUN gcloud container clusters get-credentials mof-devl-cluster --zone asia-southeast2-a --project moladin-mof-devl
+RUN gcloud container clusters get-credentials mof-devl-regional-cluster --zone asia-southeast2 --project moladin-mof-devl
 RUN gcloud container clusters get-credentials mof-stag-cluster --zone asia-southeast2-a --project moladin-mof-stag
 RUN gcloud container clusters get-credentials mof-prod-regional-cluster --zone asia-southeast2 --project moladin-mof-prod
 RUN gcloud container clusters get-credentials shared-devl-cluster --zone asia-southeast2-a --project moladin-shared-devl
