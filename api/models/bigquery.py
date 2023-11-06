@@ -112,9 +112,16 @@ class BigQuery:
             }
 
             query_template = """
-                SELECT project.id as proj, service.description as svc, service.id as svc_id, SUM(cost) AS total_cost
-                FROM `{BIGQUERY_TABLE}`
-                WHERE DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
+                SELECT 
+                    project.id as proj, 
+                    service.description as svc, 
+                    service.id as svc_id,
+                    ANY_VALUE(tag.key),
+                    SUM(cost) AS total_cost
+                FROM `{BIGQUERY_TABLE}` LEFT JOIN UNNEST(tags) AS tag
+                WHERE 
+                    DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
+                    AND tag.key IS NULL
                 GROUP BY proj, svc, svc_id
             """
 
