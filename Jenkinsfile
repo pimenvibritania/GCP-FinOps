@@ -82,10 +82,6 @@ pipeline {
                             sh 'consulMantisCommand.py --get ${consul}/cold ${consulProdToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
                             sh 'consulMantisCommand.py --get ${consul}/hot ${consulProdToken} FEATURE_FLAG | sed "s/\'/\\"/g" > feature-flag.json'
                         }
-                        // sh "getConsul.py ${consul}/cold ${consulToken} > .env"
-                        // sh "getConsul.py ${consul}/hot ${consulToken} >> .env"
-                        // sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} SERVICE_ACCOUNT | sed "s/\'/\\"/g" > service-account.json'
-                        // sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
                         sh "docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER} ."
                         sh "cd kubernetes/development/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER} -f Dockerfile.cronjob ."
                         sh "cd kubernetes/development/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-devl -f Dockerfile.cronjob ."

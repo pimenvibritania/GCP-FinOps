@@ -41,7 +41,7 @@ RUN gcloud container clusters get-credentials shared-prod-regional-cluster --zon
 # CMD ["gunicorn", "--config", "gunicorn-cfg.py", "core.wsgi"]
 
 #uvicorn
-CMD ["uvicorn", "--workers", "3", "core.asgi:application","--host", "0.0.0.0", "--port", "5005"]
+CMD ["uvicorn", "--workers", "5", "core.asgi:application","--host", "0.0.0.0", "--port", "5005"]
 
 #gunicorn&uvicorrn
 # CMD ["gunicorn", "--worker-class", "uvicorn.workers.UvicornWorker", "--config", "gunicorn-cfg.py", "core.asgi"]

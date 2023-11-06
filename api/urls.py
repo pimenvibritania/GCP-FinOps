@@ -12,6 +12,7 @@ from api.views.gcp_views import (
     GCPProjectViews,
     GCPCostViews,
 )
+from api.views.healthcheck_views import HealthCheck
 from api.views.kubecost_views import (
     KubecostClusterViews,
     KubecostNamespaceViews,
@@ -47,6 +48,7 @@ urlpatterns = [
     path("kubecost/check-status", KubecostCheckStatusViews.as_view()),
     # General
     path("services", ServiceViews.as_view()),
+    path("healthcheck", HealthCheck.as_view()),
     path("tech-family", TechFamilyViews.as_view()),
     path("sync/services", SyncServiceViews.as_view()),
     path(
