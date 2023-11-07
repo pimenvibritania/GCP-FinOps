@@ -5,7 +5,11 @@ import pandas as pd
 from api.models.__constant import *
 from api.serializers import TechFamilySerializer
 from api.utils.conversion import Conversion
-from core.settings import EXCLUDED_GCP_SERVICES
+from core.settings import (
+    EXCLUDED_GCP_SERVICES,
+    EXCLUDED_GCP_TAG_KEY_MFI,
+    EXCLUDED_GCP_TAG_KEY_MDI,
+)
 from home.models.tech_family import TechFamily
 
 
@@ -389,3 +393,56 @@ def cross_billing(
         return total_cost
     else:
         print("Range unknown", from_date, to_date)
+
+
+# project mdi/mfi
+def get_query_template(project):
+    excluded_tag = (
+        EXCLUDED_GCP_TAG_KEY_MFI if project == "mfi" else EXCLUDED_GCP_TAG_KEY_MDI
+    )
+
+    if not excluded_tag:
+        template = """
+                SELECT 
+                    project.id as proj, 
+                    service.description as svc, 
+                    service.id as svc_id,
+                    SUM(cost) AS total_cost
+                FROM `{BIGQUERY_TABLE}`
+                WHERE 
+                    DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
+                GROUP BY proj, svc, svc_id
+            """
+    else:
+        template = """
+            SELECT 
+                result.proj, 
+                result.svc, 
+                result.tk, 
+                result.svc_id,
+                result.total_cost
+            FROM 
+                (SELECT 
+                    IFNULL(tag.key, "untagged") AS tk, 
+                    project.id as proj, 
+                    service.description as svc, 
+                    service.id as svc_id, 
+                    SUM(cost) AS total_cost
+                FROM `{BIGQUERY_TABLE}` LEFT JOIN UNNEST(tags) AS tag
+                WHERE 
+                    DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}" 
+                GROUP BY tk, proj, svc, svc_id) AS result
+            """
+        for key in excluded_tag:
+            if excluded_tag.index(key) == 0:
+                query_extend = f"""
+                    WHERE result.tk != "{key}"
+                """
+            else:
+                query_extend = f"""
+                    AND result.tk != "{key}"
+                """
+
+            template += query_extend
+
+    return template
