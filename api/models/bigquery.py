@@ -111,26 +111,27 @@ class BigQuery:
                 "defi_mdi": defi_mdi,
             }
 
-            query_template = """
-                SELECT 
-                    project.id as proj, 
-                    service.description as svc, 
-                    service.id as svc_id,
-                    ANY_VALUE(tag.key),
-                    SUM(cost) AS total_cost
-                FROM `{BIGQUERY_TABLE}` LEFT JOIN UNNEST(tags) AS tag
-                WHERE 
-                    DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
-                    AND tag.key IS NULL
-                GROUP BY proj, svc, svc_id
-            """
+            query_template_mdi = get_query_template("mdi")
+            query_template_mfi = get_query_template("mfi")
+
+            # query_template = """
+            #     SELECT
+            #         project.id as proj,
+            #         service.description as svc,
+            #         service.id as svc_id,
+            #         SUM(cost) AS total_cost
+            #     FROM `{BIGQUERY_TABLE}`
+            #     WHERE
+            #         DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
+            #     GROUP BY proj, svc, svc_id
+            # """
 
             # MFI Query
 
             if period == "monthly":
                 current_period_costs_mfi = cross_billing(
                     cls(),
-                    query_template,
+                    query_template_mfi,
                     BIGQUERY_MFI_TABLE,
                     BIGQUERY_MDI_TABLE,
                     current_period_from,
@@ -138,7 +139,7 @@ class BigQuery:
                 )
                 previous_period_costs_mfi = cross_billing(
                     cls(),
-                    query_template,
+                    query_template_mfi,
                     BIGQUERY_MFI_TABLE,
                     BIGQUERY_MDI_TABLE,
                     previous_period_from,
@@ -146,13 +147,13 @@ class BigQuery:
                 )
 
             else:
-                query_current_period_mfi = query_template.format(
+                query_current_period_mfi = query_template_mfi.format(
                     BIGQUERY_TABLE=BIGQUERY_MFI_TABLE,
                     start_date=current_period_from,
                     end_date=current_period_to,
                 )
 
-                query_previous_period_mfi = query_template.format(
+                query_previous_period_mfi = query_template_mfi.format(
                     BIGQUERY_TABLE=BIGQUERY_MFI_TABLE,
                     start_date=previous_period_from,
                     end_date=previous_period_to,
@@ -234,13 +235,13 @@ class BigQuery:
                     pass
 
             # MDI Query
-            query_current_period_mdi = query_template.format(
+            query_current_period_mdi = query_template_mdi.format(
                 BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
                 start_date=current_period_from,
                 end_date=current_period_to,
             )
 
-            query_previous_period_mdi = query_template.format(
+            query_previous_period_mdi = query_template_mdi.format(
                 BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
                 start_date=previous_period_from,
                 end_date=previous_period_to,

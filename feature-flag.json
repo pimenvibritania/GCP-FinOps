@@ -32,5 +32,9 @@
     "EE2F-D110-890C": [],
     "F17B-412E-CB64": [],
     "FA26-5236-B8B5": []
-  }
+  },
+  "excluded_tag_key_mfi": [
+    "procar"
+  ],
+  "excluded_tag_key_mdi": []
 }
