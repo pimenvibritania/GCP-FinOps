@@ -114,24 +114,24 @@ class BigQuery:
             query_template_mdi = get_query_template("mdi")
             query_template_mfi = get_query_template("mfi")
 
-            # query_template = """
-            #     SELECT
-            #         project.id as proj,
-            #         service.description as svc,
-            #         service.id as svc_id,
-            #         SUM(cost) AS total_cost
-            #     FROM `{BIGQUERY_TABLE}`
-            #     WHERE
-            #         DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
-            #     GROUP BY proj, svc, svc_id
-            # """
+            query_template_cross_billing = """
+                SELECT
+                    project.id as proj,
+                    service.description as svc,
+                    service.id as svc_id,
+                    SUM(cost) AS total_cost
+                FROM `{BIGQUERY_TABLE}`
+                WHERE
+                    DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
+                GROUP BY proj, svc, svc_id
+            """
 
             # MFI Query
 
             if period == "monthly":
                 current_period_costs_mfi = cross_billing(
                     cls(),
-                    query_template,
+                    query_template_cross_billing,
                     BIGQUERY_MFI_TABLE,
                     BIGQUERY_MDI_TABLE,
                     current_period_from,
@@ -139,7 +139,7 @@ class BigQuery:
                 )
                 previous_period_costs_mfi = cross_billing(
                     cls(),
-                    query_template,
+                    query_template_cross_billing,
                     BIGQUERY_MFI_TABLE,
                     BIGQUERY_MDI_TABLE,
                     previous_period_from,
