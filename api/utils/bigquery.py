@@ -5,7 +5,11 @@ import pandas as pd
 from api.models.__constant import *
 from api.serializers import TechFamilySerializer
 from api.utils.conversion import Conversion
-from core.settings import EXCLUDED_GCP_SERVICES
+from core.settings import (
+    EXCLUDED_GCP_SERVICES,
+    EXCLUDED_GCP_TAG_KEY_MFI,
+    EXCLUDED_GCP_TAG_KEY_MDI,
+)
 from home.models.tech_family import TechFamily
 
 
@@ -490,6 +494,7 @@ def get_query_template(project):
     excluded_tag = (
         EXCLUDED_GCP_TAG_KEY_MFI if project == "mfi" else EXCLUDED_GCP_TAG_KEY_MDI
     )
+
     if not excluded_tag:
         template = """
                 SELECT 
@@ -531,5 +536,7 @@ def get_query_template(project):
                 query_extend = f"""
                     AND result.tk != "{key}"
                 """
+
             template += query_extend
+
     return template

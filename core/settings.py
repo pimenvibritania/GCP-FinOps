@@ -266,3 +266,5 @@ with open(f"{BASE_DIR}/feature-flag.json", "r") as feature_flag_json:
     feature_flag = json.load(feature_flag_json)
 
 EXCLUDED_GCP_SERVICES = feature_flag.get("excluded_services")
+EXCLUDED_GCP_TAG_KEY_MFI = feature_flag.get("excluded_tag_key_mfi")
+EXCLUDED_GCP_TAG_KEY_MDI = feature_flag.get("excluded_tag_key_mdi")
