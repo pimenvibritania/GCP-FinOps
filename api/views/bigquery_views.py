@@ -1,18 +1,19 @@
 import datetime
 import os
+from itertools import chain
 
+from django.core.cache import cache
 from django.http import JsonResponse
-from rest_framework.response import Response
+from rest_framework import generics
 from rest_framework import status, permissions
+from rest_framework.response import Response
+
 from api.models.bigquery import BigQuery
 from api.serializers import TechFamilySerializer, IndexWeightSerializer
 from api.utils.decorator import date_validator, period_validator, user_is_admin
 from api.utils.validator import Validator
-from home.models.tech_family import TechFamily
 from home.models.index_weight import IndexWeight
-from itertools import chain
-from django.core.cache import cache
-from rest_framework import generics
+from home.models.tech_family import TechFamily
 
 
 class BigQueryPeriodicalCost(generics.ListAPIView):
@@ -83,3 +84,11 @@ class BigQueryIndexWeight(generics.ListCreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BigQueryDailySKU(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @user_is_admin
+    def get(self, request, *args, **kwargs) -> object:
+        return Response(BigQuery.get_daily_cost_by_sku(), status=status.HTTP_200_OK)

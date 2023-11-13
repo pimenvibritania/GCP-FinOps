@@ -326,6 +326,100 @@ def mapping_services(
     return new_project_family, new_project_family[tf]
 
 
+def mapping_sku(
+    gcp_project,
+    sku_id,
+    sku_description,
+    index_weight,
+    current_period_cost,
+    previous_period_cost,
+    project_family,
+    tf,
+    organization,
+):
+    environment = (
+        "All Environment"
+        if sku_id == ATLAS_SKU_ID
+        else "Production"
+        if (sku_id in SUPPORT_SKU_IDS and gcp_project == "Shared Support")
+        else parse_env(gcp_project)
+    )
+
+    weight_index_percent = (
+        100
+        if (organization == "ANDROID" or sku_id == ATLAS_SKU_ID)
+        else 16.66
+        if (sku_id in SUPPORT_SKU_IDS and gcp_project == "Shared Support")
+        else index_weight[organization][tf][environment]["value"]
+    )
+
+    current_cost = current_period_cost * (weight_index_percent / 100)
+    previous_cost = previous_period_cost * (weight_index_percent / 100)
+
+    diff_cost = current_cost - previous_cost
+
+    status_cost = "UP" if diff_cost > 0 else "DOWN" if diff_cost < 0 else "EQUAL"
+
+    cost_status_percentage = Conversion.get_percentage(current_cost, previous_cost)
+
+    new_svc = {
+        "sku_id": sku_id,
+        "sku_description": sku_description,
+        "cost_services": [
+            {
+                "environment": environment,
+                "index_weight": f"{weight_index_percent} %",
+                "cost_this_period": current_cost,
+                "cost_prev_period": previous_cost,
+                "cost_difference": diff_cost,
+                "cost_status": status_cost,
+                "cost_status_percent": cost_status_percentage,
+                "gcp_project": gcp_project,
+            }
+        ],
+    }
+
+    found_dict = next(
+        (
+            item
+            for item in project_family[tf]["data"]["services"]
+            if item["sku_id"] == new_svc["sku_id"]
+        ),
+        None,
+    )
+
+    if found_dict:
+        found_dict["cost_services"].extend(new_svc["cost_services"])
+        sorted_data = sorted(
+            found_dict["cost_services"],
+            key=lambda x: x["cost_status_percent"],
+            reverse=True,
+        )
+        found_dict["cost_services"] = sorted_data
+
+    else:
+        project_family[tf]["data"]["services"].append(new_svc)
+
+    if gcp_project not in project_family[tf]["data"]["project_included"]:
+        project_family[tf]["data"]["project_included"].append(gcp_project)
+
+    project_family[tf]["data"]["summary"]["current_period"] += current_cost
+    project_family[tf]["data"]["summary"]["previous_period"] += previous_cost
+    project_family[tf]["data"]["summary"]["cost_difference"] = (
+        project_family[tf]["data"]["summary"]["current_period"]
+        - project_family[tf]["data"]["summary"]["previous_period"]
+    )
+    project_family[tf]["data"]["summary"]["status"] = (
+        "UP"
+        if project_family[tf]["data"]["summary"]["cost_difference"] > 0
+        else "DOWN"
+        if project_family[tf]["data"]["summary"]["cost_difference"] < 0
+        else "EQUAL"
+    )
+
+    return project_family[tf]
+
+
 def cross_billing(
     bigquery, query_template, mfi_dataset, mdi_dataset, from_date, to_date
 ):
@@ -389,3 +483,53 @@ def cross_billing(
         return total_cost
     else:
         print("Range unknown", from_date, to_date)
+
+
+# project mdi/mfi
+def get_query_template(project):
+    excluded_tag = (
+        EXCLUDED_GCP_TAG_KEY_MFI if project == "mfi" else EXCLUDED_GCP_TAG_KEY_MDI
+    )
+    if not excluded_tag:
+        template = """
+                SELECT 
+                    project.id as proj, 
+                    service.description as svc, 
+                    service.id as svc_id,
+                    SUM(cost) AS total_cost
+                FROM `{BIGQUERY_TABLE}`
+                WHERE 
+                    DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
+                GROUP BY proj, svc, svc_id
+            """
+    else:
+        template = """
+            SELECT 
+                result.proj, 
+                result.svc, 
+                result.tk, 
+                result.svc_id,
+                result.total_cost
+            FROM 
+                (SELECT 
+                    IFNULL(tag.key, "untagged") AS tk, 
+                    project.id as proj, 
+                    service.description as svc, 
+                    service.id as svc_id, 
+                    SUM(cost) AS total_cost
+                FROM `{BIGQUERY_TABLE}` LEFT JOIN UNNEST(tags) AS tag
+                WHERE 
+                    DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}" 
+                GROUP BY tk, proj, svc, svc_id) AS result
+            """
+        for key in excluded_tag:
+            if excluded_tag.index(key) == 0:
+                query_extend = f"""
+                    WHERE result.tk != "{key}"
+                """
+            else:
+                query_extend = f"""
+                    AND result.tk != "{key}"
+                """
+            template += query_extend
+    return template
