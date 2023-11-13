@@ -147,13 +147,13 @@ class BigQuery:
                 )
 
             else:
-                query_current_period_mfi = query_template.format(
+                query_current_period_mfi = query_template_mfi.format(
                     BIGQUERY_TABLE=BIGQUERY_MFI_TABLE,
                     start_date=current_period_from,
                     end_date=current_period_to,
                 )
 
-                query_previous_period_mfi = query_template.format(
+                query_previous_period_mfi = query_template_mfi.format(
                     BIGQUERY_TABLE=BIGQUERY_MFI_TABLE,
                     start_date=previous_period_from,
                     end_date=previous_period_to,
@@ -235,13 +235,13 @@ class BigQuery:
                     pass
 
             # MDI Query
-            query_current_period_mdi = query_template.format(
+            query_current_period_mdi = query_template_mdi.format(
                 BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
                 start_date=current_period_from,
                 end_date=current_period_to,
             )
 
-            query_previous_period_mdi = query_template.format(
+            query_previous_period_mdi = query_template_mdi.format(
                 BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
                 start_date=previous_period_from,
                 end_date=previous_period_to,
