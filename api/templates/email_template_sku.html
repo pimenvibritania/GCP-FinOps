@@ -1,0 +1,72 @@
+{% autoescape off %}
+    <!DOCTYPE html>
+    <html lang="">
+    <head>
+        <style>
+            @page {
+                size: Letter;
+                margin: 0.44in;
+                font-size: 12px;
+            }
+
+            @font-face {
+                font-size: 12px;
+            }
+
+            body {
+                font-size: 12px;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            th, td {
+                padding: 8px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
+
+            .alert {
+                padding: 20px;
+                background-color: #f44336; /* Red */
+                color: white;
+                margin-bottom: 15px;
+            }
+        </style>
+        <title>Cost Report</title>
+    </head>
+    <body>
+    {% if gcp_exist %}
+
+        <u><h3>GCP SERVICES</h3></u>
+
+        <p><strong>Cost status</strong> : {{ cost_status_gcp }}</p>
+        <strong>Summary cost comparation:</strong>
+        <p>Previous period : {{ previous_total_idr_gcp }} | {{ previous_total_usd_gcp }} USD<br/>
+            <strong>This period : {{ current_total_idr_gcp }} | {{ current_total_usd_gcp }} USD</strong><br/>
+            <br/>Date : {{ date_range_gcp }}<br/>
+            Current GCP Rate IDR: {{ current_rate_gcp }}</p>
+        <strong>Your cost difference from previous period: {{ cost_difference_idr_gcp }} | {{ cost_difference_usd_gcp }}
+            USD</strong>
+        <br/>
+        <p><strong>Detailed Cost Comparison from Previous period - Our Services on All Environments on GCP
+            Services:</strong></p>
+        {{ services_gcp }}
+        <br/>
+        Note: We are thrilled to share a sneak peek of an exciting new feature that will be arriving in our next update!
+        Our development team has been hard at work to bring you enhanced cost  acuration and detailed cost breakdown per
+        environment, providing you with unparalleled visibility into your GCP Services. Thankyou!
+        <hr/>
+    {% endif %}
+    <p><br/>
+        Best Regards,<br/>
+        Infra Team</p>
+    </body>
+    </html>
+{% endautoescape %}
