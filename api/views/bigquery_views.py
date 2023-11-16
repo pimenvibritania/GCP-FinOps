@@ -230,9 +230,9 @@ def send_email_sku(request, payload):
 
         mail_data = {
             "from": "DevOps Engineer <noreply@moladin.com>",
-            "to": "maulana.ibrahim@moladin.com",
+            "to": "devops-engineer@moladin.com",
             "cc": [
-                "maulana.ibrahim@moladin.com",
+                "devops-engineer@moladin.com",
             ],
             "subject": subject,
             "html": email_content,
