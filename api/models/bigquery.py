@@ -488,7 +488,7 @@ class BigQuery:
             BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
             current_date=current_date,
         )
-        
+
         query_previous_period_mdi = query_template.format(
             BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
             current_date=previous_date,
@@ -500,16 +500,19 @@ class BigQuery:
         previous_period_results_mdi = (
             cls().client.query(query_previous_period_mdi).result()
         )
-                
+
         current_period_costs_mdi = {}
         for row in current_period_results_mdi:
-            current_period_costs_mdi[(row.proj, row.sku_id, row.sku_desc)] = row.total_cost
-        
+            current_period_costs_mdi[
+                (row.proj, row.sku_id, row.sku_desc)
+            ] = row.total_cost
+
         previous_period_costs_mdi = {}
         for row in previous_period_results_mdi:
-            previous_period_costs_mdi[(row.proj, row.sku_id, row.sku_desc)] = row.total_cost
+            previous_period_costs_mdi[
+                (row.proj, row.sku_id, row.sku_desc)
+            ] = row.total_cost
 
-        
         for project, sku_id, sku_desc in set(current_period_costs_mdi.keys()).union(
             previous_period_costs_mdi.keys()
         ):
@@ -520,7 +523,7 @@ class BigQuery:
                 (project, sku_id, sku_desc), 0
             )
             cost_difference = current_period_cost - previous_period_cost
-        
+
             if project in TF_PROJECT_MDI:
                 for tf in project_mdi.keys():
                     project_mdi[tf] = mapping_sku(
@@ -577,12 +580,12 @@ class BigQuery:
 
             else:
                 pass
-        
+
         project_mfi.update(project_mdi)
-        
+
         # extras = {"__extras__": {"index_weight": index_weight}}
         # project_mfi.update(extras)
-        
+
         return project_mfi
 
     @classmethod
@@ -674,22 +677,55 @@ class BigQuery:
 
     @classmethod
     def get_daily_cost(cls, date):
-        query_template = """
-                    SELECT 
-                        project.id as project_id, 
-                        service.id as service_id, 
-                        service.description as service_name,  
-                        SUM(cost) AS total_cost
-                    FROM `{BIGQUERY_TABLE}`
-                    WHERE DATE(usage_start_time) = "{date_start}"
-                    GROUP BY project_id, service_id, service_name
+        query_template_mdi = """
+            SELECT 
+                project.id as project_id, 
+                service.id as service_id, 
+                service.description as service_name,  
+                SUM(cost) AS total_cost
+            FROM `{BIGQUERY_TABLE}`
+            WHERE DATE(usage_start_time) = "{date_start}"
+            GROUP BY project_id, service_id, service_name
+        """
+
+        query_template_mfi = """
+            SELECT 
+                result.project_id, 
+                result.service_name, 
+                result.tk, 
+                result.service_id,
+                result.total_cost
+            FROM 
+                (SELECT 
+                    IFNULL(tag.key, "untagged") AS tk, 
+                    project.id as project_id, 
+                    service.description as service_name, 
+                    service.id as service_id, 
+                    SUM(cost) AS total_cost
+                FROM `{BIGQUERY_TABLE}` LEFT JOIN UNNEST(tags) AS tag
+                WHERE 
+                    DATE(usage_start_time) = "{date_start}" 
+                GROUP BY tk, project_id, service_name, service_id) 
+                AS result
+        """
+
+        for key in EXCLUDED_GCP_TAG_KEY_MFI:
+            if EXCLUDED_GCP_TAG_KEY_MFI.index(key) == 0:
+                query_extend = f"""
+                    WHERE result.tk != "{key}"
+                """
+            else:
+                query_extend = f"""
+                    AND result.tk != "{key}"
                 """
 
-        query_mfi = query_template.format(
+            query_template_mfi += query_extend
+
+        query_mfi = query_template_mfi.format(
             BIGQUERY_TABLE=BIGQUERY_MFI_TABLE, date_start=date
         )
 
-        query_mdi = query_template.format(
+        query_mdi = query_template_mdi.format(
             BIGQUERY_TABLE=BIGQUERY_MDI_TABLE, date_start=date
         )
 

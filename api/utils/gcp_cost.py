@@ -16,13 +16,6 @@ def insert_cost(request, usage_date, list_data):
     conversion_rate = BigQuery.get_conversion_rate(usage_date)
     index_weight = IndexWeight.get_index_weight()
 
-    # current_datetime = datetime.now()
-    # formatted_datetime = current_datetime.strftime("%Y%m%d-%H%M%S")
-
-    # log_filename = f"gcp_cost_sync_{usage_date}__{formatted_datetime}.txt"
-    # log_path = f"{settings.LOGS_DIR}/{log_filename}"
-    # bucket_folder = settings.GOOGLE_CLOUD_STORAGE_LOGS_FOLDER_NAME
-
     for data in list_data:
         if data is not None:
             for project_id, service_id in data.keys():
@@ -90,15 +83,15 @@ def insert_cost(request, usage_date, list_data):
                             else index_weight[tf][tf_project][environment]["value"]
                         )
 
-                        tf_index_weight_id = (
-                            SHARED_SUPPORT_IW_ID[tf_project][environment]
-                            if is_shared_support
-                            else ATLAS_IW_ID
-                            if is_atlas_service
-                            else ANDROID_IW_ID
-                            if is_android_project
-                            else index_weight[tf][tf_project][environment]["id"]
-                        )
+                        # tf_index_weight_id = (
+                        #     SHARED_SUPPORT_IW_ID[tf_project][environment]
+                        #     if is_shared_support
+                        #     else ATLAS_IW_ID
+                        #     if is_atlas_service
+                        #     else ANDROID_IW_ID
+                        #     if is_android_project
+                        #     else index_weight[tf][tf_project][environment]["id"]
+                        # )
 
                         project_cost = data.get((project_id, service_id), 0)
                         tf_cost = project_cost * (tf_index_weight / 100)
@@ -110,22 +103,8 @@ def insert_cost(request, usage_date, list_data):
                         request.data["gcp_project_id"] = gcp_project_id
                         request.data["gcp_service_id"] = service_id
                         request.data["tech_family_slug"] = tf_project
-                        request.data["index_weight_id"] = tf_index_weight_id
+                        request.data["index_weight"] = tf_index_weight
 
-                        """
-                            POST Request to `GCPCostViews.post()`
-                            ----
-                            request_data = {
-                                "usage_date": "usage_date",
-                                "cost": "cost",
-                                "project_cost": "project_cost",
-                                "conversion_rate": "conversion_rate",
-                                "gcp_project": "gcp_project_id",
-                                "gcp_service": "gcp_service_id",
-                                "tech_family": "tech_family_slug",
-                                "index_weight": "index_weight_id",
-                            }
-                        """
                         response = cost_instance.post(request)
 
                         if (

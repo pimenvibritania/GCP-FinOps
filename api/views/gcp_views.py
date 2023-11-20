@@ -1,6 +1,8 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.db import IntegrityError
 from rest_framework import status, permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from api.models.gcp import (
     get_services as get_gcp_services,
     get_projects as get_gcp_projects,
@@ -11,7 +13,6 @@ from api.serializers import (
     GCPProjectSerializer,
     GCPCostSerializer,
 )
-from django.db import IntegrityError
 from home.models import TechFamily
 from home.models.gcp_projects import GCPProjects
 from home.models.gcp_services import GCPServices
@@ -96,7 +97,7 @@ class GCPCostViews(APIView):
                 "tech_family": TechFamily.objects.get(
                     slug=request.data.get("tech_family_slug")
                 ).id,
-                "index_weight": request.data.get("index_weight_id"),
+                "index_weight": request.data.get("index_weight"),
             }
         except (
             TechFamily.DoesNotExist,

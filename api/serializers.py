@@ -1,14 +1,15 @@
 from rest_framework import serializers
-from home.models.tech_family import TechFamily
+
+from home.models.gcp_costs import GCPCosts
+from home.models.gcp_projects import GCPProjects
+from home.models.gcp_services import GCPServices
 from home.models.index_weight import IndexWeight
 from home.models.kubecost_clusters import KubecostClusters
-from home.models.services import Services
 from home.models.kubecost_deployments import KubecostDeployments
 from home.models.kubecost_namespaces import KubecostNamespaces, KubecostNamespacesMap
 from home.models.logger import ReportLogger
-from home.models.gcp_services import GCPServices
-from home.models.gcp_projects import GCPProjects
-from home.models.gcp_costs import GCPCosts
+from home.models.services import Services
+from home.models.tech_family import TechFamily
 
 
 class BQQueryParamSerializer(serializers.Serializer):
@@ -177,10 +178,6 @@ class GCPCostSerializer(serializers.ModelSerializer):
 
     gcp_service = serializers.PrimaryKeyRelatedField(
         queryset=GCPServices.objects.all(), many=False
-    )
-
-    index_weight = serializers.PrimaryKeyRelatedField(
-        queryset=IndexWeight.objects.all(), many=False
     )
 
     class Meta:
