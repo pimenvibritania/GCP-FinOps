@@ -83,12 +83,14 @@ pipeline {
                             sh 'consulMantisCommand.py --get ${consul}/hot ${consulProdToken} FEATURE_FLAG | sed "s/\'/\\"/g" > feature-flag.json'
                         }
                         sh "docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER} ."
+                        sh "cd kubernetes/development/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER} -f Dockerfile.cronjob ."
                         sh "cd kubernetes/development/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-kubecost-check-status -f Dockerfile.cronjob ."
                         sh "cd kubernetes/development/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-devl -f Dockerfile.cronjob ."
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-prod -f Dockerfile.cronjob ."
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-by-sku -f Dockerfile.cronjob ."
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-gcp-cost-prod -f Dockerfile.cronjob ."
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER}"
+                        sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER}"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-kubecost-check-status"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-devl"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-prod"
@@ -163,7 +165,7 @@ pipeline {
                         sh "kubectl --context ${context} -n ${deploymentName}-release rollout restart deployment.apps"
 
                         sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/kubecost-insert-data kubecost-insert-data=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER}"
-                        sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/kubecost-check-status kubecost-check-status=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER}"
+                        sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/kubecost-check-status kubecost-check-status=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-kubecost-check-status"
                         sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/cms-create-report-devl cms-create-report-devl=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-devl"
                         sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/cms-create-report-prod cms-create-report-prod=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-prod"
                         sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/cms-create-report-by-sku cms-create-report-by-sku=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-by-sku"
