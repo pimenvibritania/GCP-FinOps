@@ -4,110 +4,110 @@
 {% block title %} GCP Cost {% endblock title %}
 
 {% block content %}
-<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-    {% include 'includes/dashboard_navbar.html' %}
+    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+        {% include 'includes/dashboard_navbar.html' %}
 
-    <div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card my-4">
-            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 col-12">
-                  <div class="row">    
-                    <div class="col-sm-10">
-                      <h6 class="text-white text-capitalize ps-3">GCP Cost</h6>
-                    </div>
-                    <div class="col-sm-1"></div>
-                    <div class="col-sm-1">
-                      <a class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal">
-                        <i class="fas fa-plus"></i>&nbsp; Add
-                      </a>
-                    </div>
-                  </div>
-
-                </div>
-                
-            </div>
-            <div class="card-body px-0 pb-2">
-
-                <div class="table-responsive p-0">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col">
-                                <div class="custom-select-container">
-                                    <label for="projectFilter" class="ms-4">Select Project:
-                                    <select id="projectFilter" class="form-select form-select-sm custom-select">
-                                        <option value="proj_a">Project A</option>
-                                        <option value="proj_b">Project B</option>
-                                        <option value="proj_c">Project C</option>
-                                    </select>
-                                </label>
+        <div class="container-fluid py-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card my-4">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 col-12">
+                                <div class="row">
+                                    <div class="col-sm-10">
+                                        <h6 class="text-white text-capitalize ps-3">GCP Cost</h6>
+                                    </div>
                                 </div>
+
+                            </div>
+
+                        </div>
+                        <div class="card-body px-0 pb-2">
+
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0" id="gcpCostDatatable">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">No
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                            Usage Date
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                            Service Name
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                            Project Name
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                            Service Cost
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                            Project Cost
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Tech
+                                            Family
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                            Index Weight
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                            Conversion Rate
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                </table>
+                                {% include 'includes/modal/service_owner_modal.html' %}
                             </div>
                         </div>
                     </div>
-                    <table class="table align-items-center mb-0" id="serviceOwnerDatatable">
-                    <thead>
-                    <tr>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">No</th>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Name</th>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Service Type</th>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Project</th>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Tech Family</th>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7"></th>
-                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7"></th>
-                    </tr>
-                    </thead>
-                </table>
-                {% include 'includes/modal/service_owner_modal.html' %}
                 </div>
             </div>
-            </div>
+            <footer class="footer py-4  ">
+                <div class="container-fluid">
+                    <div class="row align-items-center justify-content-lg-between">
+                        <div class="col-lg-6">
+                            <ul class="nav nav-footer justify-content-center justify-content-lg-end">
+                                <li class="nav-item">
+                                    <a href="https://www.creative-tim.com/presentation" class="nav-link text-muted"
+                                       target="_blank">About Us</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="https://www.creative-tim.com/blog" class="nav-link text-muted"
+                                       target="_blank">Blog</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="https://www.creative-tim.com/license" class="nav-link pe-0 text-muted"
+                                       target="_blank">License</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </footer>
         </div>
-    </div>
-    <footer class="footer py-4  ">
-        <div class="container-fluid">
-            <div class="row align-items-center justify-content-lg-between">
-            <div class="col-lg-6">
-                <ul class="nav nav-footer justify-content-center justify-content-lg-end">
-                <li class="nav-item">
-                    <a href="https://www.creative-tim.com/presentation" class="nav-link text-muted" target="_blank">About Us</a>
-                </li>
-                <li class="nav-item">
-                    <a href="https://www.creative-tim.com/blog" class="nav-link text-muted" target="_blank">Blog</a>
-                </li>
-                <li class="nav-item">
-                    <a href="https://www.creative-tim.com/license" class="nav-link pe-0 text-muted" target="_blank">License</a>
-                </li>
-                </ul>
-            </div>
 
-            </div>
-        </div>
-    </footer>
-    </div>
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+                <script>
+                    var m = "{{ message }}";
+                    swal("SUCCESS !", m, "success")
+                </script>
+            {% endif %}
+            {% if message.tags == 'error' %}
+                <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+                <script>
+                    var m = "{{ message }}";
+                    swal("FAILED !", m, "error")
+                </script>
+            {% endif %}
+        {% endfor %}
 
-    {% for message in messages %}
-    {% if message.tags == 'success' %}
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script>
-        var m = "{{ message }}";
-        swal("SUCCESS !", m, "success")
-    </script>
-    {% endif %}
-    {% if message.tags == 'error' %}
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script>
-        var m = "{{ message }}";
-        swal("FAILED !", m, "error")
-    </script>
-    {% endif %}
-    {% endfor %}
-
-</main>
+    </main>
 {% endblock content %}
 
 {% block javascript %}
-    {% include 'includes/script/service_owner_datatable_script.html' %}
-    {% include 'includes/script/service_owner_modal_script.html' %}
+    {% include 'includes/script/gcp_cost_script.html' %}
 {% endblock javascript %}

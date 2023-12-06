@@ -114,24 +114,26 @@ class BigQuery:
             query_template_mdi = get_query_template("mdi")
             query_template_mfi = get_query_template("mfi")
 
-            query_template_cross_billing = """
-                SELECT
-                    project.id as proj,
-                    service.description as svc,
-                    service.id as svc_id,
-                    SUM(cost) AS total_cost
-                FROM `{BIGQUERY_TABLE}`
-                WHERE
-                    DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
-                GROUP BY proj, svc, svc_id
-            """
+            # query_template_cross_billing = """
+            #     SELECT
+            #         project.id as proj,
+            #         service.description as svc,
+            #         service.id as svc_id,
+            #         SUM(cost) AS total_cost
+            #     FROM `{BIGQUERY_TABLE}`
+            #     WHERE
+            #         DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
+            #     GROUP BY proj, svc, svc_id
+            # """
 
+            # ========================================
             # MFI Query
+            # ========================================
 
             if period == "monthly":
                 current_period_costs_mfi = cross_billing(
                     cls(),
-                    query_template_cross_billing,
+                    query_template_mfi,
                     BIGQUERY_MFI_TABLE,
                     BIGQUERY_MDI_TABLE,
                     current_period_from,
@@ -139,7 +141,7 @@ class BigQuery:
                 )
                 previous_period_costs_mfi = cross_billing(
                     cls(),
-                    query_template_cross_billing,
+                    query_template_mfi,
                     BIGQUERY_MFI_TABLE,
                     BIGQUERY_MDI_TABLE,
                     previous_period_from,
@@ -234,7 +236,10 @@ class BigQuery:
                 else:
                     pass
 
+            # ========================================
             # MDI Query
+            # ========================================
+
             query_current_period_mdi = query_template_mdi.format(
                 BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
                 start_date=current_period_from,
@@ -721,9 +726,17 @@ class BigQuery:
 
             query_template_mfi += query_extend
 
-        query_mfi = query_template_mfi.format(
-            BIGQUERY_TABLE=BIGQUERY_MFI_TABLE, date_start=date
-        )
+        tagged_date = datetime(2023, 9, 15).date()
+        date_object = datetime.strptime(date, "%Y-%m-%d").date()
+
+        if date_object < tagged_date:
+            query_mfi = query_template_mdi.format(
+                BIGQUERY_TABLE=BIGQUERY_MFI_TABLE, date_start=date
+            )
+        else:
+            query_mfi = query_template_mfi.format(
+                BIGQUERY_TABLE=BIGQUERY_MFI_TABLE, date_start=date
+            )
 
         query_mdi = query_template_mdi.format(
             BIGQUERY_TABLE=BIGQUERY_MDI_TABLE, date_start=date

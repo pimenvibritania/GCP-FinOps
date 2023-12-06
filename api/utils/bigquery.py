@@ -482,7 +482,7 @@ def cross_billing(
         query_result = bigquery.client.query(query).result()
         total_cost = {}
         for row in query_result:
-            total_cost[(row.svc, row.proj)] = row.total_cost
+            total_cost[(row.svc, row.proj, row.svc_id)] = row.total_cost
 
         return total_cost
     else:

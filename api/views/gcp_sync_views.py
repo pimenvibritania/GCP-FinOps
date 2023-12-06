@@ -58,7 +58,7 @@ class SyncGCPCosts(APIView):
         date_start = request.GET.get("date-start")
 
         daily_cost_mfi, daily_cost_mdi = BigQuery.get_daily_cost(date_start)
-        list_data = [daily_cost_mfi, daily_cost_mdi]
+        list_data = {"mfi": daily_cost_mfi, "mdi": daily_cost_mdi}
         response_link = insert_cost(request, date_start, list_data)
         log_link = {"date": date_start, "log_link": response_link}
 

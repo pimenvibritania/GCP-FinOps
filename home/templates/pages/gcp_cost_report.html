@@ -1,7 +1,7 @@
 {% extends 'layouts/base_dashboard.html' %}
 {% load static %}
 
-{% block title %} Tech Family {% endblock title %}
+{% block title %} GCP Cost {% endblock title %}
 
 {% block content %}
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
@@ -12,15 +12,16 @@
                 <div class="col-12">
                     <div class="card my-4">
                         <form action="/kubecost">
-                            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="card-header p-0 position-relative mt-n4 z-index-2">
                                 <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 col-12">
                                     <div class="row">
                                         <div class="col-sm-5">
-                                            <h6 class="text-white text-capitalize ps-3">Kubecost</h6>
+                                            <h6 class="text-white text-capitalize ps-3">GCP Cost Report</h6>
                                         </div>
                                         <div class="col-sm-2">
-                                            <label for="date"><b>DATE:</b></label>
-                                            <input type="date" id="date" name="date" value="{{ input_date }}" required>
+                                            <input style="width: -webkit-fill-available;padding: 4px" width="100%"
+                                                   type="date" id="date" name="date"
+                                                   value="{{ input_date }}" required>
                                         </div>
                                         <div class="col-sm-2">
                                             <select class="form-select" name="period" required
@@ -117,11 +118,51 @@
                     </div>
                 </div>
             </div>
+            <footer class="footer py-4  ">
+                <div class="container-fluid">
+                    <div class="row align-items-center justify-content-lg-between">
+                        <div class="col-lg-6">
+                            <ul class="nav nav-footer justify-content-center justify-content-lg-end">
+                                <li class="nav-item">
+                                    <a href="https://www.creative-tim.com/presentation" class="nav-link text-muted"
+                                       target="_blank">About Us</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="https://www.creative-tim.com/blog" class="nav-link text-muted"
+                                       target="_blank">Blog</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="https://www.creative-tim.com/license" class="nav-link pe-0 text-muted"
+                                       target="_blank">License</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </footer>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+                <script>
+                    var m = "{{ message }}";
+                    swal("SUCCESS !", m, "success")
+                </script>
+            {% endif %}
+            {% if message.tags == 'error' %}
+                <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+                <script>
+                    var m = "{{ message }}";
+                    swal("FAILED !", m, "error")
+                </script>
+            {% endif %}
+        {% endfor %}
+
     </main>
 {% endblock content %}
 
 {% block javascript %}
-    {% include 'includes/script/kubecost_script.html' %}
+    {% include 'includes/script/gcp_cost_script.html' %}
 {% endblock javascript %}

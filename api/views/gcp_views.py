@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.db.models import Q
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -6,7 +7,6 @@ from rest_framework.views import APIView
 from api.models.gcp import (
     get_services as get_gcp_services,
     get_projects as get_gcp_projects,
-    get_costs as get_gcp_costs,
 )
 from api.serializers import (
     GCPServiceSerializer,
@@ -14,6 +14,7 @@ from api.serializers import (
     GCPCostSerializer,
 )
 from home.models import TechFamily
+from home.models.gcp_costs import GCPCosts
 from home.models.gcp_projects import GCPProjects
 from home.models.gcp_services import GCPServices
 
@@ -78,8 +79,62 @@ class GCPCostViews(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        data = get_gcp_costs()
-        return Response(data, status=status.HTTP_200_OK)
+        draw = int(request.GET.get("draw", 0))
+        start = int(request.GET.get("start", 0))
+        length = int(request.GET.get("length", 10))
+        usage_date = request.GET.get("usage-date", "")
+        search_value = request.GET.get("search[value]", "")
+        order_column = int(request.GET.get("order[0][column]", 0))
+        order_dir = request.GET.get("order[0][dir]", "desc")
+        gcp_costs = GCPCosts.objects.all()
+
+        if usage_date:
+            gcp_costs = gcp_costs.filter(usage_date=usage_date)
+
+        if search_value:
+            gcp_costs = gcp_costs.filter(
+                Q(gcp_project__name__icontains=search_value)
+                | Q(tech_family__name__icontains=search_value)
+            )
+
+        total_records = gcp_costs.count()
+
+        if order_column == 0:
+            sort_column = "id"
+        elif order_column == 1:
+            sort_column = "usage_date"
+        elif order_column == 2:
+            sort_column = "gcp_service"
+        elif order_column == 3:
+            sort_column = "gcp_project"
+        elif order_column == 4:
+            sort_column = "cost"
+        elif order_column == 5:
+            sort_column = "project_cost"
+        elif order_column == 6:
+            sort_column = "tech_family"
+        elif order_column == 7:
+            sort_column = "index_weight"
+        elif order_column == 8:
+            sort_column = "conversion_rate"
+        else:
+            sort_column = "usage_date"
+
+        if order_dir == "asc":
+            sort_column = "-" + sort_column
+
+        services = gcp_costs.order_by(sort_column)[start : start + length]
+
+        data = [service.get_data() for service in services]
+
+        response = {
+            "draw": draw,
+            "recordsTotal": total_records,
+            "recordsFiltered": total_records,
+            "data": data,
+        }
+
+        return Response(response, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         try:

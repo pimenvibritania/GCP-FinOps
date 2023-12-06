@@ -43,7 +43,7 @@ class GCPCosts(BaseModel):
             "gcp_service_name": self.gcp_service.name,
             "index_weight": f"{self.index_weight} %",
             "tech_family": self.tech_family.name,
-            "cost": f"Rp. {self.cost}",
-            "project_cost": f"Rp. {self.project_cost}",
-            "conversion_rate": f"Rp. {self.conversion_rate}",
+            "cost": f"Rp. {round(self.cost, 2)}",
+            "project_cost": f"Rp. {round(self.project_cost, 2)}",
+            "conversion_rate": f"Rp. {round(self.conversion_rate, 2)}",
         }
