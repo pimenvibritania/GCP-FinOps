@@ -1,0 +1,197 @@
+<!-- Datatable -->
+<script>
+    $(document).ready(function () {
+        const table = $('#gcpCostDatatable').DataTable({
+            "ajax": "/api/gcp/costs",
+            "columns": [
+                {
+                    "data": "id",
+                    "render": function (data, type, row) {
+                        return '<span class="text-secondary text-xs font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center text-sm"
+                },
+                {
+                    "data": "usage_date",
+                    "render": function (data, type, row) {
+                        return '<p class="text-xs font-weight-bold text-uppercase mb-0">' + data + '</p>';
+                    },
+                    "className": "align-middle text-center text-sm",
+                },
+                {
+                    "data": "gcp_service_name",
+                    "render": function (data, type, row) {
+                        return '<p class="text-xs font-weight-bold text-uppercase mb-0">' + data + '</p>';
+                    },
+                    "className": "align-middle text-center text-sm",
+                    "width": "250px"
+                },
+                {
+                    "data": "gcp_project_name",
+                    "render": function (data, type, row) {
+                        return '<span class="badge badge-sm bg-gradient-success">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center text-sm"
+                },
+                {
+                    "data": "cost",
+                    "render": function (data, type, row) {
+                        return '<span class="text-primary text-sm font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center"
+                },
+                {
+                    "data": "project_cost",
+                    "render": function (data, type, row) {
+                        return '<span class="text-primary text-sm font-weight-bold">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center"
+                },
+                {
+                    "data": "tech_family",
+                    "render": function (data, type, row) {
+                        return '<span class="badge badge-sm bg-gradient-success">' + data + '</span>';
+                    },
+                    "className": "align-middle text-center"
+                },
+                {
+                    "data": "index_weight",
+                    "render": function (data, type, row) {
+                        return '<p class="text-xs font-weight-bold text-uppercase mb-0">' + data + '</p>';
+                    },
+                    "className": "align-middle text-center"
+                },
+                {
+                    "data": "conversion_rate",
+                    "render": function (data, type, row) {
+                        return '<p class="text-xs font-weight-bold mb-0">' + data + '</p>';
+                    },
+                    "className": "align-middle text-center"
+                }
+            ],
+            processing: true,
+            serverSide: true,
+            
+            stateSave: true,
+            paging: true,
+            pageLength: 10,
+            lengthChange: true,
+            autoWidth: false,
+            searching: true,
+            bInfo: true,
+            bSort: true,
+            // orderCellsTop: true,
+            scrollX: true,
+            fixedHeader: true,
+            "columnDefs": [{
+                "targets": [5, 6],
+                "orderable": false
+            }],
+            language: {
+                paginate: {
+                    "previous": "<",
+                    "next": ">"
+                },
+            },
+            dom: '<"container-fluid"<"row"<"col"l><"col"f>>>rti<"container-fluid"<"row mt-2"<"col"B><"col"p>>>',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<i class="fas fa-file-excel"></i>',
+                    className: 'btn btn-secondary',
+                    titleAttr: 'Excel',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4]
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="fas fa-file-pdf"></i>',
+                    className: 'btn btn-secondary',
+                    titleAttr: 'PDF',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4]
+                    },
+                    tableHeader: {
+                        alignment: 'center'
+                    },
+                    // FOnt size and optimization
+                    customize: function (doc) {
+                        doc.styles.tableHeader.alignment = 'center'; // Header postition
+                        doc.styles.tableBodyOdd.alignment = 'center'; // Header postition
+                        doc.styles.tableBodyEven.alignment = 'center'; // Header postition
+                        doc.styles.tableHeader.fontSize = 7; // Header postition
+                        doc.defaultStyle.fontSize = 6; // Header postition
+                        // To get 100% width of the table
+                        doc.content[1].table.widths = Array(doc.content[1].table.body[1].length + 1).join('*').split('');
+                    }
+                },
+
+            ]
+
+        });
+    });
+</script>
+
+
+<!-- Modal Sync Button -->
+<script>
+    $(document).ready(function () {
+        $("#addServiceButton").click(function () {
+            var formData = $("#addServiceForm").serialize();
+            $.ajax({
+                type: "POST",
+                url: "/api/services",
+                headers: {"X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val()},
+                data: formData,
+                success: function (response) {
+                    $("#addModal").modal("hide");
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'SUCCESS!',
+                        text: `Service ${response.data.name} added successfully.`,
+                        showConfirmButton: true
+                    }).then(function () {
+                        window.location.href = '/service-owner';
+                    });
+                },
+                error: function (xhr, status, error) {
+                    $("#addModal").modal("hide");
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response && response.message) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'FAILED!',
+                                text: response.message,
+                                showConfirmButton: true
+                            }).then(function () {
+                                window.location.href = '/service-owner';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'FAILED!',
+                                text: 'An error occurred while adding the service.',
+                                showConfirmButton: true
+                            }).then(function () {
+                                window.location.href = '/service-owner';
+                            });
+                        }
+                    } catch (parseError) {
+                        console.error("Error parsing response:", parseError);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'FAILED!',
+                            text: 'An error occurred while adding the service.',
+                            showConfirmButton: true
+                        }).then(function () {
+                            window.location.href = '/service-owner';
+                        });
+                    }
+                }
+            });
+        });
+    });
+</script>

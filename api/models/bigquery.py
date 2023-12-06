@@ -114,24 +114,26 @@ class BigQuery:
             query_template_mdi = get_query_template("mdi")
             query_template_mfi = get_query_template("mfi")
 
-            query_template_cross_billing = """
-                SELECT
-                    project.id as proj,
-                    service.description as svc,
-                    service.id as svc_id,
-                    SUM(cost) AS total_cost
-                FROM `{BIGQUERY_TABLE}`
-                WHERE
-                    DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
-                GROUP BY proj, svc, svc_id
-            """
+            # query_template_cross_billing = """
+            #     SELECT
+            #         project.id as proj,
+            #         service.description as svc,
+            #         service.id as svc_id,
+            #         SUM(cost) AS total_cost
+            #     FROM `{BIGQUERY_TABLE}`
+            #     WHERE
+            #         DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
+            #     GROUP BY proj, svc, svc_id
+            # """
 
+            # ========================================
             # MFI Query
+            # ========================================
 
             if period == "monthly":
                 current_period_costs_mfi = cross_billing(
                     cls(),
-                    query_template_cross_billing,
+                    query_template_mfi,
                     BIGQUERY_MFI_TABLE,
                     BIGQUERY_MDI_TABLE,
                     current_period_from,
@@ -139,7 +141,7 @@ class BigQuery:
                 )
                 previous_period_costs_mfi = cross_billing(
                     cls(),
-                    query_template_cross_billing,
+                    query_template_mfi,
                     BIGQUERY_MFI_TABLE,
                     BIGQUERY_MDI_TABLE,
                     previous_period_from,
@@ -234,7 +236,10 @@ class BigQuery:
                 else:
                     pass
 
+            # ========================================
             # MDI Query
+            # ========================================
+
             query_current_period_mdi = query_template_mdi.format(
                 BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
                 start_date=current_period_from,
@@ -488,7 +493,7 @@ class BigQuery:
             BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
             current_date=current_date,
         )
-        
+
         query_previous_period_mdi = query_template.format(
             BIGQUERY_TABLE=BIGQUERY_MDI_TABLE,
             current_date=previous_date,
@@ -500,16 +505,19 @@ class BigQuery:
         previous_period_results_mdi = (
             cls().client.query(query_previous_period_mdi).result()
         )
-                
+
         current_period_costs_mdi = {}
         for row in current_period_results_mdi:
-            current_period_costs_mdi[(row.proj, row.sku_id, row.sku_desc)] = row.total_cost
-        
+            current_period_costs_mdi[
+                (row.proj, row.sku_id, row.sku_desc)
+            ] = row.total_cost
+
         previous_period_costs_mdi = {}
         for row in previous_period_results_mdi:
-            previous_period_costs_mdi[(row.proj, row.sku_id, row.sku_desc)] = row.total_cost
+            previous_period_costs_mdi[
+                (row.proj, row.sku_id, row.sku_desc)
+            ] = row.total_cost
 
-        
         for project, sku_id, sku_desc in set(current_period_costs_mdi.keys()).union(
             previous_period_costs_mdi.keys()
         ):
@@ -520,7 +528,7 @@ class BigQuery:
                 (project, sku_id, sku_desc), 0
             )
             cost_difference = current_period_cost - previous_period_cost
-        
+
             if project in TF_PROJECT_MDI:
                 for tf in project_mdi.keys():
                     project_mdi[tf] = mapping_sku(
@@ -577,12 +585,12 @@ class BigQuery:
 
             else:
                 pass
-        
+
         project_mfi.update(project_mdi)
-        
+
         # extras = {"__extras__": {"index_weight": index_weight}}
         # project_mfi.update(extras)
-        
+
         return project_mfi
 
     @classmethod
@@ -674,22 +682,63 @@ class BigQuery:
 
     @classmethod
     def get_daily_cost(cls, date):
-        query_template = """
-                    SELECT 
-                        project.id as project_id, 
-                        service.id as service_id, 
-                        service.description as service_name,  
-                        SUM(cost) AS total_cost
-                    FROM `{BIGQUERY_TABLE}`
-                    WHERE DATE(usage_start_time) = "{date_start}"
-                    GROUP BY project_id, service_id, service_name
+        query_template_mdi = """
+            SELECT 
+                project.id as project_id, 
+                service.id as service_id, 
+                service.description as service_name,  
+                SUM(cost) AS total_cost
+            FROM `{BIGQUERY_TABLE}`
+            WHERE DATE(usage_start_time) = "{date_start}"
+            GROUP BY project_id, service_id, service_name
+        """
+
+        query_template_mfi = """
+            SELECT 
+                result.project_id, 
+                result.service_name, 
+                result.tk, 
+                result.service_id,
+                result.total_cost
+            FROM 
+                (SELECT 
+                    IFNULL(tag.key, "untagged") AS tk, 
+                    project.id as project_id, 
+                    service.description as service_name, 
+                    service.id as service_id, 
+                    SUM(cost) AS total_cost
+                FROM `{BIGQUERY_TABLE}` LEFT JOIN UNNEST(tags) AS tag
+                WHERE 
+                    DATE(usage_start_time) = "{date_start}" 
+                GROUP BY tk, project_id, service_name, service_id) 
+                AS result
+        """
+
+        for key in EXCLUDED_GCP_TAG_KEY_MFI:
+            if EXCLUDED_GCP_TAG_KEY_MFI.index(key) == 0:
+                query_extend = f"""
+                    WHERE result.tk != "{key}"
+                """
+            else:
+                query_extend = f"""
+                    AND result.tk != "{key}"
                 """
 
-        query_mfi = query_template.format(
-            BIGQUERY_TABLE=BIGQUERY_MFI_TABLE, date_start=date
-        )
+            query_template_mfi += query_extend
 
-        query_mdi = query_template.format(
+        tagged_date = datetime(2023, 9, 15).date()
+        date_object = datetime.strptime(date, "%Y-%m-%d").date()
+
+        if date_object < tagged_date:
+            query_mfi = query_template_mdi.format(
+                BIGQUERY_TABLE=BIGQUERY_MFI_TABLE, date_start=date
+            )
+        else:
+            query_mfi = query_template_mfi.format(
+                BIGQUERY_TABLE=BIGQUERY_MFI_TABLE, date_start=date
+            )
+
+        query_mdi = query_template_mdi.format(
             BIGQUERY_TABLE=BIGQUERY_MDI_TABLE, date_start=date
         )
 
