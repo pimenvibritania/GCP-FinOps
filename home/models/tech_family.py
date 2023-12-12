@@ -62,12 +62,23 @@ class TechFamily(BaseModel):
         )
 
     @staticmethod
+    def tech_cost():
+        return [
+            "dana_tunai",
+            "defi_mdi",
+            "platform_mdi",
+            "mofi",
+            "defi_mfi",
+            "platform_mfi",
+        ]
+
+    @staticmethod
     def included_mdi():
-        return ["dana_tunai", "platform_mdi"]
+        return ["dana_tunai", "defi_mdi", "platform_mdi"]
 
     @staticmethod
     def included_mfi():
-        return ["mofi", "defi", "platform_mfi"]
+        return ["mofi", "defi_mfi", "platform_mfi"]
 
     @classmethod
     def get_monthly_limit(cls, slug):

@@ -11,7 +11,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card my-4">
-                        <form action="/kubecost">
+                        <form action="/gcp-cost-report/form">
                             <div class="card-header p-0 position-relative mt-n4 z-index-2">
                                 <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 col-12">
                                     <div class="row">
@@ -46,7 +46,7 @@
                                                 {% endif %}
                                                 <option disabled></option>
                                                 {% for tf in tech_family %}
-                                                    <option value="{{ tf.slug }}">{{ tf.slug }}</option>
+                                                    <option value="{{ tf }}">{{ tf }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -60,14 +60,17 @@
                     </div>
                     <div class="card-body px-0 pb-2">
                         <div class="table-responsive p-0">
-                            <table class="table align-items-center mb-0" id="kubecostDatatable">
+                            <table class="table align-items-center mb-0" id="gcpReportCostDatatable">
                                 <thead>
                                 <tr>
                                     <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Service
                                         Name
                                     </th>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost per
-                                        Env
+                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                        Environment
+                                    </th>
+                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                        GCP Project
                                     </th>
                                     <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Date
                                         Range
@@ -85,32 +88,37 @@
                                 </thead>
                                 <tbody>
                                 {% for service in services %}
-                                    <tr>
-                                        <td class="align-middle text-center text-sm"><span
-                                                class="text-xs font-weight-bold text-uppercase">{{ service.service_name }}</span>
-                                        </td>
-                                        <td class="align-middle text-center text-sm"><span
-                                                class="text-secondary text-xs font-weight-bold">{{ service.environment }}</span>
-                                        </td>
-                                        <td class="align-middle text-center text-sm"><span
-                                                class="text-secondary text-xs font-weight-bold">{{ date_range }}</span>
-                                        </td>
-                                        <td class="align-middle text-center text-sm"><span
-                                                class="text-secondary text-xs font-weight-bold">${{ service.cost_this_period }} USD</span>
-                                        </td>
-                                        <td class="align-middle text-center text-sm"><span
-                                                class="text-secondary text-xs font-weight-bold">${{ service.cost_prev_period }} USD</span>
-                                        </td>
-                                        <td class="align-middle text-center text-sm">
-                                            {% if service.cost_status == "UP" %}
-                                                <span style="color:#e74c3c">⬆ {{ service.cost_status_percent }}%</span>
-                                            {% elif service.cost_status == "DOWN" %}
-                                                <span style="color:#1abc9c">⬇ {{ service.cost_status_percent }}%</span>
-                                            {% else %}
-                                                <span class="text-secondary text-xs font-weight-bold">Equal</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
+                                    {% for svc_cost in service.cost_services %}
+                                        <tr>
+                                            <td class="align-middle text-center text-sm"><span
+                                                    class="text-xs font-weight-bold text-uppercase">{{ service.name }}</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm"><span
+                                                    class="text-secondary text-xs font-weight-bold">{{ svc_cost.environment }}</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm"><span
+                                                    class="text-secondary text-xs font-weight-bold">{{ svc_cost.gcp_project }}</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm"><span
+                                                    class="text-secondary text-xs font-weight-bold">{{ date_range }}</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm"><span
+                                                    class="text-secondary text-xs font-weight-bold">${{ svc_cost.cost_this_period }} USD</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm"><span
+                                                    class="text-secondary text-xs font-weight-bold">${{ svc_cost.cost_prev_period }} USD</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                {% if svc_cost.cost_status == "UP" %}
+                                                    <span style="color:#e74c3c">⬆ {{ svc_cost.cost_status_percent }}%</span>
+                                                {% elif svc_cost.cost_status == "DOWN" %}
+                                                    <span style="color:#1abc9c">⬇ {{ svc_cost.cost_status_percent }}%</span>
+                                                {% else %}
+                                                    <span class="text-secondary text-xs font-weight-bold">Equal</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
                                 {% endfor %}
                                 </tbody>
                             </table>
@@ -164,5 +172,5 @@
 {% endblock content %}
 
 {% block javascript %}
-    {% include 'includes/script/gcp_cost_script.html' %}
+    {% include 'includes/script/gcp_report_script.html' %}
 {% endblock javascript %}

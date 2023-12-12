@@ -1,6 +1,6 @@
 from django.urls import path
 
-from home.views.gcp_cost_views import GCPCostList, GCPCostReport
+from home.views.gcp_cost_views import GCPCostList, GCPCostReport, cost_report_form
 from .views.auth_views import UserLoginView, user_logout_view
 from .views.dashboard_views import index as dashboard_index, table as table_index
 from .views.kubecost_views import kubecost
@@ -16,5 +16,6 @@ urlpatterns = [
     path("tech-family", tech_family, name="tech-family"),
     path("gcp-cost", GCPCostList.as_view(), name="gcp-cost"),
     path("gcp-cost-report", GCPCostReport.as_view(), name="gcp-cost-report"),
+    path("gcp-cost-report/form", cost_report_form, name="gcp-cost-report-form"),
     path("kubecost", kubecost, name="kubecost"),
 ]
