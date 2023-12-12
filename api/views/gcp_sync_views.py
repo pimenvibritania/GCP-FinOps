@@ -45,7 +45,7 @@ class SyncGCPProjects(APIView):
                 error_response = {
                     "error": f"Duplicate entry for Identity {value['identity']}: [{e}]"
                 }
-                logger.error(error_response)
+                logger.warning(error_response)
 
         return Response(data, status=status.HTTP_200_OK)
 

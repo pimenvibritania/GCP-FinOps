@@ -2,23 +2,23 @@ import datetime
 import os
 from itertools import chain
 
+import requests
 from django.core.cache import cache
 from django.http import JsonResponse
+from django.template.loader import render_to_string
 from rest_framework import generics
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
 from api.models.bigquery import BigQuery
 from api.serializers import TechFamilySerializer, IndexWeightSerializer
+from api.utils.conversion import Conversion
 from api.utils.decorator import date_validator, period_validator, user_is_admin
+from api.utils.generator import random_string, pdf
 from api.utils.validator import Validator
 from home.models.index_weight import IndexWeight
 from home.models.tech_family import TechFamily
-from api.utils.conversion import Conversion
-from django.template.loader import render_to_string
-from api.utils.generator import random_string, pdf
-from api.utils.crypter import *
-import requests
+
 
 class BigQueryPeriodicalCost(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -101,7 +101,6 @@ class BigQueryDailySKU(generics.ListAPIView):
 
 
 def send_email_sku(request, payload):
-    
     context = {}
 
     for tf in payload.keys():
@@ -124,16 +123,24 @@ def send_email_sku(request, payload):
         # limit_budget_monthly = payload[tf]["data"]["summary"]["limit_budget_monthly"]
         rate_gcp = payload[tf]["data"]["conversion_rate"]
         cost_difference_idr_gcp = payload[tf]["data"]["summary"]["cost_difference"]
-        percent_status_gcp = Conversion.get_percentage(current_total_idr_gcp, previous_total_idr_gcp)
+        percent_status_gcp = Conversion.get_percentage(
+            current_total_idr_gcp, previous_total_idr_gcp
+        )
         date_range_gcp = payload[tf]["data"]["range_date"]
 
         if current_total_idr_gcp > previous_total_idr_gcp:
             # subject = (f"!!! Hi {em_name}, BEWARE of Your GCP Cost on {date_time} !!!")
-            cost_status_gcp = (f"""<span style="color:#e74c3c">⬆ {percent_status_gcp}%</span>""")
+            cost_status_gcp = (
+                f"""<span style="color:#e74c3c">⬆ {percent_status_gcp}%</span>"""
+            )
         elif current_total_idr_gcp < previous_total_idr_gcp:
-            cost_status_gcp = (f"""<span style="color:#1abc9c">⬇ {percent_status_gcp}%</span>""")
+            cost_status_gcp = (
+                f"""<span style="color:#1abc9c">⬇ {percent_status_gcp}%</span>"""
+            )
         else:
-            cost_status_gcp = """<strong><span style="font-size:16px">Equal&nbsp;</span></strong>"""
+            cost_status_gcp = (
+                """<strong><span style="font-size:16px">Equal&nbsp;</span></strong>"""
+            )
 
         table_template_gcp = """
             <table>
@@ -156,7 +163,7 @@ def send_email_sku(request, payload):
 
         for sku in sku_gcp:
             # sku_id = sku['sku_id']
-            sku_description = sku['sku_description']
+            sku_description = sku["sku_description"]
 
             for index, cost_svc in enumerate(sku["cost_services"]):
                 if index == 0:
@@ -187,19 +194,24 @@ def send_email_sku(request, payload):
 
                 table_template_gcp += row
 
-
         table_template_gcp += "</tbody>\n</table>"
         context_gcp = {
             "cost_status_gcp": cost_status_gcp,
             "cost_period": cost_period,
             "total_cost_this_period": current_total_idr_gcp,
             "previous_total_idr_gcp": Conversion.idr_format(previous_total_idr_gcp),
-            "previous_total_usd_gcp": Conversion.convert_usd(previous_total_idr_gcp, rate_gcp),
+            "previous_total_usd_gcp": Conversion.convert_usd(
+                previous_total_idr_gcp, rate_gcp
+            ),
             "current_total_idr_gcp": Conversion.idr_format(current_total_idr_gcp),
-            "current_total_usd_gcp": Conversion.convert_usd(current_total_idr_gcp, rate_gcp),
+            "current_total_usd_gcp": Conversion.convert_usd(
+                current_total_idr_gcp, rate_gcp
+            ),
             "current_rate_gcp": rate_gcp,
             "cost_difference_idr_gcp": Conversion.idr_format(cost_difference_idr_gcp),
-            "cost_difference_usd_gcp": Conversion.convert_usd(cost_difference_idr_gcp, rate_gcp),
+            "cost_difference_usd_gcp": Conversion.convert_usd(
+                cost_difference_idr_gcp, rate_gcp
+            ),
             "services_gcp": table_template_gcp,
             "date_range_gcp": date_range_gcp,
             "gcp_exist": True,
@@ -208,7 +220,7 @@ def send_email_sku(request, payload):
         context.update(context_gcp)
 
         email_content = render_to_string(template_path, context)
-        pdf_filename = (f"{tech_family}-{em_name}-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}")
+        pdf_filename = f"{tech_family}-{em_name}-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
         pdf_content = f"""
             <h3 style="text-align: right">{tech_family}</h3>
             <h4 style="text-align: right">{em_name} | {datetime.datetime.now().strftime("%d-%m-%Y")}</h4>
@@ -236,13 +248,15 @@ def send_email_sku(request, payload):
             ],
             "subject": subject,
             "html": email_content,
-            "o:tag": "important"
+            "o:tag": "important",
         }
 
         with open(pdf_file, "rb") as pdf_attachment:
             pdf_content = pdf_attachment.read()
 
-        files = [("attachment", (f"{pdf_filename}.pdf", pdf_content, "application/pdf"))]
+        files = [
+            ("attachment", (f"{pdf_filename}.pdf", pdf_content, "application/pdf"))
+        ]
 
         response = requests.post(
             os.getenv("MAILGUN_URL"),
@@ -250,7 +264,7 @@ def send_email_sku(request, payload):
             data=mail_data,
             files=files,
         )
-        
+
         if response.status_code == 200:
             print(f"Daily Report {project_name} is Sent!")
         else:
