@@ -231,11 +231,16 @@ def mapping_services(
     tf,
     organization,
     service_id,
+    tag,
     csv_import=None,
 ):
     environment = (
         "All Environment"
-        if service_name == ATLAS_SERVICE_NAME
+        if (
+            service_id == ATLAS_SKU_ID
+            or service_id == ATLAS2_SKU_ID
+            or service_id == ATLAS3_SKU_ID
+        )
         else "Production"
         if (service_name == "Support" and gcp_project == "Shared Support")
         else parse_env(gcp_project)
@@ -243,7 +248,12 @@ def mapping_services(
 
     weight_index_percent = (
         100
-        if (organization == "ANDROID" or service_name == ATLAS_SERVICE_NAME)
+        if (
+            organization == "ANDROID"
+            or service_id == ATLAS_SKU_ID
+            or service_id == ATLAS2_SKU_ID
+            or service_id == ATLAS3_SKU_ID
+        )
         else 16.66
         if (service_name == "Support" and gcp_project == "Shared Support")
         else index_weight[organization][tf][environment]["value"]
@@ -264,14 +274,41 @@ def mapping_services(
             weight_index_percent / 100
         )
 
+    """
+    FEATURE FLAG RULES:
+    1. If tech family exist on `excluded_service` the cost is totally excluded even in `excluded_tag` exist
+    2. If tech family not exist on `excluded_service`:
+        a. If the current loop tag is `untagged` the cost is divided according to index weight
+        b. if the current loop tag in `excluded_tag` the cost is split to tech family which is not in `exclude_tag` and
+            `exclude_service`
+        
+    **so the top hierarchy is `excluded_service`
+    """
+
     excluded_services_tf = EXCLUDED_GCP_SERVICES[service_id]
     is_excluded_service = True if len(excluded_services_tf) != 0 else False
-    # If there is excluded service by service_id
-    if is_excluded_service:
+
+    if tag != "untagged":
+        excluded_tag_tf = (
+            EXCLUDED_GCP_TAG_KEY_MFI.get(tag)
+            if organization == "MFI"
+            else EXCLUDED_GCP_TAG_KEY_MDI.get(tag)
+        )
+        is_excluded_tag = True if len(excluded_tag_tf) != 0 else False
+    else:
+        is_excluded_tag = False
+        excluded_tag_tf = []
+
+    if is_excluded_service or is_excluded_tag:
         tech_family_projects = MFI_PROJECT if organization == "MFI" else MDI_PROJECT
+
         included_services_tf = list(
             set(tech_family_projects) - set(excluded_services_tf)
         )
+
+        tag_tf = list(set(tech_family_projects) - set(excluded_tag_tf))
+        included_tag_tf = [item for item in tag_tf if item in included_services_tf]
+
         if tf in excluded_services_tf:
             current_separated_cost = current_cost / len(included_services_tf)
             previous_separated_cost = previous_cost / len(included_services_tf)
@@ -289,6 +326,38 @@ def mapping_services(
             )
 
             for included_tf in included_services_tf:
+                project_family = mapping_new_service(
+                    gcp_project,
+                    service_name,
+                    environment,
+                    separated_weight_index_percent,
+                    current_separated_cost,
+                    previous_separated_cost,
+                    diff_cost,
+                    status_cost,
+                    cost_status_percentage,
+                    project_family,
+                    included_tf,
+                )
+
+            current_cost = 0
+            previous_cost = 0
+            weight_index_percent = 0
+        elif tf in excluded_tag_tf and tag != "untagged":
+            current_separated_cost = current_cost / len(included_tag_tf)
+            previous_separated_cost = previous_cost / len(included_tag_tf)
+            separated_weight_index_percent = weight_index_percent / len(included_tag_tf)
+            diff_cost = current_separated_cost - previous_separated_cost
+
+            status_cost = (
+                "UP" if diff_cost > 0 else "DOWN" if diff_cost < 0 else "EQUAL"
+            )
+
+            cost_status_percentage = Conversion.get_percentage(
+                current_cost, previous_cost
+            )
+
+            for included_tf in included_tag_tf:
                 project_family = mapping_new_service(
                     gcp_project,
                     service_name,
@@ -540,3 +609,30 @@ def get_query_template(project):
             template += query_extend
 
     return template
+
+
+def get_query_template_with_tag(period=None):
+    if period == "daily":
+        return """
+            SELECT 
+                IFNULL(tag.key, "untagged") AS tag, 
+                project.id AS proj, 
+                service.description as svc, 
+                service.id as svc_id,
+                SUM(cost) AS total_cost
+            FROM `{BIGQUERY_TABLE}` LEFT JOIN UNNEST(tags) AS tag
+            WHERE DATE(usage_start_time) = "{start_date}"
+            GROUP BY tag, proj, svc, svc_id
+        """
+    else:
+        return """
+            SELECT 
+                IFNULL(tag.key, "untagged") AS tag, 
+                project.id AS proj, 
+                service.description as svc, 
+                service.id as svc_id,
+                SUM(cost) AS total_cost
+            FROM `{BIGQUERY_TABLE}` LEFT JOIN UNNEST(tags) AS tag
+            WHERE DATE(usage_start_time) BETWEEN "{start_date}" AND "{end_date}"
+            GROUP BY tag, proj, svc, svc_id
+        """
