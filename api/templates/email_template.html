@@ -33,10 +33,21 @@
             }
 
             .alert {
-                padding: 20px;
-                background-color: #f44336; /* Red */
-                color: white;
-                margin-bottom: 15px;
+                font-family: -apple-system, BlinkMacSystemFont, 'Roboto', 'Segoe UI', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+                min-height: 38px;
+                padding: 12px 15px 15px;
+                margin: 5px auto;
+                border-radius: 4px;
+                border-left: 4px solid;
+                opacity: 1;
+                transition: opacity 0.6s;
+                max-width: 90%
+            }
+
+            .tip {
+                background: #fff5e6;
+                color: #ff9800;
+                border-color: #ff9800;
             }
         </style>
         <title>Cost Report</title>
@@ -52,6 +63,16 @@
         <br/>Please find the cost status and comparison details below:</p>
     <p><strong>Service Owner</strong>: {{ em_name }} - {{ project_name }}</p>
     <hr/>
+
+    <div class="alert tip">
+        <b>Warning</b>
+        <br>
+        We want to be transparent about the status of the report and provide you with the most up-to-date information.
+        To keep you informed about any adjustments or additional details about change log, you can access the release
+        notes by clicking this <a
+            href="https://moladin.atlassian.net/wiki/spaces/IN/pages/815464567/Change+Log">link</a> .
+    </div>
+
     <!-- GCP SECTION -->
     {% if gcp_exist %}
 

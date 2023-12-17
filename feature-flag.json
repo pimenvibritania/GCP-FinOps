@@ -40,8 +40,15 @@
     "5E18-9A83-2867": [],
     "BCC4-400E-8ACC": []
   },
-  "excluded_tag_key_mfi": [
-    "procar"
-  ],
+  "excluded_tag_key_mfi": {
+    "procar": [
+      "defi_mfi",
+      "platform_mfi"
+    ],
+    "exclude_cost": [
+      "defi_mfi",
+      "platform_mfi"
+    ]
+  },
   "excluded_tag_key_mdi": []
 }

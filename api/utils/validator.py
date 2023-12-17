@@ -1,13 +1,15 @@
+import base64
+from datetime import datetime
+
+from asgiref.sync import sync_to_async
+from dateutil.parser import parse
+from django.contrib.auth import authenticate
+
 from ..utils.exception import (
     UnprocessableEntityException,
     BadRequestException,
     UnauthenticatedException,
 )
-from django.contrib.auth import authenticate
-from asgiref.sync import sync_to_async
-from dateutil.parser import parse
-from datetime import datetime
-import base64
 
 
 class Validator:
@@ -57,11 +59,8 @@ class Validator:
     def async_authenticate(cls, request):
         auth_header = request.META.get("HTTP_AUTHORIZATION")
         if auth_header and auth_header.startswith("Basic "):
-
-
             credentials = auth_header[len("Basic ") :]
             decoded_credentials = base64.b64decode(credentials).decode("utf-8")
-            print("decoded_credentials", decoded_credentials)
             username, password = decoded_credentials.split(":")
 
             user = authenticate(username=username, password=password)
