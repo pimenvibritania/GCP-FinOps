@@ -209,20 +209,33 @@ class BigQuery:
                             csv_import=csv_cost,
                         )
 
-                # elif project is None and service == "Support":
-                #     for tf in project_mfi.keys():
-                #         project_mfi, project_mfi[tf] = mapping_services(
-                #             "Shared Support",
-                #             service,
-                #             index_weight,
-                #             current_period_cost,
-                #             previous_period_cost,
-                #             project_mfi,
-                #             tf,
-                #             "MFI",
-                #             service_id,
-                #             tag,
-                #         )
+                elif service_id in ATLAS_MFI:
+                    project_mfi, project_mfi["mofi"] = mapping_services(
+                        ATLAS_SERVICE_NAME,
+                        service,
+                        index_weight,
+                        current_period_cost,
+                        previous_period_cost,
+                        project_mfi,
+                        "mofi",
+                        "MFI",
+                        service_id,
+                        tag,
+                    )
+                elif project is None and service_id == "2062-016F-44A2":
+                    for tf in project_mfi.keys():
+                        project_mfi, project_mfi[tf] = mapping_services(
+                            "Shared Support",
+                            service,
+                            index_weight,
+                            current_period_cost,
+                            previous_period_cost,
+                            project_mfi,
+                            tf,
+                            "MFI",
+                            service_id,
+                            tag,
+                        )
                 else:
                     pass
 
@@ -301,38 +314,34 @@ class BigQuery:
                         tag,
                     )
 
-                # elif project is None and (
-                #     service_id == ATLAS_SKU_ID
-                #     or service_id == ATLAS2_SKU_ID
-                #     or service_id == ATLAS3_SKU_ID
-                # ):
-                #     project_mdi, project_mdi["dana_tunai"] = mapping_services(
-                #         ATLAS_SERVICE_NAME,
-                #         service,
-                #         index_weight,
-                #         current_period_cost,
-                #         previous_period_cost,
-                #         project_mdi,
-                #         "dana_tunai",
-                #         "MDI",
-                #         service_id,
-                #         tag,
-                #     )
+                elif service_id in ATLAS_MDI:
+                    project_mdi, project_mdi["dana_tunai"] = mapping_services(
+                        ATLAS_SERVICE_NAME,
+                        service,
+                        index_weight,
+                        current_period_cost,
+                        previous_period_cost,
+                        project_mdi,
+                        "dana_tunai",
+                        "MDI",
+                        service_id,
+                        tag,
+                    )
 
-                # elif project is None and service_id == "2062-016F-44A2":
-                #     for tf in project_mdi.keys():
-                #         project_mdi, project_mdi[tf] = mapping_services(
-                #             "Shared Support",
-                #             service,
-                #             index_weight,
-                #             current_period_cost,
-                #             previous_period_cost,
-                #             project_mdi,
-                #             tf,
-                #             "MDI",
-                #             service_id,
-                #             tag,
-                #         )
+                elif project is None and service_id == "2062-016F-44A2":
+                    for tf in project_mdi.keys():
+                        project_mdi, project_mdi[tf] = mapping_services(
+                            "Shared Support",
+                            service,
+                            index_weight,
+                            current_period_cost,
+                            previous_period_cost,
+                            project_mdi,
+                            tf,
+                            "MDI",
+                            service_id,
+                            tag,
+                        )
 
                 else:
                     pass

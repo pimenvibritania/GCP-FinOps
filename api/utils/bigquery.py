@@ -167,7 +167,8 @@ def mapping_new_service(
             unpacked_found_iw = Conversion.unpack_percentages(
                 found_dict["cost_services"][index]["index_weight"]
             )
-            current_iw = unpacked_found_iw + weight_index_percent
+
+            current_iw = min(unpacked_found_iw + weight_index_percent, 100)
 
             found_diff_cost = found_dict["cost_services"][index]["cost_difference"]
             calculated_diff_cost = found_diff_cost + diff_cost
@@ -236,25 +237,16 @@ def mapping_services(
 ):
     environment = (
         "All Environment"
-        if (
-            service_id == ATLAS_SKU_ID
-            or service_id == ATLAS2_SKU_ID
-            or service_id == ATLAS3_SKU_ID
-        )
-        else "Production"
-        if (service_name == "Support" and gcp_project == "Shared Support")
+        if service_id in MONGO_ATLAS
+        else "production"
+        if (service_id == "2062-016F-44A2" and gcp_project == "Shared Support")
         else parse_env(gcp_project)
     )
 
     weight_index_percent = (
         100
-        if (
-            organization == "ANDROID"
-            or service_id == ATLAS_SKU_ID
-            or service_id == ATLAS2_SKU_ID
-            or service_id == ATLAS3_SKU_ID
-        )
-        else 16.66
+        if (organization == "ANDROID" or service_id in MONGO_ATLAS)
+        else 33.33
         if (service_name == "Support" and gcp_project == "Shared Support")
         else index_weight[organization][tf][environment]["value"]
     )
