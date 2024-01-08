@@ -22,6 +22,7 @@ RUN python manage.py migrate
 RUN python manage.py loaddata home/seeders/0001_tech_family_seeder.json
 RUN python manage.py loaddata home/seeders/0002_index_weight_seeder.json
 RUN python manage.py loaddata home/seeders/0003_gcp_project_seeder.json
+RUN python manage.py loaddata home/seeders/0004_department_seeder.json
 
 # collectstatic
 RUN python manage.py collectstatic

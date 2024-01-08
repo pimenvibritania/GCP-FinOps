@@ -1,0 +1,68 @@
+[
+  {
+    "model": "home.department",
+    "pk": 1,
+    "fields": {
+      "is_deleted": false,
+      "deleted_at": null,
+      "name": "Ops & Planning",
+      "created_at": "2023-10-02T08:15:35.871Z",
+      "updated_at": "2023-10-02T08:15:35.871Z"
+    }
+  },
+  {
+    "model": "home.department",
+    "pk": 2,
+    "fields": {
+      "is_deleted": false,
+      "deleted_at": null,
+      "name": "Tech - Data",
+      "created_at": "2023-10-02T08:15:35.871Z",
+      "updated_at": "2023-10-02T08:15:35.871Z"
+    }
+  },
+  {
+    "model": "home.department",
+    "pk": 3,
+    "fields": {
+      "is_deleted": false,
+      "deleted_at": null,
+      "name": "Credit Risk MOFI",
+      "created_at": "2023-10-02T08:15:35.871Z",
+      "updated_at": "2023-10-02T08:15:35.871Z"
+    }
+  },
+  {
+    "model": "home.department",
+    "pk": 4,
+    "fields": {
+      "is_deleted": false,
+      "deleted_at": null,
+      "name": "MOFI - DA",
+      "created_at": "2023-10-02T08:15:35.871Z",
+      "updated_at": "2023-10-02T08:15:35.871Z"
+    }
+  },
+  {
+    "model": "home.department",
+    "pk": 5,
+    "fields": {
+      "is_deleted": false,
+      "deleted_at": null,
+      "name": "Data Science",
+      "created_at": "2023-10-02T08:15:35.871Z",
+      "updated_at": "2023-10-02T08:15:35.871Z"
+    }
+  },
+  {
+    "model": "home.department",
+    "pk": 6,
+    "fields": {
+      "is_deleted": false,
+      "deleted_at": null,
+      "name": "Product - DA",
+      "created_at": "2023-10-02T08:15:35.871Z",
+      "updated_at": "2023-10-02T08:15:35.871Z"
+    }
+  }
+]

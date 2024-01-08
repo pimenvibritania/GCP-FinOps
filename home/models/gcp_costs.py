@@ -1,7 +1,8 @@
 from django.db import models
 
 from home.models.base_model import BaseModel
-from . import GCPProjects, GCPServices
+from .gcp_projects import GCPProjects
+from .gcp_services import GCPServices
 from .tech_family import TechFamily
 
 
