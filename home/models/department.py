@@ -8,5 +8,10 @@ class Department(BaseModel):
         db_table = "department"
 
     name = models.CharField(max_length=120, blank=False)
+    slug = models.CharField(max_length=100, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False, blank=False)
-    updated_at = models.DateTimeField(auto_now=False, blank=False)
+    updated_at = models.DateTimeField(auto_now_add=True, auto_now=False, blank=False)
+
+    @classmethod
+    def get_id(cls, value):
+        return cls.objects.get(slug=value).id

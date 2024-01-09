@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from home.models import Department, BigqueryUser, BigqueryCost
 from home.models.gcp_costs import GCPCosts
 from home.models.gcp_projects import GCPProjects
 from home.models.gcp_services import GCPServices
@@ -191,4 +192,36 @@ class GCPCostSerializer(serializers.ModelSerializer):
             "gcp_service",
             "index_weight",
             "tech_family",
+        ]
+
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ["name", "slug"]
+
+
+class BigqueryUserSerializers(serializers.ModelSerializer):
+    department = serializers.PrimaryKeyRelatedField(
+        queryset=Department.objects.all(), many=False
+    )
+
+    class Meta:
+        model = BigqueryUser
+        fields = ["name", "email", "department"]
+
+
+class BigqueryCostSerializers(serializers.ModelSerializer):
+    bigquery_user = serializers.PrimaryKeyRelatedField(
+        queryset=BigqueryUser.objects.all(), many=False
+    )
+
+    class Meta:
+        model = BigqueryCost
+        fields = [
+            "usage_date",
+            "cost",
+            "query_count",
+            "metabase_user",
+            "bigquery_user",
         ]

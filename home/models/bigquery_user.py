@@ -18,4 +18,9 @@ class BigqueryUser(BaseModel):
     email = models.EmailField(max_length=100)
     department = models.ForeignKey(Department, on_delete=models.PROTECT, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False, blank=False)
-    updated_at = models.DateTimeField(auto_now=False, blank=False)
+    updated_at = models.DateTimeField(auto_now_add=True, auto_now=False, blank=False)
+
+    @classmethod
+    def get_id(cls, value):
+        # return cls.objects.filter(email=value).values("id").first()["id"]
+        return cls.objects.get(email=value).id
