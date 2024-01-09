@@ -1,10 +1,11 @@
 import os
-import threading
 from functools import wraps
+
 from django.http import JsonResponse
-from .validator import Validator
 from rest_framework import status
+
 from api.utils.exception import UnauthorizedException, UnauthenticatedException
+from .validator import Validator
 
 
 def async_date_validator(view_func):
@@ -135,7 +136,9 @@ def async_user_validator(view_func):
         )
 
         if isinstance(validated_user, UnauthenticatedException):
-            return JsonResponse(validated_user.message, status=validated_user.status_code)
+            return JsonResponse(
+                validated_user.message, status=validated_user.status_code
+            )
 
         user_inactive(request)
         if validated_user.is_superuser is False:
@@ -243,5 +246,22 @@ def async_user_is_admin(view_func):
             exception = UnauthorizedException("Unauthorized, only superuser!")
             return JsonResponse(exception.message, status=exception.status_code)
         return await view_func(request, *args, **kwargs)
+
+    return _wrapped_view
+
+
+def user_is_data(view_func):
+    @wraps(view_func)
+    def _wrapped_view(cls, request, *args, **kwargs):
+        user_inactive(request)
+        data_user = request.user.groups.filter(name="data").exists()
+
+        if request.user.is_superuser is True or data_user is True:
+            return view_func(cls, request, *args, **kwargs)
+        else:
+            exception = UnauthorizedException(
+                "Unauthorized, only superuser and data team!"
+            )
+            return JsonResponse(exception.message, status=exception.status_code)
 
     return _wrapped_view
