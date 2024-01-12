@@ -10,7 +10,8 @@ from api.serializers import (
     BigqueryCostSerializers,
 )
 from api.utils.decorator import user_is_data
-from home.models import BigqueryCost, BigqueryUser, Department
+from api.utils.validator import Validator
+from home.models import BigqueryCost, BigqueryUser, Department, GCPProjects
 
 
 class BlocklistPermission(permissions.BasePermission):
@@ -32,8 +33,16 @@ class BigqueryCostViews(APIView):
         search_value = request.GET.get("search[value]", "")
         order_column = int(request.GET.get("order[0][column]", 0))
         order_dir = request.GET.get("order[0][dir]", "asc")
+        date = request.GET.get("date")
 
         bigquery_cost = BigqueryCost.objects.all()
+
+        if date:
+            validated = Validator.date(date)
+            if validated.status_code != 200:
+                return Response(validated.message, status=validated.status_code)
+
+            bigquery_cost = bigquery_cost.filter(usage_date=date)
 
         if search_value:
             bigquery_cost = bigquery_cost.filter(
@@ -109,12 +118,21 @@ class BigqueryCostViews(APIView):
             else:
                 return bquser_serializer.errors
 
+        try:
+            gcp_project_id = GCPProjects.objects.get(
+                identity=request.data.get("gcp_project_id")
+            ).id
+        except GCPProjects.DoesNotExist as e:
+            response = {"success": False, "message": f"{e}"}
+            return Response(response, status=status.HTTP_404_NOT_FOUND)
+
         data = {
             "usage_date": request.data.get("usage_date"),
             "cost": request.data.get("cost"),
             "query_count": request.data.get("query_count"),
             "metabase_user": request.data.get("metabase_user"),
             "bigquery_user": bigquery_user_id,
+            "gcp_project": gcp_project_id,
         }
 
         serializer = BigqueryCostSerializers(data=data)

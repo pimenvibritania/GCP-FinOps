@@ -216,6 +216,10 @@ class BigqueryCostSerializers(serializers.ModelSerializer):
         queryset=BigqueryUser.objects.all(), many=False
     )
 
+    gcp_project = serializers.PrimaryKeyRelatedField(
+        queryset=GCPProjects.objects.all(), many=False
+    )
+
     class Meta:
         model = BigqueryCost
         fields = [
@@ -224,4 +228,5 @@ class BigqueryCostSerializers(serializers.ModelSerializer):
             "query_count",
             "metabase_user",
             "bigquery_user",
+            "gcp_project",
         ]
