@@ -36,4 +36,5 @@ class BigqueryCost(BaseModel):
             "bigquery_user": self.bigquery_user.name,
             "department": self.bigquery_user.department.name,
             "metabase_user": self.metabase_user,
+            "gcp_project": self.gcp_project.identity,
         }
