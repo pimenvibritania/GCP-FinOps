@@ -59,7 +59,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://cost-management-system-appscript.moladin.com",
     "https://*.moladin.com",
     "http://*.moladin.com",
-    "airflow.development.mofi.id",
+    "http://airflow.development.mofi.id",
+    "https://airflow.development.mofi.id",
 ]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
@@ -71,7 +72,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://cost-management-system.moladin.com",
     "https://*.moladin.com",
     "http://*.moladin.com",
-    "airflow.development.mofi.id",
+    "http://airflow.development.mofi.id",
+    "https://airflow.development.mofi.id",
 ]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
