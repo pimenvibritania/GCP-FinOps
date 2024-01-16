@@ -135,4 +135,6 @@ class BigqueryDetailCostViews(APIView):
 
         if isinstance(cost, NotFoundException):
             return Response(cost.message, status=cost.status_code)
+
+        cost.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
