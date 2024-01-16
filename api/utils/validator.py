@@ -4,11 +4,16 @@ from datetime import datetime
 from asgiref.sync import sync_to_async
 from dateutil.parser import parse
 from django.contrib.auth import authenticate
+from rest_framework import status
+from rest_framework.response import Response
 
+from home.models import BigqueryUser, Department, GCPProjects
+from ..serializers import DepartmentSerializer, BigqueryUserSerializers
 from ..utils.exception import (
     UnprocessableEntityException,
     BadRequestException,
     UnauthenticatedException,
+    NotFoundException,
 )
 
 
@@ -75,3 +80,78 @@ class Validator:
             return cls(), UnauthenticatedException(
                 "Authentication credentials were not provided"
             )
+
+
+class BigqueryCostValidator:
+    @classmethod
+    def validate_request(cls, request):
+        try:
+            bigquery_user_id = BigqueryUser.get_id(
+                request.data.get("bigquery_user_email")
+            )
+
+        except BigqueryUser.DoesNotExist as userNotExist:
+            print("BigqueryUser exception:", userNotExist)
+            try:
+                department_id = Department.get_id(request.data.get("department"))
+            except Department.DoesNotExist as departmentNotExist:
+                print("Department exception:", departmentNotExist)
+
+                department = request.data.get("department")
+                words = department.split("-")
+                capitalized_words = [word.capitalize() for word in words]
+                department_name = " ".join(capitalized_words)
+
+                department_data = {
+                    "name": department_name,
+                    "slug": request.data.get("department"),
+                }
+                department_serializer = DepartmentSerializer(data=department_data)
+
+                if department_serializer.is_valid():
+                    department_save = department_serializer.save()
+                    department_id = department_save.pk
+
+                else:
+                    return UnprocessableEntityException(
+                        f"Error validating department: {department_serializer.error_messages}"
+                    )
+
+            user_email = request.data.get("bigquery_user_email")
+            formatted_name = " ".join(
+                word.capitalize()
+                for word in user_email.split("@")[0]
+                .replace("_", " ")
+                .replace(".", " ")
+                .split()
+            )
+
+            user_data = {
+                "email": user_email,
+                "name": formatted_name,
+                "department": department_id,
+            }
+
+            bquser_serializer = BigqueryUserSerializers(data=user_data)
+            if bquser_serializer.is_valid():
+                bquser = bquser_serializer.save()
+                bigquery_user_id = bquser.pk
+            else:
+                return UnprocessableEntityException(
+                    f"Error validating bigquery user: {bquser_serializer.errors}"
+                )
+
+        try:
+            gcp_project_id = GCPProjects.objects.get(
+                identity=request.data.get("gcp_project_id")
+            ).id
+        except GCPProjects.DoesNotExist as e:
+            return NotFoundException(f"GCP project not found: {e}")
+
+        response = {
+            "success": True,
+            "bigquery_user_id": bigquery_user_id,
+            "gcp_project_id": gcp_project_id,
+        }
+
+        return Response(response, status=status.HTTP_200_OK)

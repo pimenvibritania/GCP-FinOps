@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.db.models import Q
 from rest_framework import permissions
 from rest_framework import status
@@ -5,22 +6,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.serializers import (
-    DepartmentSerializer,
-    BigqueryUserSerializers,
     BigqueryCostSerializers,
 )
 from api.utils.decorator import user_is_data
-from api.utils.validator import Validator
-from home.models import BigqueryCost, BigqueryUser, Department, GCPProjects
-
-
-class BlocklistPermission(permissions.BasePermission):
-    """
-    Global permission check for blocked IPs.
-    """
-
-    def has_permission(self, request, view):
-        return True
+from api.utils.exception import NotFoundException
+from api.utils.validator import Validator, BigqueryCostValidator
+from home.models import BigqueryCost
 
 
 class BigqueryCostViews(APIView):
@@ -67,72 +58,17 @@ class BigqueryCostViews(APIView):
 
     @user_is_data
     def post(self, request, *args, **kwargs):
-        try:
-            bigquery_user_id = BigqueryUser.get_id(
-                request.data.get("bigquery_user_email")
-            )
-
-        except BigqueryUser.DoesNotExist as userNotExist:
-            print("BigqueryUser exception:", userNotExist)
-            try:
-                department_id = Department.get_id(request.data.get("department"))
-            except Department.DoesNotExist as departmentNotExist:
-                print("Department exception:", departmentNotExist)
-
-                department = request.data.get("department")
-                words = department.split("-")
-                capitalized_words = [word.capitalize() for word in words]
-                department_name = " ".join(capitalized_words)
-
-                department_data = {
-                    "name": department_name,
-                    "slug": request.data.get("department"),
-                }
-                department_serializer = DepartmentSerializer(data=department_data)
-
-                if department_serializer.is_valid():
-                    department_save = department_serializer.save()
-                    department_id = department_save.pk
-                else:
-                    return "error"
-
-            user_email = request.data.get("bigquery_user_email")
-            formatted_name = " ".join(
-                word.capitalize()
-                for word in user_email.split("@")[0]
-                .replace("_", " ")
-                .replace(".", " ")
-                .split()
-            )
-
-            user_data = {
-                "email": user_email,
-                "name": formatted_name,
-                "department": department_id,
-            }
-
-            bquser_serializer = BigqueryUserSerializers(data=user_data)
-            if bquser_serializer.is_valid():
-                bquser = bquser_serializer.save()
-                bigquery_user_id = bquser.pk
-            else:
-                return bquser_serializer.errors
-
-        try:
-            gcp_project_id = GCPProjects.objects.get(
-                identity=request.data.get("gcp_project_id")
-            ).id
-        except GCPProjects.DoesNotExist as e:
-            response = {"success": False, "message": f"{e}"}
-            return Response(response, status=status.HTTP_404_NOT_FOUND)
+        response = BigqueryCostValidator.validate_request(request)
+        if response.status_code != status.HTTP_200_OK:
+            return Response(response.message, response.status_code)
 
         data = {
             "usage_date": request.data.get("usage_date"),
             "cost": request.data.get("cost"),
             "query_count": request.data.get("query_count"),
             "metabase_user": request.data.get("metabase_user"),
-            "bigquery_user": bigquery_user_id,
-            "gcp_project": gcp_project_id,
+            "bigquery_user": response.data["bigquery_user_id"],
+            "gcp_project": response.data["gcp_project_id"],
         }
 
         serializer = BigqueryCostSerializers(data=data)
@@ -152,3 +88,51 @@ class BigqueryCostViews(APIView):
             {"success": False, "message": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+class BigqueryDetailCostViews(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    @staticmethod
+    def get_object(pk):
+        try:
+            return BigqueryCost.objects.get(pk=pk)
+        except BigqueryCost.DoesNotExist as e:
+            return NotFoundException(f"Bigquery cost with id {pk} is not exist.")
+
+    @user_is_data
+    def put(self, request, pk):
+        cost = self.get_object(pk)
+
+        if isinstance(cost, NotFoundException):
+            return Response(cost.message, status=cost.status_code)
+
+        response = BigqueryCostValidator.validate_request(request)
+        if response.status_code != status.HTTP_200_OK:
+            return Response(response.message, response.status_code)
+
+        data = {
+            "usage_date": request.data.get("usage_date"),
+            "cost": request.data.get("cost"),
+            "query_count": request.data.get("query_count"),
+            "metabase_user": request.data.get("metabase_user"),
+            "bigquery_user": response.data["bigquery_user_id"],
+            "gcp_project": response.data["gcp_project_id"],
+        }
+
+        try:
+            serializer = BigqueryCostSerializers(cost, data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+        except IntegrityError as e:
+            error_response = {"error": f"Duplicate entry: {e}"}
+            return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        cost = self.get_object(pk)
+
+        if isinstance(cost, NotFoundException):
+            return Response(cost.message, status=cost.status_code)
+        return Response(status=status.HTTP_204_NO_CONTENT)
