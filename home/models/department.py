@@ -9,6 +9,9 @@ class Department(BaseModel):
 
     name = models.CharField(max_length=120, blank=False)
     slug = models.CharField(max_length=100, blank=False)
+    email = models.EmailField(
+        max_length=100, blank=False, default="devops-engineer@moladin.com"
+    )
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False, blank=False)
     updated_at = models.DateTimeField(auto_now_add=True, auto_now=False, blank=False)
 
