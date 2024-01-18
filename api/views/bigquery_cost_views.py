@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import Q
 from rest_framework import permissions
@@ -43,9 +44,15 @@ class BigqueryCostViews(APIView):
 
         total_records = bigquery_cost.count()
 
-        bigquery_cost = bigquery_cost.order_by("usage_date")[start : start + length]
+        paginator = Paginator(bigquery_cost, length)
 
-        data = [cost.get_data() for cost in bigquery_cost]
+        bigquery_cost_page = paginator.page((start // length) + 1)
+
+        bigquery_cost_page.object_list = bigquery_cost_page.object_list.select_related(
+            "bigquery_user"
+        )
+
+        data = [cost.get_data() for cost in bigquery_cost_page]
 
         response = {
             "success": True,
