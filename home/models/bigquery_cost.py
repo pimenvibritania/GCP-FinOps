@@ -33,7 +33,7 @@ class BigqueryCost(BaseModel):
             "usage_date": self.usage_date,
             "cost": self.cost,
             "query_count": self.query_count,
-            "bigquery_user": self.bigquery_user.name,
+            "bigquery_user": self.bigquery_user.email,
             "department": self.bigquery_user.department.name,
             "metabase_user": self.metabase_user,
             "gcp_project": self.gcp_project.identity,
