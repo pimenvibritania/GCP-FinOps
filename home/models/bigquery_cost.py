@@ -11,7 +11,7 @@ class BigqueryCost(BaseModel):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["usage_date", "bigquery_user"],
+                fields=["usage_date", "bigquery_user", "gcp_project"],
                 name="unique_bigquery_cost_daily_usage",
             )
         ]
