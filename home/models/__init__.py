@@ -11,3 +11,4 @@ from .kubecost_namespaces import KubecostNamespaces, KubecostNamespacesMap
 from .metric import Metric
 from .services import Services
 from .tech_family import TechFamily
+from .services_db import ServicesDb
