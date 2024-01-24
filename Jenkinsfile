@@ -23,7 +23,7 @@ pipeline {
         gkeZone = "asia-southeast2-a"
         projectName = "moladin-${techFamily}-prod"   
         context = 'gke_moladin-infra-prod_asia-southeast2-a_infra-prod-cluster'
-        consulToken = credentials('consul-stg-token')
+        consulToken = credentials('consul-staging-token')
         consulProdToken = credentials('consul-prod-token')
         gitCommitMsg = sh (script: 'git log -1 --pretty=%B ${GIT_COMMIT}', returnStdout: true).trim()
         gitAuthor = sh (script: 'git show -s --pretty=%an', returnStdout: true).trim()
