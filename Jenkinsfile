@@ -23,7 +23,7 @@ pipeline {
         gkeZone = "asia-southeast2-a"
         projectName = "moladin-${techFamily}-prod"   
         context = 'gke_moladin-infra-prod_asia-southeast2-a_infra-prod-cluster'
-        consulToken = credentials('consul-dev-token')
+        consulToken = credentials('consul-stg-token')
         consulProdToken = credentials('consul-prod-token')
         gitCommitMsg = sh (script: 'git log -1 --pretty=%B ${GIT_COMMIT}', returnStdout: true).trim()
         gitAuthor = sh (script: 'git show -s --pretty=%an', returnStdout: true).trim()
@@ -38,9 +38,9 @@ pipeline {
                         currentBuild.getRawBuild().getExecutor().interrupt(Result.SUCCESS)
                         sleep(1)
                     } else if (env.BRANCH_NAME == "main") {
-                        env.resourceEnv = "production"
-                        env.versioningCode = "prod"
-                        env.consul = "https://consul-gcp.development.jinny.id/v1/kv/${serviceName}/backend"
+                        env.resourceEnv = "development"
+                        env.versioningCode = "devl"
+                        env.consul = "https://consul-gcp.staging.jinny.id/v1/kv/${serviceName}/backend"
                         currentBuild.result = hudson.model.Result.SUCCESS.toString()
                     } else if (env.BRANCH_NAME =~ /PROD.*$/){
                         env.resourceEnv = "release"
@@ -108,10 +108,10 @@ pipeline {
                 }
             }
         }
-        stage ("Deployment") {
+        stage ("Deployment to Development") {
             when {
                 expression {
-                    currentBuild.result == "SUCCESS" && env.resourceEnv == "production"
+                    currentBuild.result == "SUCCESS" && env.resourceEnv == "development"
                 }
             }
             steps {
