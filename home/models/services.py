@@ -31,6 +31,10 @@ class Services(BaseModel):
     @classmethod
     def get_service(cls, project):
         return cls.objects.filter(project=project).values("id", "name")
+    
+    @classmethod
+    def get_service_include_deleted(cls, project):
+        return cls._base_manager.filter(project=project).values("id", "name")
 
     def get_data(self):
         return {

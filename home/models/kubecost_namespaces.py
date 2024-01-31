@@ -107,6 +107,7 @@ class KubecostNamespaces(BaseModel):
                     WHERE
                         kn.service_id IS NULL
                         AND kn.namespace != "moladin-crm-mfe" AND kn.namespace != "moladin-b2c-mfe" AND kn.namespace != "__unmounted__"
+                        AND kn.date BETWEEN '{start_date_prev_week}' AND '{end_date_this_week}'
                     GROUP BY
                         kn.namespace,
                         kn.project,
@@ -142,6 +143,7 @@ class KubecostNamespaces(BaseModel):
                         AND (kd.namespace = "moladin-crm-mfe" OR kd.namespace = "moladin-b2c-mfe")
                         AND kd.deployment is not null
                         AND kd.deployment != '__unallocated__'
+                        AND kd.date BETWEEN '{start_date_prev_week}' AND '{end_date_this_week}'
                     GROUP BY
                     	kd.deployment,
                         kd.project,
