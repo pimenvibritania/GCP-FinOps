@@ -1,0 +1,47 @@
+Index: api/models/index_weight.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/api/models/index_weight.py b/api/models/index_weight.py
+--- a/api/models/index_weight.py	
++++ b/api/models/index_weight.py	(date 1706596576843)
+@@ -318,7 +318,7 @@
+             .select_related("service__tech_family")
+         )
+         be_aggregated_data = be_queryset.values(
+-            "service__tech_family__slug", "environment"
++            "service__tech_family__slug", "environment", "project"
+         ).annotate(total_cost_sum=Sum("total_cost"))
+ 
+         backend_data = {}
+@@ -333,15 +333,24 @@
+             )
+             environment = entry["environment"]
+             total_cost_sum = entry["total_cost_sum"]
++            print(entry)
++            project = entry["project"]
+ 
+             if tech_family_slug == "shared_cost":
+                 continue
+ 
+-            backend_data
+-            backend_data[tech_family_slug] = backend_data.get(tech_family_slug, {})
+-            backend_data[tech_family_slug][environment] = backend_data[
+-                tech_family_slug
+-            ].get(environment, total_cost_sum)
++            backend_data[project] = backend_data.get(project, {})
++            backend_data[project][tech_family_slug] = backend_data[project].get(
++                tech_family_slug, {}
++            )
++            backend_data[project][tech_family_slug][environment] = backend_data[
++                project
++            ][tech_family_slug].get(environment, total_cost_sum)
++
++            backend_data[project]["__total"] = backend_data[project].get("__total", {})
++            backend_data[project]["__total"][environment] = (
++                backend_data[project]["__total"].get(environment, 0) + total_cost_sum
++            )
+ 
+         print(backend_data)
+         # data.append(

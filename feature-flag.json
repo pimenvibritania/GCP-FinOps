@@ -50,5 +50,43 @@
       "platform_mfi"
     ]
   },
-  "excluded_tag_key_mdi": []
+  "excluded_tag_key_mdi": [],
+  "shared_cost_namespaces": [
+    "__idle__",
+    "default",
+    "goldilocks",
+    "ingress-nginx",
+    "kube-system",
+    "kubecost",
+    "loki",
+    "monitoring",
+    "sdet",
+    "tools",
+    "uptime-kuma",
+    "__unmounted__",
+    "elasticsearch-stag",
+    "haproxy-db-blog",
+    "elastic-system",
+    "loki-new",
+    "haproxy-wholesale",
+    "haproxy-platform",
+    "excalidraw-app",
+    "elasticsearch-prod",
+    "haproxy-db-blog",
+    "haproxy-db-shlink",
+    "haproxy-frame",
+    "haproxy-redis",
+    "haproxy-refi",
+    "debezium",
+    "monitoring-sdet",
+    "elastic-system",
+    "rabbitmq-system",
+    "sonarqube-nginx",
+    "pod-restart-alert",
+    "mofi-automation",
+    "mantis"
+  ],
+  "frontend_namespaces": [
+    "moladin-crm-mfe"
+  ]
 }

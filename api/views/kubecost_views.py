@@ -1,18 +1,21 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status, permissions
-from ..serializers import (
-    KubecostClusterSerializer,
-    KubecostDeploymentSerializer,
-    KubecostNamespaceMapSerializer,
-)
 from django.db import IntegrityError
+from rest_framework import status, permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from home.models import KubecostNamespaces
 from ..models.kubecost import (
     get_kubecost_cluster,
     get_namespace_map,
     KubecostReport,
     KubecostInsertData,
     KubecostCheckStatus,
+)
+from ..serializers import (
+    KubecostClusterSerializer,
+    KubecostDeploymentSerializer,
+    KubecostNamespaceMapSerializer,
+    KubecostNamespaceSerializer,
 )
 from ..utils.decorator import user_is_admin
 
@@ -136,11 +139,12 @@ class KubecostNamespaceViews(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        start_date = request.GET.get("start_date")
-        end_date = request.GET.get("end_date")
+        queryset = KubecostNamespaces.objects.filter(date="2023-07-01").select_related(
+            "service__tech_family"
+        )
+        serializer = KubecostNamespaceSerializer(queryset, many=True)
 
-        data = {"date": [start_date, end_date]}
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(serializer.data)
 
 
 class KubecostReportViews(APIView):

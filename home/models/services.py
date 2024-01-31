@@ -1,8 +1,8 @@
 from django.db import models
-from ..utils.enumerate import ProjectType, ServiceType
-from .tech_family import TechFamily
-from django.db.models import Q
+
 from home.models.base_model import BaseModel
+from .tech_family import TechFamily
+from ..utils.enumerate import ProjectType, ServiceType
 
 
 class Services(BaseModel):
@@ -30,7 +30,9 @@ class Services(BaseModel):
 
     @classmethod
     def get_service(cls, project):
-        return cls.objects.filter(project=project).values("id", "name")
+        return cls.objects.filter(project=project).values(
+            "id", "name", "tech_family__slug"
+        )
 
     def get_data(self):
         return {

@@ -63,6 +63,8 @@ class KubecostClusterSerializer(serializers.ModelSerializer):
 
 
 class ServiceSerializer(serializers.ModelSerializer):
+    tech_family = TechFamilySerializer()
+
     class Meta:
         model = Services
         fields = [
@@ -97,6 +99,8 @@ class KubecostDeploymentSerializer(serializers.ModelSerializer):
 
 
 class KubecostNamespaceSerializer(serializers.ModelSerializer):
+    service = ServiceSerializer()
+
     class Meta:
         model = KubecostNamespaces
         fields = [
