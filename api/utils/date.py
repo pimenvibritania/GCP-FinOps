@@ -12,6 +12,9 @@ class Date:
         elif period == "monthly":
             current_week = est_date - timedelta(days=29)
             previous_week = current_week - timedelta(days=30)
+        elif period == "daily":
+            current_week = est_date - timedelta(days=1)
+            previous_week = current_week - timedelta(days=2)
 
         current_week_to = current_week - timedelta(days=1)
 

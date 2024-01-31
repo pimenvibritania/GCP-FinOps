@@ -170,6 +170,7 @@ pipeline {
                         sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/cms-create-report-prod cms-create-report-prod=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-prod"
                         sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/cms-create-report-by-sku cms-create-report-by-sku=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-by-sku"
                         sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/cms-sync-gcp-cost cms-sync-gcp-cost=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-gcp-cost-prod"
+                        sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/kubecost_check_uncategorized kubecost_check_uncategorized=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER}"
                         currentBuild.result = 'SUCCESS'
                     } catch(e) {
                         currentBuild.result = 'FAILURE'

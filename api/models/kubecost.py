@@ -102,7 +102,7 @@ class KubecostInsertData:
 
     @staticmethod
     def get_service_list(project):
-        rows = Services.get_service(project)
+        rows = Services.get_service_include_deleted(project)
         data = []
         namespaces = []
         for row in rows:
