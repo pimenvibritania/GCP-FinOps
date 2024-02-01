@@ -4,7 +4,8 @@ from django.views.generic import TemplateView
 from api.views.bigquery_cost_views import (
     BigqueryCostViews,
     BigqueryDetailCostViews,
-    BigQueryUserPeriodicalCost,
+    BigQueryUserPeriodicalCostViews,
+    BigQueryCostReportViews,
 )
 from api.views.bigquery_views import (
     BigQueryPeriodicalCost,
@@ -42,8 +43,9 @@ urlpatterns = [
     path("gcp/projects", GCPProjectViews.as_view()),
     path("gcp/costs", GCPCostViews.as_view()),
     path("gcp/bigquery", BigqueryCostViews.as_view()),
+    path("gcp/bigquery/report", BigQueryCostReportViews.as_view()),
     path("gcp/bigquery/<int:pk>", BigqueryDetailCostViews.as_view()),
-    path("gcp/bigquery/cost", BigQueryUserPeriodicalCost.as_view()),
+    path("gcp/bigquery/cost", BigQueryUserPeriodicalCostViews.as_view()),
     path("gcp/sync/services", SyncGCPServices.as_view()),
     path("gcp/sync/projects", SyncGCPProjects.as_view()),
     path("gcp/sync/costs", SyncGCPCosts.as_view()),

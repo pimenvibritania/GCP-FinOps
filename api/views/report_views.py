@@ -1,18 +1,19 @@
-import datetime
 import asyncio
+import datetime
+import json
+
+from django.core.cache import cache
+from django.template.loader import render_to_string
+from httpx import AsyncClient
+
+from api.models.__constant import *
 from api.models.bigquery import BigQuery
 from api.models.kubecost import KubecostReport
-from api.models.__constant import *
 from api.utils.conversion import Conversion
+from api.utils.crypter import *
 from api.utils.decorator import *
 from api.utils.generator import random_string, pdf
 from api.utils.logger import Logger
-from api.utils.crypter import *
-from httpx import AsyncClient
-from django.http import JsonResponse
-from django.template.loader import render_to_string
-from django.core.cache import cache
-import json
 
 
 @async_date_validator
@@ -302,10 +303,7 @@ def formatting_report(request, payload_data):
         context["project_name"] = project_name
 
         if data not in KUBECOST_PROJECT:
-
-            cost_period = bigquery_payload[data]["data"]["summary"][
-                "cost_period"
-            ]
+            cost_period = bigquery_payload[data]["data"]["summary"]["cost_period"]
 
             current_total_idr_gcp = bigquery_payload[data]["data"]["summary"][
                 "current_period"
@@ -398,10 +396,14 @@ def formatting_report(request, payload_data):
 
             if cost_period == "weekly":
                 limit_budget = limit_budget_weekly
-                alert_message = f"Your Weekly GCP Budget Exceeded! Please Review Spending!"
+                alert_message = (
+                    f"Your Weekly GCP Budget Exceeded! Please Review Spending!"
+                )
             else:
                 limit_budget = limit_budget_monthly
-                alert_message = "Your Monthly GCP Budget Exceeded! Please Review Spending!"
+                alert_message = (
+                    "Your Monthly GCP Budget Exceeded! Please Review Spending!"
+                )
 
             table_template_gcp += "</tbody>\n</table>"
             context_gcp = {

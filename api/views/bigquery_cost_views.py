@@ -1,19 +1,18 @@
 from django.core.paginator import Paginator
 from django.db import IntegrityError
-from django.db.models import Q, Sum, FloatField, F
-from django.db.models.functions import Coalesce
-from django.http import JsonResponse
+from django.db.models import Q
 from rest_framework import permissions, generics
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from api.models.bigquery_cost import BigqueryCost as APIBigqueryCost
+from api.models.bigquery_cost import BigqueryCost as ApiBigqueryCost
 from api.serializers import (
     BigqueryCostSerializers,
 )
-from api.utils.bigquery_cost import get_result_list, get_user_list
-from api.utils.date import Date
-from api.utils.decorator import user_is_data, date_validator
+from api.utils.bigquery_cost import formatting_report
+from api.utils.decorator import user_is_data, date_validator, user_is_admin
 from api.utils.exception import NotFoundException
 from api.utils.validator import Validator, BigqueryCostValidator
 from home.models import BigqueryCost
@@ -151,7 +150,7 @@ class BigqueryDetailCostViews(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class BigQueryUserPeriodicalCost(generics.ListAPIView):
+class BigQueryUserPeriodicalCostViews(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     @user_is_data
@@ -162,118 +161,28 @@ class BigQueryUserPeriodicalCost(generics.ListAPIView):
         if not date:
             return Response({"error": "Date parameter is required."}, status=400)
 
-        validated_date = Validator.date(date)
-        if validated_date.status_code != status.HTTP_200_OK:
-            return JsonResponse(
-                {"message": validated_date.message}, status=validated_date.status_code
-            )
+        try:
+            get_periodical_cost = ApiBigqueryCost.get_periodical_cost(date)
+        except Exception as e:
+            return Response(e, status=status.HTTP_400_BAD_REQUEST)
 
-        (
-            current_period_from,
-            current_period_to,
-            previous_period_from,
-            previous_period_to,
-        ) = Date.get_date_range(date, "weekly")
+        response = {
+            "success": True,
+            "data": get_periodical_cost,
+        }
+        return Response(response, status=status.HTTP_200_OK)
 
-        # Query for the current period
-        queryset_current = (
-            BigqueryCost.objects.filter(
-                usage_date__range=[current_period_from, current_period_to]
-            )
-            .values(
-                department_name=F("bigquery_user__department__name"),
-                department_email=F("bigquery_user__department__email"),
-                department_slug=F("bigquery_user__department__slug"),
-            )
-            .annotate(
-                sum_cost=Coalesce(
-                    Sum("cost", output_field=FloatField()), 0, output_field=FloatField()
-                )
-            )
+
+class BigQueryCostReportViews(APIView):
+    @user_is_admin
+    @date_validator
+    def post(self, request, *args, **kwargs):
+        date = request.GET.get("date")
+
+        cost_data = APIBigqueryCost.get_periodical_cost(date)
+
+        formatting_report(request, cost_data["data"], date)
+        return Response(
+            {"success": False, "data": cost_data},
+            status=status.HTTP_400_BAD_REQUEST,
         )
-
-        # Query for the previous period
-        queryset_previous = (
-            BigqueryCost.objects.filter(
-                usage_date__range=[previous_period_from, previous_period_to]
-            )
-            .values(
-                department_name=F("bigquery_user__department__name"),
-                department_email=F("bigquery_user__department__email"),
-                department_slug=F("bigquery_user__department__slug"),
-            )
-            .annotate(
-                sum_cost=Coalesce(
-                    Sum("cost", output_field=FloatField()), 0, output_field=FloatField()
-                )
-            )
-        )
-
-        # Get result lists for current and previous periods
-        current_result_list = get_result_list(
-            queryset_current, f"{current_period_from} - {current_period_to}"
-        )
-        previous_result_list = get_result_list(
-            queryset_previous, f"{previous_period_from} - {previous_period_to}"
-        )
-
-        current_period_costs_mfi = {}
-        for row in current_result_list:
-            current_period_costs_mfi[
-                (
-                    row["department_name"],
-                    row["department_email"],
-                    row["department_slug"],
-                )
-            ] = row["sum_cost"]
-
-        previous_period_costs_mfi = {}
-        for row in previous_result_list:
-            previous_period_costs_mfi[
-                (
-                    row["department_name"],
-                    row["department_email"],
-                    row["department_slug"],
-                )
-            ] = row["sum_cost"]
-
-        combined_result_list = []
-        for department_name, department_email, department_slug in set(
-            current_period_costs_mfi.keys()
-        ).union(previous_period_costs_mfi.keys()):
-            current_period_cost = current_period_costs_mfi.get(
-                (department_name, department_email, department_slug), 0
-            )
-            previous_period_cost = previous_period_costs_mfi.get(
-                (department_name, department_email, department_slug), 0
-            )
-            cost_difference = current_period_cost - previous_period_cost
-            cost_status = "UP" if current_period_cost > previous_period_cost else "DOWN"
-
-            current_user_list = get_user_list(
-                current_period_from, current_period_to, department_slug
-            )
-            previous_user_list = get_user_list(
-                previous_period_from, previous_period_to, department_slug
-            )
-
-            combined_result_list.append(
-                {
-                    "department_name": department_name,
-                    "department_email": department_email,
-                    "cost_current": {
-                        "date_range": f"{current_period_from} - {current_period_to}",
-                        "cost": current_period_cost,
-                        "user_data": current_user_list,
-                    },
-                    "cost_previous": {
-                        "date_range": f"{previous_period_from} - {previous_period_to}",
-                        "cost": previous_period_cost,
-                        "user_data": previous_user_list,
-                    },
-                    "cost_status": cost_status,
-                    "cost_difference": cost_difference,
-                }
-            )
-
-        return Response(combined_result_list, status=status.HTTP_200_OK)
