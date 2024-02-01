@@ -1,0 +1,117 @@
+{% autoescape off %}
+    <!DOCTYPE html>
+    <html lang=''>
+    <head>
+        <style>
+            @page {
+                size: Letter;
+                margin: 0.44in;
+                font-size: 12px;
+            }
+
+            @font-face {
+                font-size: 12px;
+            }
+
+            body {
+                font-size: 12px;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            th, td {
+                padding: 8px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
+
+            .alert {
+                font-family: -apple-system, BlinkMacSystemFont, 'Roboto', 'Segoe UI', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+                min-height: 38px;
+                padding: 12px 15px 15px;
+                margin: 5px auto;
+                border-radius: 4px;
+                border-left: 4px solid;
+                opacity: 1;
+                transition: opacity 0.6s;
+                max-width: 90%
+            }
+
+            .tip {
+                background: #fff5e6;
+                color: #ff9800;
+                border-color: #ff9800;
+            }
+        </style>
+        <title>Cost Report</title>
+    </head>
+    <body>
+    <p><strong>Trial</strong> - Cost reminder</p>
+    <p>Dear all,<br/>
+        We hope this email finds you well. <br/>
+        As part of our commitment to transparency and to keep you informed about our cloud infrastructure expenses.
+        <br/>
+        We are pleased to share with you the summary of our Google Cloud Platform (GCP) - BIGQUERY cost usage and costs
+        for the period
+        of period.
+        <br/>Please find the cost status and comparison details below:</p>
+    <p><strong>Department</strong>: {{ department }}</p>
+    <hr/>
+
+    <div class='alert tip'>
+        <b>Warning</b>
+        <br>
+        We want to be transparent about the status of the report and provide you with the most up-to-date information.
+        To keep you informed about any adjustments or additional details about change log, you can access the release
+        notes by clicking this <a
+            href='https://moladin.atlassian.net/wiki/spaces/IN/pages/815464567/Change+Log'>link</a> .
+    </div>
+
+    <u><h3>DETAIL COST</h3></u>
+
+    <p><strong>Cost status</strong> : {{ cost_status }}</p>
+    <strong>Summary cost comparison: ({{ date_range }}) </strong>
+    <p>Previous period : {{ previous_total }} USD<br/>
+        This period: <strong>{{ current_total }} USD</strong><br/>
+        Your cost difference from previous period: <strong>{{ cost_difference }} USD</strong>
+        <br/>
+    <p><strong>Detailed of User Cost on current period:</strong></p>
+    {{ user_detail_current }}
+    <hr/>
+
+    <p><strong>Detailed of User Cost on previous period:</strong></p>
+    {{ user_detail_previous }}
+    <hr/>
+    
+    Note: We are thrilled to share a sneak peek of an exciting new feature that will be arriving in our next update!
+    Our development team has been hard at work to bring you enhanced cost acuration and detailed cost breakdown per
+    environment, providing you with unparalleled visibility into your GCP Services. Thankyou!
+    <hr/>
+
+    <p>We understand the significance of cost management and aim to keep you informed about any fluctuations to ensure
+        transparency and accountability.
+        As part of our efforts to offer better insights, we have integrated a weighted analysis of our services.
+        This weighting mechanism, based on the parameters provided in the spreadsheet <a
+                href='https://docs.google.com/spreadsheets/d/1L9XDJa4yDsSSEy26RwbNQEOFvvf6t43VuC74VRZctkA/edit#gid=0'
+                target='_blank' rel='noopener noreferrer'>Living Documents - Moladin Service List</a> helps us identify
+        key cost drivers and understand their impact on the overall cost structure.
+        This approach enables us to focus on areas that require attention and optimize costs effectively to every tech
+        family on Moladin.
+        <br/>
+        If you have any questions or concerns regarding the cost differences or any other related matter,
+        please feel free to reach out to our dedicated support team at [contact email/phone].</p>
+    Thank you for your attention to this matter. We appreciate your continued trust and partnership.</p>
+
+    <p><br/>
+        Best Regards,<br/>
+        Infra Team</p>
+    </body>
+    </html>
+{% endautoescape %}

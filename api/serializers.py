@@ -211,6 +211,13 @@ class BigqueryUserSerializers(serializers.ModelSerializer):
         fields = ["name", "email", "department"]
 
 
+class BigqueryUserCostSerializers(serializers.Serializer):
+    username = serializers.CharField()
+    department_slug = serializers.CharField()
+    project = serializers.CharField()
+    sum_cost = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+
 class BigqueryCostSerializers(serializers.ModelSerializer):
     bigquery_user = serializers.PrimaryKeyRelatedField(
         queryset=BigqueryUser.objects.all(), many=False

@@ -159,6 +159,7 @@ def mail_validator(view_func):
     async def _wrapped_view(request, *args, **kwargs):
         to_email = args[1]
         mail_env = request.GET.get("send-mail")
+
         if mail_env is None:
             return JsonResponse(
                 {"success": False, "message": "Not sending email"}, status=404
@@ -179,6 +180,10 @@ def mail_validator(view_func):
                 ],
             },
         }
+
+        if request.GET.get("data-team"):
+            data = data["prod"]["cc"] + ["praz@moladin.com", "data-team@moladin.com"]
+
         if mail_env not in ["devl", "prod"]:
             return JsonResponse(
                 {"success": False, "message": "Mail env not match, email not sending"},
