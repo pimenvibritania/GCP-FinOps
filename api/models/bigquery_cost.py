@@ -3,6 +3,7 @@ from django.db.models.functions import Coalesce
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 
+from api.serializers import BigqueryUserCostSerializers
 from api.utils.bigquery_cost import get_result_list, get_user_list
 from api.utils.date import Date
 from api.utils.validator import Validator
@@ -98,12 +99,22 @@ class BigqueryCost:
             cost_difference = current_period_cost - previous_period_cost
             cost_status = "UP" if current_period_cost > previous_period_cost else "DOWN"
 
-            current_user_list = get_user_list(
+            current_user = get_user_list(
                 current_period_from, current_period_to, department_slug
             )
-            previous_user_list = get_user_list(
+            previous_user = get_user_list(
                 previous_period_from, previous_period_to, department_slug
             )
+
+            current_user_serializer = BigqueryUserCostSerializers(
+                current_user, many=True
+            )
+            previous_user_serializer = BigqueryUserCostSerializers(
+                previous_user, many=True
+            )
+
+            current_user_list = current_user_serializer.data
+            previous_user_list = previous_user_serializer.data
 
             combined_result_list.append(
                 {

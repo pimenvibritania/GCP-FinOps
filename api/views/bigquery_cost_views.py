@@ -1,6 +1,10 @@
+import asyncio
+
+import requests
 from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import Q
+from django.http import JsonResponse
 from rest_framework import permissions, generics
 from rest_framework import status
 from rest_framework.response import Response
@@ -12,10 +16,16 @@ from api.serializers import (
     BigqueryCostSerializers,
 )
 from api.utils.bigquery_cost import formatting_report
-from api.utils.decorator import user_is_data, date_validator, user_is_admin
+from api.utils.decorator import user_is_data, date_validator
 from api.utils.exception import NotFoundException
 from api.utils.validator import Validator, BigqueryCostValidator
 from home.models import BigqueryCost
+
+
+def make_api_call(url):
+    response = requests.get(url)
+    # Process response data as needed
+    return response.json()  # Or other relevant data
 
 
 class BigqueryCostViews(APIView):
@@ -173,16 +183,19 @@ class BigQueryUserPeriodicalCostViews(generics.ListAPIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-class BigQueryCostReportViews(APIView):
-    @user_is_admin
-    @date_validator
-    def post(self, request, *args, **kwargs):
-        date = request.GET.get("date")
+async def create_data_report(request):
+    date = request.GET.get("date")
+    loop = asyncio.get_event_loop()
 
-        cost_data = APIBigqueryCost.get_periodical_cost(date)
+    async_tasks = [
+        loop.run_in_executor(None, APIBigqueryCost.get_periodical_cost, date),
+    ]
 
-        formatting_report(request, cost_data["data"], date)
-        return Response(
-            {"success": False, "data": cost_data},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    cost_data = await asyncio.gather(*async_tasks)
+
+    formatting_report(request, cost_data, date)
+
+    return JsonResponse(
+        {"success": True, "message": "Report email sent!", "data": cost_data},
+        status=200,
+    )

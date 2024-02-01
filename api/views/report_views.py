@@ -222,9 +222,22 @@ async def send_mail(
 
 
 async def send_email_task(
-    request, subject, to_email, template_path, context, em_name, tech_family, no_telp
+    request,
+    subject,
+    to_email,
+    template_path,
+    context,
+    em_name=None,
+    tech_family=None,
+    no_telp=None,
+    send_wa=True,
+    logger=True,
 ):
     email_content = render_to_string(template_path, context)
+
+    if em_name is None:
+        em_name = "Data"
+
     pdf_filename = (
         f"{tech_family}-{em_name}-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
     )
@@ -238,7 +251,6 @@ async def send_email_task(
     pdf_password = random_string(32)
 
     pdf_link, pdf_file = pdf(pdf_filename, pdf_content, pdf_password)
-    # print(pdf_link, pdf_file, pdf_password)
     encrypted_pdf_pass = encrypt(pdf_password)
 
     password_html = f"""
@@ -247,15 +259,17 @@ async def send_email_task(
         <strong>Your PDF password is: {pdf_password}</strong>
     """
     email_content += password_html
-    await Logger.log_report(
-        created_by="Admin",
-        tech_family=tech_family,
-        metadata=request.META,
-        link=pdf_link,
-        pdf_password=encrypted_pdf_pass,
-    )
+    if logger:
+        await Logger.log_report(
+            created_by="Admin",
+            tech_family=tech_family,
+            metadata=request.META,
+            link=pdf_link,
+            pdf_password=encrypted_pdf_pass,
+        )
     await send_mail(request, subject, to_email, pdf_filename, pdf_file, email_content)
-    await send_whatsapp(request, subject, context, no_telp, pdf_link, pdf_password)
+    if send_wa:
+        await send_whatsapp(request, subject, context, no_telp, pdf_link, pdf_password)
 
     os.remove(pdf_file)
 
