@@ -182,7 +182,7 @@ async def send_email_task(
         "devl": {
             "from": os.getenv("FROM_MAIL_DEV"),
             "to": os.getenv("TO_MAIL_DEV"),
-            "cc": os.getenv("TO_MAIL_DEV"),
+            "cc": os.getenv("CC_MAIL_DEV"),
         },
         "prod": {
             "from": "DevOps Engineer <noreply@moladin.com>",

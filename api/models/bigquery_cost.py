@@ -122,16 +122,16 @@ class BigqueryCost:
                     "department_email": department_email,
                     "cost_current": {
                         "date_range": f"{current_period_from} - {current_period_to}",
-                        "cost": current_period_cost,
+                        "cost": round(current_period_cost, 2),
                         "user_data": current_user_list,
                     },
                     "cost_previous": {
                         "date_range": f"{previous_period_from} - {previous_period_to}",
-                        "cost": previous_period_cost,
+                        "cost": round(previous_period_cost, 2),
                         "user_data": previous_user_list,
                     },
                     "cost_status": cost_status,
-                    "cost_difference": cost_difference,
+                    "cost_difference": round(cost_difference, 2),
                 }
             )
 
