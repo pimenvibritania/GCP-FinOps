@@ -57,6 +57,7 @@ def formatting_report(request, payload_data, date):
         cost_difference = data["cost_difference"]
         percent_status = Conversion.get_percentage(current_total, previous_total)
         date_range = data["cost_current"]["date_range"]
+        previous_date_range = data["cost_previous"]["date_range"]
 
         if current_total > previous_total:
             subject = f"!!! Hi {department_name} Team, BEWARE of Your Bigquery Cost on {date} !!!"
@@ -132,6 +133,7 @@ def formatting_report(request, payload_data, date):
         context["previous_total"] = previous_total
         context["current_total"] = current_total
         context["date_range"] = date_range
+        context["previous_date"] = previous_date_range
         context["cost_difference"] = cost_difference
         context["user_detail_current"] = user_table_current
         context["user_detail_previous"] = user_table_previous

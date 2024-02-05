@@ -172,7 +172,7 @@ class BigQueryUserPeriodicalCostViews(generics.ListAPIView):
             return Response({"error": "Date parameter is required."}, status=400)
 
         try:
-            get_periodical_cost = ApiBigqueryCost.get_periodical_cost(date)
+            get_periodical_cost, _ = ApiBigqueryCost.get_periodical_cost(date)
         except Exception as e:
             return Response(e, status=status.HTTP_400_BAD_REQUEST)
 

@@ -82,14 +82,14 @@
         This period: <strong>{{ current_total }} USD</strong><br/>
         Your cost difference from previous period: <strong>{{ cost_difference }} USD</strong>
         <br/>
-    <p><strong>Detailed of User Cost on current period:</strong></p>
+    <p><strong>Detailed of User Cost on current period ({{ date_range }}):</strong></p>
     {{ user_detail_current }}
     <hr/>
 
-    <p><strong>Detailed of User Cost on previous period:</strong></p>
+    <p><strong>Detailed of User Cost on previous period ({{ previous_date }}):</strong></p>
     {{ user_detail_previous }}
     <hr/>
-    
+
     Note: We are thrilled to share a sneak peek of an exciting new feature that will be arriving in our next update!
     Our development team has been hard at work to bring you enhanced cost acuration and detailed cost breakdown per
     environment, providing you with unparalleled visibility into your GCP Services. Thankyou!
