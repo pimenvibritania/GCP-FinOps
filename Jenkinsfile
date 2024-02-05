@@ -97,7 +97,7 @@ pipeline {
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-devl"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-prod"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-data-report-prod"
-                        sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-data-report-by-sku"
+                        sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-by-sku"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-gcp-cost-prod"
                         currentBuild.result = 'SUCCESS'
                     } catch(e) {
