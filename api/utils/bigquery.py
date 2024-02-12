@@ -131,6 +131,7 @@ def mapping_new_service(
     cost_status_percentage,
     project_family,
     tf,
+    tag=None,
 ):
     new_svc = {
         "name": service_name,
@@ -187,7 +188,10 @@ def mapping_new_service(
             found_dict["cost_services"][index]["cost_difference"] = calculated_diff_cost
             found_dict["cost_services"][index][
                 "cost_status_percent"
-            ] += cost_status_percentage
+            ] = Conversion.get_percentage(
+                found_dict["cost_services"][index]["cost_this_period"],
+                found_dict["cost_services"][index]["cost_prev_period"],
+            )
             found_dict["cost_services"][index]["index_weight"] = f"{current_iw} %"
         else:
             found_dict["cost_services"].extend(new_svc["cost_services"])
@@ -278,6 +282,7 @@ def mapping_services(
     """
 
     excluded_services_tf = EXCLUDED_GCP_SERVICES[service_id]
+
     is_excluded_service = True if len(excluded_services_tf) != 0 else False
 
     if tag != "untagged":
@@ -286,7 +291,7 @@ def mapping_services(
             if organization == "MFI"
             else EXCLUDED_GCP_TAG_KEY_MDI.get(tag)
         )
-        is_excluded_tag = True if len(excluded_tag_tf) != 0 else False
+        is_excluded_tag = True if not None else False
     else:
         is_excluded_tag = False
         excluded_tag_tf = []
@@ -297,9 +302,6 @@ def mapping_services(
         included_services_tf = list(
             set(tech_family_projects) - set(excluded_services_tf)
         )
-
-        tag_tf = list(set(tech_family_projects) - set(excluded_tag_tf))
-        included_tag_tf = [item for item in tag_tf if item in included_services_tf]
 
         if tf in excluded_services_tf:
             current_separated_cost = current_cost / len(included_services_tf)
@@ -336,6 +338,9 @@ def mapping_services(
             previous_cost = 0
             weight_index_percent = 0
         elif tf in excluded_tag_tf and tag != "untagged":
+            tag_tf = list(set(tech_family_projects) - set(excluded_tag_tf))
+            included_tag_tf = [item for item in tag_tf if item in included_services_tf]
+
             current_separated_cost = current_cost / len(included_tag_tf)
             previous_separated_cost = previous_cost / len(included_tag_tf)
             separated_weight_index_percent = weight_index_percent / len(included_tag_tf)
@@ -386,6 +391,7 @@ def mapping_services(
         cost_status_percentage,
         project_family,
         tf,
+        tag,
     )
 
     return new_project_family, new_project_family[tf]
