@@ -47,11 +47,21 @@ def main():
         
         response_data = response.json()
         unregistered_services = response_data['UNREGISTERED']['data']['services']
-        
+
+        ignored_services = [
+            '__idle__', 
+            'moladin-crm-lefi-dashboard-banner-mfe',
+            'moladin-crm-md-inventory-verification-mfe'
+        ]
+
         messsages = "<!here> *Kubecost Uncategorized Service Report!* :rotating_light:\n ```Namespace/Deployment: [Clusters List]\n\n"
+
         for svc in unregistered_services:
             service_name = svc['service_name']
             clusters = [data['cluster_name'] for data in svc['data']]
+
+            if any(ignored_service in service_name for ignored_service in ignored_services):
+                continue
 
             messsages += f"{service_name}: {clusters}\n"
         
