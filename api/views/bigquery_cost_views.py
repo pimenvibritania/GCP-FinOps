@@ -1,6 +1,5 @@
-import asyncio
-
 import requests
+from asgiref.sync import sync_to_async
 from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import Q
@@ -10,7 +9,6 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.models.bigquery_cost import BigqueryCost as APIBigqueryCost
 from api.models.bigquery_cost import BigqueryCost as ApiBigqueryCost
 from api.serializers import (
     BigqueryCostSerializers,
@@ -183,15 +181,15 @@ class BigQueryUserPeriodicalCostViews(generics.ListAPIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+@sync_to_async
+def get_cost(date):
+    return ApiBigqueryCost.get_periodical_cost(date)
+
+
 async def create_data_report(request):
     date = request.GET.get("date")
-    loop = asyncio.get_event_loop()
 
-    async_tasks = [
-        loop.run_in_executor(None, APIBigqueryCost.get_periodical_cost, date),
-    ]
-
-    cost_data = await asyncio.gather(*async_tasks)
+    cost_data = await get_cost(date)
 
     formatting_report(request, cost_data, date)
 

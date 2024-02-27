@@ -46,7 +46,7 @@ def formatting_report(request, payload_data, date):
     loop = asyncio.get_event_loop()
     tasks = []
 
-    for data in payload_data[0]:
+    for data in payload_data:
         context = {}
         department_name = data["department_name"]
         to_email = data["department_email"]
