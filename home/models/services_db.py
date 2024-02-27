@@ -20,6 +20,9 @@ class ServicesDb(BaseModel):
     service = models.ForeignKey(Services, on_delete=models.PROTECT, null=True)
     project = models.CharField(max_length=12, choices=ProjectType.choices())
     environment = models.CharField(max_length=12, choices=EnvironmentType.choices())
+    instance_id = models.CharField(max_length=100, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, auto_now=False, null=True)
+    updated_at = models.DateTimeField(auto_now=False, null=True)
   
     def __str__(self):
         return self.db_name
