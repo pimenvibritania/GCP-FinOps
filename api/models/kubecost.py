@@ -667,7 +667,7 @@ class KubecostCheckStatus:
 
         for gke in kubecost_clusters:
             cluster_name = gke.cluster_name
-            if cluster_name == "shared-devl-cluster": continue # skip shared-devl-cluster (already shutdown)
+            if cluster_name == "shared-devl-cluster" or cluster_name == "shared-stag-regional-cluster": continue # skip shared-devl-cluster (already shutdown)
             location = gke.location
             gcp_project = gke.gcp_project
             kube_context = f"gke_{gcp_project}_{location}_{cluster_name}"
