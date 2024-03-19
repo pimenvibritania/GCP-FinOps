@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from os import getenv
 
 import requests
@@ -17,8 +17,8 @@ auth_credentials = (CRONJOB_USER, CRONJOB_PASSWORD)
 
 today = datetime.now()
 today_formatted = today.strftime("%Y-%m-%d")
-# yesterday = today - timedelta(days=1)
-# yesterday_formatted = yesterday.strftime("%Y-%m-%d")
+yesterday = today - timedelta(days=1)
+yesterday_formatted = yesterday.strftime("%Y-%m-%d")
 
 url = f"{APP_URL}/api/index-weight"
 slack_url = (
@@ -26,7 +26,7 @@ slack_url = (
 )
 
 try:
-    data = {"date": today_formatted}
+    data = {"date": yesterday_formatted}
     response = requests.post(url, data=data, auth=auth_credentials)
     if response.status_code == 200:
         response_data = response.json()
