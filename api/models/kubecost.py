@@ -102,7 +102,7 @@ class KubecostInsertData:
 
     @staticmethod
     def get_service_list(project):
-        rows = Services.get_service(project)
+        rows = Services.get_service_include_deleted(project)
         data = []
         namespaces = []
         for row in rows:
@@ -172,7 +172,7 @@ class KubecostInsertData:
 
             if namespace in service_list[0]:
                 service_id = service_list[1][namespace]
-                service_instance = Services.objects.get(id=service_id)
+                service_instance = Services._base_manager.get(id=service_id)
                 data_list.append(
                     {
                         "namespace": namespace,
@@ -192,7 +192,7 @@ class KubecostInsertData:
             else:
                 if namespace in service_multiple_ns[0]:
                     service_id = service_multiple_ns[1][namespace]
-                    service_instance = Services.objects.get(id=service_id)
+                    service_instance = Services._base_manager.get(id=service_id)
                     data_list.append(
                         {
                             "namespace": namespace,
@@ -299,12 +299,12 @@ class KubecostInsertData:
             if namespace != "moladin-crm-mfe" or namespace != "moladin-b2c-mfe":
                 if namespace in service_list[0]:
                     service_id = service_list[1][namespace]
-                    service_instance = Services.objects.get(id=service_id)
+                    service_instance = Services._base_manager.get(id=service_id)
 
                 else:
                     if namespace in service_multiple_ns[0]:
                         service_id = service_multiple_ns[1][namespace]
-                        service_instance = Services.objects.get(id=service_id)
+                        service_instance = Services._base_manager.get(id=service_id)
 
             # get service_id by deployment_name in namespace "moladin-crm-mfe" and "moladin-b2c-mfe"
             if namespace == "moladin-crm-mfe" or namespace == "moladin-b2c-mfe":
@@ -316,7 +316,7 @@ class KubecostInsertData:
                 service_name = service_name_temp3.replace("-mfe-deployment", "")
                 if service_name in service_list[0]:
                     service_id = service_list[1][service_name]
-                    service_instance = Services.objects.get(id=service_id)
+                    service_instance = Services._base_manager.get(id=service_id)
 
             if deployment == "":
                 deployment = None

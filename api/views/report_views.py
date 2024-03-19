@@ -1,18 +1,19 @@
-import datetime
 import asyncio
+import datetime
+import json
+
+from django.core.cache import cache
+from django.template.loader import render_to_string
+from httpx import AsyncClient
+
+from api.models.__constant import *
 from api.models.bigquery import BigQuery
 from api.models.kubecost import KubecostReport
-from api.models.__constant import *
 from api.utils.conversion import Conversion
+from api.utils.crypter import *
 from api.utils.decorator import *
 from api.utils.generator import random_string, pdf
 from api.utils.logger import Logger
-from api.utils.crypter import *
-from httpx import AsyncClient
-from django.http import JsonResponse
-from django.template.loader import render_to_string
-from django.core.cache import cache
-import json
 
 
 @async_date_validator
@@ -221,9 +222,22 @@ async def send_mail(
 
 
 async def send_email_task(
-    request, subject, to_email, template_path, context, em_name, tech_family, no_telp
+    request,
+    subject,
+    to_email,
+    template_path,
+    context,
+    em_name=None,
+    tech_family=None,
+    no_telp=None,
+    send_wa=True,
+    logger=True,
 ):
     email_content = render_to_string(template_path, context)
+
+    if em_name is None:
+        em_name = "Data"
+
     pdf_filename = (
         f"{tech_family}-{em_name}-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
     )
@@ -237,7 +251,6 @@ async def send_email_task(
     pdf_password = random_string(32)
 
     pdf_link, pdf_file = pdf(pdf_filename, pdf_content, pdf_password)
-    # print(pdf_link, pdf_file, pdf_password)
     encrypted_pdf_pass = encrypt(pdf_password)
 
     password_html = f"""
@@ -246,15 +259,17 @@ async def send_email_task(
         <strong>Your PDF password is: {pdf_password}</strong>
     """
     email_content += password_html
-    await Logger.log_report(
-        created_by="Admin",
-        tech_family=tech_family,
-        metadata=request.META,
-        link=pdf_link,
-        pdf_password=encrypted_pdf_pass,
-    )
+    if logger:
+        await Logger.log_report(
+            created_by="Admin",
+            tech_family=tech_family,
+            metadata=request.META,
+            link=pdf_link,
+            pdf_password=encrypted_pdf_pass,
+        )
     await send_mail(request, subject, to_email, pdf_filename, pdf_file, email_content)
-    await send_whatsapp(request, subject, context, no_telp, pdf_link, pdf_password)
+    if send_wa:
+        await send_whatsapp(request, subject, context, no_telp, pdf_link, pdf_password)
 
     os.remove(pdf_file)
 
@@ -302,10 +317,7 @@ def formatting_report(request, payload_data):
         context["project_name"] = project_name
 
         if data not in KUBECOST_PROJECT:
-
-            cost_period = bigquery_payload[data]["data"]["summary"][
-                "cost_period"
-            ]
+            cost_period = bigquery_payload[data]["data"]["summary"]["cost_period"]
 
             current_total_idr_gcp = bigquery_payload[data]["data"]["summary"][
                 "current_period"
@@ -398,10 +410,14 @@ def formatting_report(request, payload_data):
 
             if cost_period == "weekly":
                 limit_budget = limit_budget_weekly
-                alert_message = f"Your Weekly GCP Budget Exceeded! Please Review Spending!"
+                alert_message = (
+                    f"Your Weekly GCP Budget Exceeded! Please Review Spending!"
+                )
             else:
                 limit_budget = limit_budget_monthly
-                alert_message = "Your Monthly GCP Budget Exceeded! Please Review Spending!"
+                alert_message = (
+                    "Your Monthly GCP Budget Exceeded! Please Review Spending!"
+                )
 
             table_template_gcp += "</tbody>\n</table>"
             context_gcp = {
