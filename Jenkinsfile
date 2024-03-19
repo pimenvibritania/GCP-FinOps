@@ -157,6 +157,7 @@ pipeline {
                         sh "gcloud container clusters get-credentials ${gkeName} --zone ${gkeZone} --project ${projectName}"
                         sh "getConsul.py ${consul}/cold ${consulProdToken} > ${serviceName}-env-cold"
                         sh "getConsul.py ${consul}/hot ${consulProdToken} > ${serviceName}-env-hot"
+
                         sh "kubectl --context ${context} -n ${deploymentName}-release delete secret ${deploymentName}-cold-app-secret || true"
                         sh "kubectl --context ${context} -n ${deploymentName}-release delete secret ${deploymentName}-hot-app-secret || true"
                         sh "kubectl --context ${context} -n ${deploymentName}-release create secret generic ${deploymentName}-cold-app-secret --from-env-file=${serviceName}-env-cold"
@@ -170,6 +171,8 @@ pipeline {
                         sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/cms-create-report-prod cms-create-report-prod=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-prod"
                         sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/cms-create-report-by-sku cms-create-report-by-sku=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-by-sku"
                         sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/cms-sync-gcp-cost cms-sync-gcp-cost=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-gcp-cost-prod"
+                        sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/cms-sync-index-weight cms-sync-index-weight=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-index-weight-prod"
+
                         currentBuild.result = 'SUCCESS'
                     } catch(e) {
                         currentBuild.result = 'FAILURE'

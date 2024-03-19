@@ -66,8 +66,7 @@ class BigQueryIndexWeight(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        from_date = request.GET.get("from_date")
-        to_date = request.GET.get("to_date")
+        # usage_date = request.GET.get("usage_date")
 
         data = IndexWeight.get_index_weight()
 

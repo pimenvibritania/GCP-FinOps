@@ -6,7 +6,7 @@ import requests
 from django.db.models import Q, Sum
 
 from api.serializers import IndexWeightSerializer
-from api.utils.index_weight import mapping_data
+from api.utils.index_weight import mapping_data, check_current_month
 from home.models import KubecostDeployments, KubecostNamespaces, TechFamily
 
 REDIS_TTL = int(os.getenv("REDIS_TTL"))
@@ -64,6 +64,8 @@ class SyncIndexWeight:
             aggregated_data=fe_aggregated_data, total_data=total_data
         )
 
+        print(backend_data)
+        print(frontend_data)
         merged_data = {}
 
         for key in set(backend_data.keys()).union(frontend_data.keys()):
@@ -90,6 +92,7 @@ class SyncIndexWeight:
             for family, groups in families.items():
                 percentages[group][family] = {}
                 for stage, cost in groups.items():
+                    print(group, stage, cost)
                     percent = round((cost / total_data[group][stage]) * 100, 2)
 
                     data = {
@@ -108,4 +111,120 @@ class SyncIndexWeight:
 
                     percentages[group][family][stage] = percent
 
+        """
+            Add hardcoded development index (bypass development)
+        """
+
+        staging_mdi = {}
+        total_staging_mdi = 0
+        for key_mdi in percentages["MDI"]:
+            data = {
+                "value": 0,
+                "environment": "development",
+                "tech_family": tech_family_map[key_mdi],
+            }
+
+            serializer = IndexWeightSerializer(data=data)
+
+            if serializer.is_valid():
+                serializer.save()
+                logger.info(serializer.data)
+            else:
+                logger.error(serializer.errors)
+
+            percentages["MDI"][key_mdi]["development"] = 0
+
+            """
+                Handle staging index (staging sunset)
+            """
+
+            if percentages["MDI"][key_mdi].get("staging") is None:
+                latest_record = (
+                    KubecostNamespaces.objects.filter(
+                        project="MDI",
+                        environment="staging",
+                        service__tech_family__slug=key_mdi,
+                    )
+                    .exclude(namespace__in=["moladin-crm-mfe", "moladin-b2c-mfe"])
+                    .select_related("service__tech_family")
+                    .order_by("-date")
+                    .first()
+                )
+
+                is_current_month = check_current_month(latest_record.date)
+
+                if is_current_month:
+                    date_latest_record = latest_record.date.strftime("%Y-%m-%d")
+
+                    be_queryset = (
+                        KubecostNamespaces.objects.filter(
+                            date=date_latest_record,
+                            project="MDI",
+                            environment="staging",
+                            service__tech_family__slug=key_mdi,
+                        )
+                        .exclude(namespace__in=["moladin-crm-mfe", "moladin-b2c-mfe"])
+                        .select_related("service__tech_family")
+                    )
+                    be_aggregated_data = be_queryset.values(
+                        "service__tech_family__slug", "environment", "project"
+                    ).annotate(total_cost_sum=Sum("total_cost"))
+
+                    fe_queryset = KubecostDeployments.objects.filter(
+                        Q(
+                            date=date_latest_record,
+                            project="MDI",
+                            environment="staging",
+                            service__tech_family__slug=key_mdi,
+                        )
+                        & (Q(namespace__in=["moladin-crm-mfe", "moladin-b2c-mfe"]))
+                    )
+                    fe_aggregated_data = fe_queryset.values(
+                        "service__tech_family__slug", "environment", "project"
+                    ).annotate(total_cost_sum=Sum("total_cost"))
+
+                    backend_data, total_data = mapping_data(
+                        aggregated_data=be_aggregated_data
+                    )
+
+                    frontend_data, total_data = mapping_data(
+                        aggregated_data=fe_aggregated_data, total_data=total_data
+                    )
+
+                    staging_mdi[key_mdi] = {
+                        "staging": (
+                            backend_data["MDI"][key_mdi]["staging"]
+                            + frontend_data["MDI"][key_mdi]["staging"]
+                        )
+                    }
+
+                    total_staging_mdi += total_data["MDI"]["staging"]
+                else:
+                    staging_mdi[key_mdi] = {"staging": 0}
+
+        for tech_slug in staging_mdi:
+            percent = round(
+                (staging_mdi[tech_slug]["staging"] / total_staging_mdi) * 100, 2
+            )
+
+            data = {
+                "value": percent,
+                "environment": "staging",
+                "tech_family": tech_family_map[tech_slug],
+            }
+
+            serializer = IndexWeightSerializer(data=data)
+
+            if serializer.is_valid():
+                serializer.save()
+                logger.info(serializer.data)
+            else:
+                logger.error(serializer.errors)
+
+            percentages["MDI"][tech_slug]["staging"] = percent
+        """
+            END
+        """
+
         logger.info(percentages)
+        return percentages

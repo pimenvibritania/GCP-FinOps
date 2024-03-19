@@ -1,7 +1,8 @@
 from django.db import models, connection
-from ..utils.enumerate import EnvironmentType
-from .tech_family import TechFamily
+
 from home.models.base_model import BaseModel
+from .tech_family import TechFamily
+from ..utils.enumerate import EnvironmentType
 
 
 class IndexWeight(BaseModel):
@@ -13,7 +14,6 @@ class IndexWeight(BaseModel):
     )
 
     value = models.FloatField()
-
     environment = models.CharField(max_length=12, choices=EnvironmentType.choices())
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False, blank=False)
 

@@ -2,7 +2,6 @@ from rest_framework import status
 
 from api.models.__constant import *
 from api.models.bigquery import BigQuery
-
 # from api.utils.generator import upload_file
 from api.utils.logger import CustomLogger
 from api.views.gcp_views import GCPCostViews
@@ -14,7 +13,7 @@ logger = CustomLogger(__name__)
 def insert_cost(request, usage_date, list_data):
     cost_instance = GCPCostViews()
     conversion_rate = BigQuery.get_conversion_rate(usage_date)
-    index_weight = IndexWeight.get_index_weight()
+    index_weight = IndexWeight.get_index_weight(usage_date)
 
     for data_dict in list_data:
         data = list_data[data_dict]

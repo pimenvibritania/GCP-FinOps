@@ -13,11 +13,13 @@ class SyncIndexWeightViews(APIView):
     def post(self, request, *args, **kwargs):
         date = request.data.get("date")
         try:
-            SyncIndexWeight.sync_data(date)
+            percentages = SyncIndexWeight.sync_data(date)
 
             message = f"Kubecost data '{date}' successfully inserted."
 
-            data = {"status": "success", "message": message}
+            data = {"messages": message, "data": percentages}
+
+            data = {"status": "success", "data": data}
             return Response(data, status=status.HTTP_200_OK)
         except Exception as e:
             data = {"status": "failed", "message": str(e)}

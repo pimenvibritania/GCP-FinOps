@@ -1,3 +1,6 @@
+import datetime
+
+
 def mapping_data(aggregated_data, total_data=None):
     if total_data is None:
         total_data = {}
@@ -31,3 +34,10 @@ def mapping_data(aggregated_data, total_data=None):
         )
 
     return data, total_data
+
+
+def check_current_month(given_date):
+    current_year = datetime.date.today().year
+    current_month = datetime.date.today().month
+
+    return given_date.year == current_year and given_date.month == current_month
