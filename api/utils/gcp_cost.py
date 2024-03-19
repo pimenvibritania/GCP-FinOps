@@ -13,7 +13,7 @@ logger = CustomLogger(__name__)
 def insert_cost(request, usage_date, list_data):
     cost_instance = GCPCostViews()
     conversion_rate = BigQuery.get_conversion_rate(usage_date)
-    index_weight = IndexWeight.get_index_weight(usage_date)
+    index_weight = IndexWeight.get_index_weight()
 
     for data_dict in list_data:
         data = list_data[data_dict]

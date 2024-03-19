@@ -77,7 +77,7 @@ class BigQuery:
 
             current_period_str = f"{current_period_from} - {current_period_to}"
 
-            index_weight = IndexWeight.get_index_weight(input_date)
+            index_weight = IndexWeight.get_index_weight()
 
             platform_mfi = get_tf_collection(
                 mfi_project, "platform_mfi", current_period_str, conversion_rate, period
@@ -375,7 +375,7 @@ class BigQuery:
         current_date = current_date_f
         previous_date = previous_date_f
 
-        index_weight = IndexWeight.get_index_weight(current_date_f)
+        index_weight = IndexWeight.get_index_weight()
 
         period = "daily"
 
