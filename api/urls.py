@@ -20,6 +20,7 @@ from api.views.gcp_views import (
     GCPCostViews,
 )
 from api.views.healthcheck_views import HealthCheck
+from api.views.index_weight_views import SyncIndexWeightViews
 from api.views.kubecost_views import (
     KubecostClusterViews,
     KubecostNamespaceViews,
@@ -59,6 +60,7 @@ urlpatterns = [
     path("kubecost/report", KubecostReportViews.as_view()),
     path("kubecost/check-status", KubecostCheckStatusViews.as_view()),
     # General
+    path("index-weight", SyncIndexWeightViews.as_view()),
     path("services", ServiceViews.as_view()),
     path("healthcheck", HealthCheck.as_view()),
     path("tech-family", TechFamilyViews.as_view()),
