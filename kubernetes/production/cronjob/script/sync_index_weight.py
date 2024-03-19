@@ -35,7 +35,7 @@ try:
         print(response_json)
 
         slack_payload = {
-            "username": f"Sync GCP Cost Notification - {ENV}",
+            "username": f"Sync Index Weight Notification - {ENV}",
             "icon_emoji": ":sync:",
             "channel": "#cms-alert",
             "attachments": [
@@ -46,7 +46,7 @@ try:
                             "type": "header",
                             "text": {
                                 "type": "plain_text",
-                                "text": f"GGP Cost Synchronization Notification | {today_formatted}",
+                                "text": f"Index Weight Synchronization Notification | {today_formatted}",
                                 "emoji": True,
                             },
                         },
@@ -55,9 +55,8 @@ try:
                             "type": "section",
                             "text": {
                                 "type": "mrkdwn",
-                                "text": "@here! Daily Synchronization between BigQuery and our CMS application has been"
-                                "successfully completed! To review the synchronization log and check the "
-                                "results, please follow the log_link/button.",
+                                "text": "@here! Daily Synchronization Index Weight base on Kubecost has been"
+                                "successfully completed!",
                             },
                         },
                         {"type": "divider"},
