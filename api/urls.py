@@ -33,11 +33,13 @@ from api.views.kubecost_views import (
 from api.views.report_views import create_report
 from api.views.service_views import ServiceViews
 from api.views.sync_services import SyncServiceViews
+from api.views.tech_family_cost_sync_views import SyncTFCosts
 from api.views.tech_family_views import TechFamilyViews
 
 urlpatterns = [
     # GCP
     path("gcp/periodical-cost", BigQueryPeriodicalCost.as_view()),
+    path("gcp/periodical-cost/sync", SyncTFCosts.as_view()),
     path("gcp/index-weight", BigQueryIndexWeight.as_view()),
     path("gcp/tech-family", BigQueryTechFamily.as_view()),
     path("gcp/services", GCPServiceViews.as_view()),

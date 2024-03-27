@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from home.models import Department, BigqueryUser, BigqueryCost
+from home.models import Department, BigqueryUser, BigqueryCost, TechFamilyCost
 from home.models.gcp_costs import GCPCosts
 from home.models.gcp_projects import GCPProjects
 from home.models.gcp_services import GCPServices
@@ -195,6 +195,20 @@ class GCPCostSerializer(serializers.ModelSerializer):
             "gcp_project",
             "gcp_service",
             "index_weight",
+            "tech_family",
+        ]
+
+
+class TFCostSerializer(serializers.ModelSerializer):
+    tech_family = serializers.PrimaryKeyRelatedField(
+        queryset=TechFamily.objects.all(), many=False
+    )
+
+    class Meta:
+        model = TechFamilyCost
+        fields = [
+            "usage_date",
+            "cost",
             "tech_family",
         ]
 
