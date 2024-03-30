@@ -8,6 +8,17 @@ from home.models.base_model import BaseModel
 from .tech_family import TechFamily
 
 
+def get_difference_and_percentage_change(current_cost, previous_cost):
+    difference = current_cost - previous_cost
+    percentage_change = (
+        ((current_cost - previous_cost) / previous_cost) * 100
+        if previous_cost != 0
+        else 0
+    )
+    percent_color = "success" if percentage_change < 0 else "danger"
+    return difference, round(percentage_change, 2), percent_color
+
+
 class TechFamilyCost(BaseModel):
     class Meta:
         db_table = "tech_family_costs"
@@ -43,14 +54,12 @@ class TechFamilyCost(BaseModel):
     def get_current_month_cost(cls):
         today = date.today()
         first_day_of_current_month = today.replace(day=1)
-
         last_day_of_previous_month = first_day_of_current_month - timedelta(days=1)
         first_day_of_previous_month = last_day_of_previous_month.replace(day=1)
 
         current_month_costs = cls.objects.filter(
             usage_date__year=today.year, usage_date__month=today.month
         )
-
         previous_month_costs = cls.objects.filter(
             usage_date__year=first_day_of_previous_month.year,
             usage_date__month=first_day_of_previous_month.month,
@@ -87,15 +96,11 @@ class TechFamilyCost(BaseModel):
 
         for slug, current_cost in current_month_costs_dict.items():
             previous_cost = previous_month_costs_dict.get(slug, 0)
-
-            difference = current_cost - previous_cost
-            percentage_change = (
-                ((current_cost - previous_cost) / previous_cost) * 100
-                if previous_cost != 0
-                else 0
-            )
-
-            percent_color = "success" if percentage_change < 0 else "danger"
+            (
+                difference,
+                percentage_change,
+                percent_color,
+            ) = get_difference_and_percentage_change(current_cost, previous_cost)
 
             data = {
                 "slug": slug,
@@ -103,13 +108,36 @@ class TechFamilyCost(BaseModel):
                 "current_cost": Conversion.idr_format(current_cost),
                 "previous_cost": Conversion.idr_format(previous_cost),
                 "diff": difference,
-                "diff_percent": round(percentage_change, 2),
-                "icon": css_map[slug]["icon"],
-                "color": css_map[slug]["color"],
+                "diff_percent": percentage_change,
+                "icon": css_map.get(slug, {}).get("icon"),
+                "color": css_map.get(slug, {}).get("color"),
                 "percent_color": percent_color,
             }
 
             data_arr.append(data)
 
+        for slug, previous_cost in previous_month_costs_dict.items():
+            if slug not in current_month_costs_dict:
+                (
+                    difference,
+                    percentage_change,
+                    percent_color,
+                ) = get_difference_and_percentage_change(0, previous_cost)
+
+                data = {
+                    "slug": slug,
+                    "name": tech_family_map[slug],
+                    "current_cost": Conversion.idr_format(0),
+                    "previous_cost": Conversion.idr_format(previous_cost),
+                    "diff": difference,
+                    "diff_percent": percentage_change,
+                    "icon": css_map.get(slug, {}).get("icon"),
+                    "color": css_map.get(slug, {}).get("color"),
+                    "percent_color": percent_color,
+                }
+
+                data_arr.append(data)
+
         date_range = f"{first_day_of_current_month.strftime('%Y-%m-%d')} - {today.strftime('%Y-%m-%d')}"
+        print("add", data_arr)
         return data_arr, date_range
