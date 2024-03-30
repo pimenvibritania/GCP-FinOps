@@ -1,11 +1,12 @@
 from datetime import date, timedelta
 
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.db.models.functions import TruncMonth
 
 from api.utils.conversion import Conversion
 from home.models.base_model import BaseModel
+from . import IndexWeight
 from .tech_family import TechFamily
 
 
@@ -54,6 +55,7 @@ class TechFamilyCost(BaseModel):
     @classmethod
     def get_current_month_cost(cls):
         today = date.today()
+        two_days_ago = today - timedelta(days=2)
         first_day_of_current_month = today.replace(day=1)
         last_day_of_previous_month = first_day_of_current_month - timedelta(days=1)
         first_day_of_previous_month = last_day_of_previous_month.replace(day=1)
@@ -72,6 +74,26 @@ class TechFamilyCost(BaseModel):
         total_previous_month_costs_by_tech_family = previous_month_costs.values(
             "tech_family__slug"
         ).annotate(cost_sum=Sum("cost"))
+
+        current_index_weight = IndexWeight.objects.filter(
+            Q(created_at__date=two_days_ago)
+        )
+        current_index_weight_by_tech_family = current_index_weight.values(
+            "tech_family__slug", "value", "environment", "created_at"
+        )
+
+        current_index_weight_dict = {}
+
+        for item in current_index_weight_by_tech_family:
+            slug = item["tech_family__slug"]
+            environment = item["environment"]
+            value = item["value"]
+
+            if slug not in current_index_weight_dict:
+                current_index_weight_dict[slug] = {}
+
+            if environment not in current_index_weight_dict[slug]:
+                current_index_weight_dict[slug][environment] = value
 
         current_month_costs_dict = {
             item["tech_family__slug"]: item["cost_sum"]
@@ -113,6 +135,7 @@ class TechFamilyCost(BaseModel):
                 "icon": css_map.get(slug, {}).get("icon"),
                 "color": css_map.get(slug, {}).get("color"),
                 "percent_color": percent_color,
+                "index_weight": current_index_weight_dict[slug],
             }
 
             data_arr.append(data)
@@ -135,6 +158,7 @@ class TechFamilyCost(BaseModel):
                     "icon": css_map.get(slug, {}).get("icon"),
                     "color": css_map.get(slug, {}).get("color"),
                     "percent_color": percent_color,
+                    "index_weight": current_index_weight_dict[slug],
                 }
 
                 data_arr.append(data)

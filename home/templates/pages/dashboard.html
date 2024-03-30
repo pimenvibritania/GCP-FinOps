@@ -65,6 +65,14 @@
                                     last month
                                 </p>
                             </div>
+                            <hr class="dark horizontal my-0">
+                            <div class="card-footer p-3">
+                                {% for env, value in data.index_weight.items %}
+                                    <p>Index Weight {{ env }}: <span
+                                            class="text-success text-sm font-weight-bolder">{{ value }}% </span>
+                                    </p>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
