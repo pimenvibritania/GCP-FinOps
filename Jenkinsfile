@@ -91,6 +91,7 @@ pipeline {
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-report-by-sku -f Dockerfile.cronjob ."
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-gcp-cost-prod -f Dockerfile.cronjob ."
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-index-weight-prod -f Dockerfile.cronjob ."
+                        sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-techfamily-cost-prod -f Dockerfile.cronjob ."
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER} -f Dockerfile.cronjob ."
 
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER}"
@@ -103,6 +104,7 @@ pipeline {
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-gcp-cost-prod"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-send-data-report-prod"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-index-weight-prod"
+                        sh "docker push ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-techfamily-cost-prod"
 
                         currentBuild.result = 'SUCCESS'
                     } catch(e) {
@@ -182,6 +184,7 @@ pipeline {
                         sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/cms-sync-gcp-cost cms-sync-gcp-cost=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-gcp-cost-prod"
                         sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/kubecost-check-uncategorized kubecost-check-uncategorized=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER}"
                         sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/cms-sync-index-weight cms-sync-index-weight=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-index-weight-prod"
+                        sh "kubectl --context ${context} -n ${deploymentName}-release set image cronjob.batch/cms-sync-techfamily-cost cms-sync-techfamily-cost=${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-sync-techfamily-cost-prod"
 
                         currentBuild.result = 'SUCCESS'
                     } catch(e) {

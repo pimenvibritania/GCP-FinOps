@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cms-sync-techfamily-cost
+  namespace: cost-management-system-release
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - args:
+                - /bin/sh
+                - -c
+                - python sync_tf_cost.py
+              envFrom:
+                - secretRef:
+                    name: cost-management-system-cold-app-secret
+              image: asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/cost-management-system:cronjob-sync-techfamily-cost-prod
+              imagePullPolicy: Always
+              name: cms-sync-techfamily-cost
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          securityContext: { }
+          terminationGracePeriodSeconds: 30
+  schedule: '1 7 * * *'
+  suspend: True
