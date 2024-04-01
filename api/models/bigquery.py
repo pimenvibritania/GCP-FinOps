@@ -111,8 +111,16 @@ class BigQuery:
                 "defi_mdi": defi_mdi,
             }
 
-            query_template_mdi = get_query_template_with_tag()
-            query_template_mfi = get_query_template_with_tag()
+            query_template_mdi = (
+                get_query_template_with_tag(period="daily")
+                if period == "daily"
+                else get_query_template_with_tag()
+            )
+            query_template_mfi = (
+                get_query_template_with_tag(period="daily")
+                if period == "daily"
+                else get_query_template_with_tag()
+            )
 
             # ========================================
             # MFI Query
