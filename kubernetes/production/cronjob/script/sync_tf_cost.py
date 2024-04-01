@@ -20,7 +20,9 @@ today_formatted = today.strftime("%Y-%m-%d %H:%M:%S")
 two_days_ago = today - timedelta(days=2)
 two_days_ago_formatted = two_days_ago.strftime("%Y-%m-%d")
 
-url = f"{APP_URL}/periodical-cost/sync?date={two_days_ago_formatted}&period=daily"
+url = (
+    f"{APP_URL}/api/gcp/periodical-cost/sync?date={two_days_ago_formatted}&period=daily"
+)
 slack_url = (
     "https://hooks.slack.com/services/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"
 )
