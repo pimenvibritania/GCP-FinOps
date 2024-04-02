@@ -2,6 +2,7 @@ from datetime import date, timedelta
 
 from django.db import models
 from django.db.models import Sum
+from django.db.models.functions import TruncMonth
 
 from api.utils.conversion import Conversion
 from home.models.base_model import BaseModel
@@ -141,3 +142,58 @@ class TechFamilyCost(BaseModel):
         date_range = f"{first_day_of_current_month.strftime('%Y-%m-%d')} - {today.strftime('%Y-%m-%d')}"
         print("add", data_arr)
         return data_arr, date_range
+
+    @classmethod
+    def get_cost_graph(cls):
+        current_year = date.today().year
+
+        tech_family = TechFamily.get_tf_project()
+        tech_family_map = {row.slug: row.name for row in tech_family}
+
+        monthly_costs = (
+            TechFamilyCost.objects.filter(usage_date__year=current_year)
+            .annotate(month=TruncMonth("usage_date"))
+            .values("month", "tech_family__slug")
+            .annotate(total_cost=Sum("cost"))
+            .order_by("month")
+        )
+
+        css_map = {
+            "defi_mdi": {"color": "primary", "icon": "lightbulb"},
+            "defi_mfi": {"color": "secondary", "icon": "credit_card"},
+            "platform_mdi": {"color": "success", "icon": "shopping_basket"},
+            "platform_mfi": {"color": "info", "icon": "work"},
+            "mofi": {"color": "warning", "icon": "card_giftcard"},
+            "dana_tunai": {"color": "danger", "icon": "tips_and_updates"},
+        }
+
+        graph_data = {}
+
+        for entry in monthly_costs:
+            slug = entry["tech_family__slug"]
+            month = entry["month"].strftime("%b")
+            cost = round(entry["total_cost"])
+            name = tech_family_map[slug]
+
+            if slug not in graph_data:
+                graph_data[slug] = {}
+
+            if "name" not in graph_data[slug]:
+                graph_data[slug]["name"] = name
+
+            if "data_label" not in graph_data[slug]:
+                graph_data[slug]["data_label"] = []
+
+            if "data_cost" not in graph_data[slug]:
+                graph_data[slug]["data_cost"] = []
+
+            if "css" not in graph_data[slug]:
+                graph_data[slug]["css"] = {}
+
+            graph_data[slug]["css"] = {"background": css_map[slug]["color"]}
+            graph_data[slug]["data_label"].append(month)
+            graph_data[slug]["data_cost"].append(cost)
+
+            # print(f"{month} - Tech Family: {slug}, Total Cost: {cost}")
+
+        return graph_data
