@@ -13,6 +13,7 @@ from api.views.bigquery_views import (
     BigQueryIndexWeight,
     BigQueryDailySKU,
 )
+from api.views.gcp_charts import GCPCharts
 from api.views.gcp_sync_views import SyncGCPServices, SyncGCPProjects, SyncGCPCosts
 from api.views.gcp_views import (
     GCPServiceViews,
@@ -53,6 +54,7 @@ urlpatterns = [
     path("gcp/sync/projects", SyncGCPProjects.as_view()),
     path("gcp/sync/costs", SyncGCPCosts.as_view()),
     path("gcp/report/daily-sku", BigQueryDailySKU.as_view()),
+    path("gcp/charts", GCPCharts.as_view()),
     # Kubecost
     path("kubecost/clusters", KubecostClusterViews.as_view()),
     path("kubecost/namespaces", KubecostNamespaceViews.as_view()),
