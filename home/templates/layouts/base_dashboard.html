@@ -22,6 +22,44 @@
 
 {% include 'includes/script/dashboard_script.html' %}
 {% block javascript %}{% endblock javascript %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('/api/conversion-rate')
+            .then(response => response.json())
+            .then(data => {
+                if (data.rate) {
+                    document.getElementById('latest-record-details').innerHTML = `
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a
+                                class="nav-link text-white"
+                                style="background: linear-gradient(268deg, #293b4a 0%, #535a79 100%)"
+                                onmouseover="mouseover()"
+                                onmouseout="mouseout()"
+                                id="conv-rate"
+                            >
+                                <span class="nav-link-text ms-1 text-center d-block text-bold">USD $1 : IDR ${data.rate}</span>
+                            </a>
+                        </li>
+                    </ul>
+                    `;
+                } else {
+                    document.getElementById('latest-record-details').innerHTML = '<p>No records found.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching latest record:', error);
+                document.getElementById('latest-record-details').innerHTML = '<p>Error fetching latest record.</p>';
+            });
+    });
 
+    function mouseover() {
+        document.getElementById("conv-rate").style.background = "linear-gradient(195deg, #49a3f1 0%, #1A73E8 100%)";
+    }
+
+    function mouseout() {
+        document.getElementById("conv-rate").style.background = "linear-gradient(268deg, #293b4a 0%, #535a79 100%)";
+    }
+</script>
 </body>
 </html>

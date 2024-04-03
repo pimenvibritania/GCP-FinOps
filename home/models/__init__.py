@@ -1,3 +1,4 @@
+from .bigquery import BigQuery
 from .bigquery_cost import BigqueryCost
 from .bigquery_user import BigqueryUser
 from .department import Department

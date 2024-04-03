@@ -1,9 +1,11 @@
 import os
+
 import math
-from google.oauth2 import service_account
 from google.cloud import bigquery
+from google.oauth2 import service_account
 
 BIGQUERY_TABLE = os.getenv("BIGQUERY_TABLE")
+BIGQUERY_MFI = os.getenv("BIGQUERY_MFI_TABLE")
 GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT")
 
 CURRENT_PATH = os.path.abspath(__file__)

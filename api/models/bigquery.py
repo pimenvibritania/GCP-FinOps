@@ -32,6 +32,17 @@ class BigQuery:
             return "production"
 
     @classmethod
+    def get_current_conversion_rate(cls):
+        query_template = f"""
+                SELECT currency_conversion_rate
+                FROM `{BIGQUERY_MDI_TABLE}`
+                ORDER BY currency_conversion_rate DESC
+                LIMIT 1;
+            """
+
+        return cls().client.query(query_template).result()
+
+    @classmethod
     def get_conversion_rate(cls, input_date):
         date = datetime.strptime(input_date, "%Y-%m-%d")
         current_date = date - timedelta(days=1)
