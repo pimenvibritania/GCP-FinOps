@@ -13,6 +13,7 @@ from api.views.bigquery_views import (
     BigQueryIndexWeight,
     BigQueryDailySKU,
 )
+from api.views.conversion_rate_views import ConversionRateViews
 from api.views.gcp_charts import GCPCharts
 from api.views.gcp_sync_views import SyncGCPServices, SyncGCPProjects, SyncGCPCosts
 from api.views.gcp_views import (
@@ -69,6 +70,7 @@ urlpatterns = [
     path("healthcheck", HealthCheck.as_view()),
     path("tech-family", TechFamilyViews.as_view()),
     path("sync/services", SyncServiceViews.as_view()),
+    path("conversion-rate", ConversionRateViews.as_view()),
     path(
         "docs/",
         TemplateView.as_view(
