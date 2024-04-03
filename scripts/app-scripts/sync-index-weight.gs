@@ -63,7 +63,7 @@ function slackPayload(env, payload, errMessage) {
   return {
     "username": `AppScript ${env} Notification`,
     "icon_emoji": ":rotating_light:",
-    "channel": "#cms-alert",
+    "channel": "#moladin-finops-alert",
     "attachments": [
 		{
       "color": "#c40000",

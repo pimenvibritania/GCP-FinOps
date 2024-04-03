@@ -37,7 +37,7 @@ try:
         slack_payload = {
             "username": f"Sync Index Weight Notification - {ENV}",
             "icon_emoji": ":sync:",
-            "channel": "#cms-alert",
+            "channel": "#moladin-finops-alert",
             "attachments": [
                 {
                     "color": "#2FC48A",

@@ -1,10 +1,9 @@
 import json
-
-import requests
+import logging
 from datetime import datetime, timedelta
 from os import getenv
-import logging
 
+import requests
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -34,7 +33,7 @@ try:
         slack_payload = {
             "username": f"Sync GCP Cost Notification - {ENV}",
             "icon_emoji": ":sync:",
-            "channel": "#cms-alert",
+            "channel": "#moladin-finops-alert",
             "attachments": [
                 {
                     "color": "#2FC48A",

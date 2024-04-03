@@ -35,7 +35,7 @@ try:
         slack_payload = {
             "username": f"Sync Techfamily Daily Cost Notification - {ENV}",
             "icon_emoji": ":moneybag:",
-            "channel": "#cms-alert",
+            "channel": "#moladin-finops-alert",
             "attachments": [
                 {
                     "color": "#1275c4",
