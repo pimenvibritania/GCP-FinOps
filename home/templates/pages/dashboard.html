@@ -4,7 +4,6 @@
 {% block title %} CMS | Dashboard CMS {% endblock title %}
 
 {% block content %}
-
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
         <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 border-radius-xl shadow-none position-sticky blur shadow-blur mt-4 left-auto top-1 z-index-sticky"
              id="navbarBlur" data-scroll="true" navbar-scroll="true">
@@ -76,7 +75,7 @@
                 {% endfor %}
             </div>
             <hr/>
-            <blockquote class="blockquote ps-2 mt-5 mb-4">
+            <blockquote class="blockquote ps-2 mt-2 mb-4">
                 <div class="d-flex p-1 mt-3"><h5>Monthly Cost Graph</h5>
                 </div>
             </blockquote>
@@ -128,11 +127,12 @@
             {#                    </div>#}
             {#                </div>#}
             {#            </footer>#}
+            {% include 'includes/footer.html' %}
         </div>
+
     </main>
 
 {% endblock content %}
-
 {% block javascript %}
     {% include 'includes/script/dashboard_chart_script.html' %}
 {% endblock javascript %}
