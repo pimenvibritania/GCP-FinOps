@@ -9,7 +9,6 @@ from ..utils.decorators import is_authenticated
 def index(request):
     cost_month, date_range = TechFamilyCost.get_current_month_cost()
     graph = TechFamilyCost.get_cost_graph()
-    print(graph)
     return render(
         request,
         "pages/dashboard.html",
