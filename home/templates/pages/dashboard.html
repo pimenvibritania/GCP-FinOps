@@ -40,19 +40,19 @@
                 </div>
             </div>
         </nav>
+
         <div class="container-fluid py-4">
-            <blockquote class="blockquote ps-2">
-                <div class="d-flex p-1 mt-3"><h5>Cost Current Month For All Tech Family ({{ date_range }})</h5>
-                </div>
-            </blockquote>
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 <strong>Warning:</strong> Source Costs in this Overview Dashboard are Reflecting Data from <strong>2
                 Days Ago</strong> (H-2). Please Keep this in Mind for Real-Time Analysis.
             </div>
+            <blockquote class="blockquote ps-2 mt-5">
+                <div class="d-flex p-1 mt-3"><h5>Cost Current Month For All Tech Family ({{ date_range }})</h5>
+                </div>
+            </blockquote>
             <div class="row">
-
                 {% for data in cost_data %}
-                    <div class="col-xl-4 col-sm-6 mb-xl-0 mb-4 mt-5">
+                    <div class="col-lg-4 col-md-6 mt-4 mb-4">
                         <div class="card">
                             <div class="card-header p-3 pt-2">
                                 <div class="icon icon-lg icon-shape bg-gradient-{{ data.color }} shadow-{{ data.color }} text-center border-radius-xl mt-n4 position-absolute">
@@ -75,74 +75,37 @@
                     </div>
                 {% endfor %}
             </div>
-
-            {#            <blockquote class="blockquote ps-2 mt-5">#}
-            {#                <div class="d-flex p-1 mt-3"><h5>Cost Current Month For All Projects (2023/08/01 - 2023/08/25)</h5>#}
-            {#                </div>#}
-            {#            </blockquote>#}
-            {#            <div class="row">#}
-            {#                <div class="col-lg-4 col-md-6 mt-4 mb-4">#}
-            {#                    <div class="card z-index-2 ">#}
-            {#                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">#}
-            {#                            <div class="bg-gradient-primary shadow-primary border-radius-lg py-3 pe-1">#}
-            {#                                <div class="chart">#}
-            {#                                    <canvas id="chart-bars" class="chart-canvas" height="170"></canvas>#}
-            {#                                </div>#}
-            {#                            </div>#}
-            {#                        </div>#}
-            {#                        <div class="card-body">#}
-            {#                            <h6 class="mb-0 ">Website Views</h6>#}
-            {#                            <p class="text-sm ">Last Campaign Performance</p>#}
-            {#                            <hr class="dark horizontal">#}
-            {#                            <div class="d-flex ">#}
-            {#                                <i class="material-icons text-sm my-auto me-1">schedule</i>#}
-            {#                                <p class="mb-0 text-sm"> campaign sent 2 days ago </p>#}
-            {#                            </div>#}
-            {#                        </div>#}
-            {#                    </div>#}
-            {#                </div>#}
-            {#                <div class="col-lg-4 col-md-6 mt-4 mb-4">#}
-            {#                    <div class="card z-index-2  ">#}
-            {#                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">#}
-            {#                            <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">#}
-            {#                                <div class="chart">#}
-            {#                                    <canvas id="chart-line" class="chart-canvas" height="170"></canvas>#}
-            {#                                </div>#}
-            {#                            </div>#}
-            {#                        </div>#}
-            {#                        <div class="card-body">#}
-            {#                            <h6 class="mb-0 "> Daily Sales </h6>#}
-            {#                            <p class="text-sm "> ( <span class="font-weight-bolder">+15%</span>) increase in today#}
-            {#                                sales. </p>#}
-            {#                            <hr class="dark horizontal">#}
-            {#                            <div class="d-flex ">#}
-            {#                                <i class="material-icons text-sm my-auto me-1">schedule</i>#}
-            {#                                <p class="mb-0 text-sm"> updated 4 min ago </p>#}
-            {#                            </div>#}
-            {#                        </div>#}
-            {#                    </div>#}
-            {#                </div>#}
-            {#                <div class="col-lg-4 mt-4 mb-3">#}
-            {#                    <div class="card z-index-2 ">#}
-            {#                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">#}
-            {#                            <div class="bg-gradient-dark shadow-dark border-radius-lg py-3 pe-1">#}
-            {#                                <div class="chart">#}
-            {#                                    <canvas id="chart-line-tasks" class="chart-canvas" height="170"></canvas>#}
-            {#                                </div>#}
-            {#                            </div>#}
-            {#                        </div>#}
-            {#                        <div class="card-body">#}
-            {#                            <h6 class="mb-0 ">Completed Tasks</h6>#}
-            {#                            <p class="text-sm ">Last Campaign Performance</p>#}
-            {#                            <hr class="dark horizontal">#}
-            {#                            <div class="d-flex ">#}
-            {#                                <i class="material-icons text-sm my-auto me-1">schedule</i>#}
-            {#                                <p class="mb-0 text-sm">just updated</p>#}
-            {#                            </div>#}
-            {#                        </div>#}
-            {#                    </div>#}
-            {#                </div>#}
-            {#            </div>#}
+            <hr/>
+            <blockquote class="blockquote ps-2 mt-5 mb-4">
+                <div class="d-flex p-1 mt-3"><h5>Monthly Cost Graph</h5>
+                </div>
+            </blockquote>
+            <div class="row">
+                {% for slug, data in cost_graph.items %}
+                    <div class="col-lg-4 col-md-6 mt-4 mb-4">
+                        <div class="card z-index-2  ">
+                            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+                                <div class="bg-gradient-{{ data.css.background }} shadow-{{ data.css.background }} border-radius-lg py-3 pe-1">
+                                    <div class="chart">
+                                        <canvas id="chart-line-{{ slug }}" class="chart-canvas" height="170"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="mb-0 "> {{ data.name }} </h6>
+                                {#                                <p class="text-sm "> ( <span class="font-weight-bolder">+15%</span>)#}
+                                {#                                    increase in today#}
+                                {#                                    sales. </p>#}
+                                {#                                <hr class="dark horizontal">#}
+                                {#                                <div class="d-flex ">#}
+                                {#                                    <i class="material-icons text-sm my-auto me-1">schedule</i>#}
+                                {#                                    <p class="mb-0 text-sm"> updated 4 min ago </p>#}
+                                {#                                </div>#}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
             {#            <footer class="footer py-4  ">#}
             {#                <div class="container-fluid">#}
             {#                    <div class="row align-items-center justify-content-lg-between">#}

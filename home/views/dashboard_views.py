@@ -8,10 +8,12 @@ from ..utils.decorators import is_authenticated
 @login_required(login_url="/login/")
 def index(request):
     cost_month, date_range = TechFamilyCost.get_current_month_cost()
+    graph = TechFamilyCost.get_cost_graph()
+    print(graph)
     return render(
         request,
         "pages/dashboard.html",
-        {"cost_data": cost_month, "date_range": date_range},
+        {"cost_data": cost_month, "cost_graph": graph, "date_range": date_range},
     )
 
 
