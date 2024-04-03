@@ -12,7 +12,7 @@
                 <div class="col-12">
                     <div class="card my-4">
                         <form action="/gcp-cost-report/form">
-                            <div class="card-header p-0 position-relative mt-n4 z-index-2">
+                            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
                                 <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 col-12">
                                     <div class="row">
                                         <div class="col-sm-5">
@@ -57,71 +57,73 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
-                    <div class="card-body px-0 pb-2">
-                        <div class="table-responsive p-0">
-                            <table class="table align-items-center mb-0" id="gcpReportCostDatatable">
-                                <thead>
-                                <tr>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Service
-                                        Name
-                                    </th>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
-                                        Environment
-                                    </th>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
-                                        GCP Project
-                                    </th>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Date
-                                        Range
-                                    </th>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost
-                                        Current
-                                    </th>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost
-                                        Previous
-                                    </th>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Status
-                                        Cost
-                                    </th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for service in services %}
-                                    {% for svc_cost in service.cost_services %}
-                                        <tr>
-                                            <td class="align-middle text-center text-sm"><span
-                                                    class="text-xs font-weight-bold text-uppercase">{{ service.name }}</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm"><span
-                                                    class="text-secondary text-xs font-weight-bold">{{ svc_cost.environment }}</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm"><span
-                                                    class="text-secondary text-xs font-weight-bold">{{ svc_cost.gcp_project }}</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm"><span
-                                                    class="text-secondary text-xs font-weight-bold">{{ date_range }}</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm"><span
-                                                    class="text-secondary text-xs font-weight-bold">${{ svc_cost.cost_this_period }} USD</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm"><span
-                                                    class="text-secondary text-xs font-weight-bold">${{ svc_cost.cost_prev_period }} USD</span>
-                                            </td>
-                                            <td class="align-middle text-center text-sm">
-                                                {% if svc_cost.cost_status == "UP" %}
-                                                    <span style="color:#e74c3c">⬆ {{ svc_cost.cost_status_percent }}%</span>
-                                                {% elif svc_cost.cost_status == "DOWN" %}
-                                                    <span style="color:#1abc9c">⬇ {{ svc_cost.cost_status_percent }}%</span>
-                                                {% else %}
-                                                    <span class="text-secondary text-xs font-weight-bold">Equal</span>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
+                        <div class="card-body px-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0" id="gcpReportCostDatatable">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                            Service
+                                            Name
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                            Environment
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                            GCP Project
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Date
+                                            Range
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost
+                                            Current
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost
+                                            Previous
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                            Status
+                                            Cost
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for service in services %}
+                                        {% for svc_cost in service.cost_services %}
+                                            <tr>
+                                                <td class="align-middle text-center text-sm"><span
+                                                        class="text-xs font-weight-bold text-uppercase">{{ service.name }}</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm"><span
+                                                        class="text-secondary text-xs font-weight-bold">{{ svc_cost.environment }}</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm"><span
+                                                        class="text-secondary text-xs font-weight-bold">{{ svc_cost.gcp_project }}</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm"><span
+                                                        class="text-secondary text-xs font-weight-bold">{{ date_range }}</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm"><span
+                                                        class="text-secondary text-xs font-weight-bold">${{ svc_cost.cost_this_period }} USD</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm"><span
+                                                        class="text-secondary text-xs font-weight-bold">${{ svc_cost.cost_prev_period }} USD</span>
+                                                </td>
+                                                <td class="align-middle text-center text-sm">
+                                                    {% if svc_cost.cost_status == "UP" %}
+                                                        <span style="color:#e74c3c">⬆ {{ svc_cost.cost_status_percent }}%</span>
+                                                    {% elif svc_cost.cost_status == "DOWN" %}
+                                                        <span style="color:#1abc9c">⬇ {{ svc_cost.cost_status_percent }}%</span>
+                                                    {% else %}
+                                                        <span class="text-secondary text-xs font-weight-bold">Equal</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
                                     {% endfor %}
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>

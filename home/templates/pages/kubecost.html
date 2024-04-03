@@ -56,63 +56,66 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
-                    <div class="card-body px-0 pb-2">
-                        <div class="table-responsive p-0">
-                            <table class="table align-items-center mb-0" id="kubecostDatatable">
-                                <thead>
-                                <tr>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Service
-                                        Name
-                                    </th>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost per
-                                        Env
-                                    </th>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Date
-                                        Range
-                                    </th>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost
-                                        Current
-                                    </th>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost
-                                        Previous
-                                    </th>
-                                    <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Status
-                                        Cost
-                                    </th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for service in services %}
+                        <div class="card-body px-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0" id="kubecostDatatable">
+                                    <thead>
                                     <tr>
-                                        <td class="align-middle text-center text-sm"><span
-                                                class="text-xs font-weight-bold text-uppercase">{{ service.service_name }}</span>
-                                        </td>
-                                        <td class="align-middle text-center text-sm"><span
-                                                class="text-secondary text-xs font-weight-bold">{{ service.environment }}</span>
-                                        </td>
-                                        <td class="align-middle text-center text-sm"><span
-                                                class="text-secondary text-xs font-weight-bold">{{ date_range }}</span>
-                                        </td>
-                                        <td class="align-middle text-center text-sm"><span
-                                                class="text-secondary text-xs font-weight-bold">${{ service.cost_this_period }} USD</span>
-                                        </td>
-                                        <td class="align-middle text-center text-sm"><span
-                                                class="text-secondary text-xs font-weight-bold">${{ service.cost_prev_period }} USD</span>
-                                        </td>
-                                        <td class="align-middle text-center text-sm">
-                                            {% if service.cost_status == "UP" %}
-                                                <span style="color:#e74c3c">⬆ {{ service.cost_status_percent }}%</span>
-                                            {% elif service.cost_status == "DOWN" %}
-                                                <span style="color:#1abc9c">⬇ {{ service.cost_status_percent }}%</span>
-                                            {% else %}
-                                                <span class="text-secondary text-xs font-weight-bold">Equal</span>
-                                            {% endif %}
-                                        </td>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                            Service
+                                            Name
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost
+                                            per
+                                            Env
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Date
+                                            Range
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost
+                                            Current
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">Cost
+                                            Previous
+                                        </th>
+                                        <th class="text-center text-uppercase text-xs font-weight-bolder opacity-7">
+                                            Status
+                                            Cost
+                                        </th>
                                     </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                    {% for service in services %}
+                                        <tr>
+                                            <td class="align-middle text-center text-sm"><span
+                                                    class="text-xs font-weight-bold text-uppercase">{{ service.service_name }}</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm"><span
+                                                    class="text-secondary text-xs font-weight-bold">{{ service.environment }}</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm"><span
+                                                    class="text-secondary text-xs font-weight-bold">{{ date_range }}</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm"><span
+                                                    class="text-secondary text-xs font-weight-bold">${{ service.cost_this_period }} USD</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm"><span
+                                                    class="text-secondary text-xs font-weight-bold">${{ service.cost_prev_period }} USD</span>
+                                            </td>
+                                            <td class="align-middle text-center text-sm">
+                                                {% if service.cost_status == "UP" %}
+                                                    <span style="color:#e74c3c">⬆ {{ service.cost_status_percent }}%</span>
+                                                {% elif service.cost_status == "DOWN" %}
+                                                    <span style="color:#1abc9c">⬇ {{ service.cost_status_percent }}%</span>
+                                                {% else %}
+                                                    <span class="text-secondary text-xs font-weight-bold">Equal</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
