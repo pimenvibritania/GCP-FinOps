@@ -1,30 +1,35 @@
 {% load static %}
 
-<meta charset="utf-8" />
+<meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="apple-touch-icon" sizes="76x76" href="{% static 'img/apple-icon.png' %}">
 <link rel="icon" href="{% static 'img/logo.webp' %}"/>
 
-<link rel="canonical" href="cost-management-system.moladin.com" />
-<meta name="description" content="Material Dashboard 2 is a beautiful Bootstrap 5 admin dashboard with a large number of components, designed to look beautiful and organized. If you are looking for a tool to manage and visualize data about your business, this dashboard is the thing for you.">
+<link rel="canonical" href="cost-management-system.moladin.com"/>
+<meta name="description"
+      content="Cost Management System (CMS) or Moladin FinOps simplifies the management of Google Cloud Platform (GCP) costs and service expenses, offering a comprehensive solution to track, analyze, and optimize your financial operations. Gain precise insights into your cloud expenditures, identify cost-saving opportunities, and streamline your financial workflows with ease. From real-time cost monitoring to customizable reports, FinOps empowers businesses to make informed decisions, maximize budget efficiency, and drive growth in the cloud era.">
 <!--     Fonts and icons     -->
-<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900|Roboto+Slab:400,700" />
+<link rel="stylesheet" type="text/css"
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900|Roboto+Slab:400,700"/>
 <!-- Nucleo Icons -->
 
 <!-- CSS Files -->
-<link id="pagestyle" href="{% static 'css/material-kit.css' %}" rel="stylesheet" />
+<link id="pagestyle" href="{% static 'css/material-kit.css' %}" rel="stylesheet"/>
 
 <style>
     @import url('https://fonts.googleapis.com/css?family=Nunito+Sans');
+
     :root {
-      --blue: #0285D5;
-      --white: #fff;
-      --yellow: #FFB601;
+        --blue: #0285D5;
+        --white: #fff;
+        --yellow: #FFB601;
     }
+
     html,
     body {
-      height: 100%;
+        height: 100%;
     }
+
     body {
         display: flex;
         align-items: center;
@@ -33,21 +38,25 @@
         color: var(--blue);
         font-size: 1em;
     }
+
     button {
         font-family: "Nunito Sans", serif;
     }
+
     ul {
-          list-style-type: none;
-          padding-inline-start: 35px;
+        list-style-type: none;
+        padding-inline-start: 35px;
     }
+
     h1 {
         font-size: 7.5em;
         margin: 15px 0;
-        font-weight:bold;
+        font-weight: bold;
         color: var(--blue);
     }
+
     h2 {
-        font-weight:bold;
+        font-weight: bold;
         color: var(--blue);
     }
 
@@ -65,39 +74,44 @@
         font-weight: bold;
         margin: 5px 0;
 
-      &.blue {
-          border: 4px solid var(--yellow);
-          color: var(--yellow);
-          &:before {
-              content: "";
-              position: absolute;
-              left: 0;
-              top: 0;
-              width: 0%;
-              height: 100%;
-              background: var(--blue);
-              z-index: -1;
-              transition: 0.2s ease;
-        }
-        &:hover {
-            transform: scale(1.2);
-            color: var(--white);
-            background: var(--blue);
-            transition: 0.2s ease;
-            border: 4px solid var(--blue);
+        &.blue {
+            border: 4px solid var(--yellow);
+            color: var(--yellow);
+
             &:before {
-                width: 100%;
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 0%;
+                height: 100%;
+                background: var(--blue);
+                z-index: -1;
+                transition: 0.2s ease;
+            }
+
+            &:hover {
+                transform: scale(1.2);
+                color: var(--white);
+                background: var(--blue);
+                transition: 0.2s ease;
+                border: 4px solid var(--blue);
+
+                &:before {
+                    width: 100%;
+                }
             }
         }
-      }
     }
-    @media screen and (max-width:768px) {
-      body {
-        display:block;
-      }
-      .container {
-        margin-top:70px;
-        margin-bottom:70px;
-      }
+
+    @media screen and (max-width: 768px) {
+        body {
+            display: block;
+        }
+
+        .container {
+            margin-top: 70px;
+            margin-bottom: 70px;
+        }
     }
 </style>
