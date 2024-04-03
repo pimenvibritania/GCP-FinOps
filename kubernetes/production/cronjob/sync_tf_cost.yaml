@@ -28,5 +28,5 @@ spec:
           schedulerName: default-scheduler
           securityContext: { }
           terminationGracePeriodSeconds: 30
-  schedule: '1 7 * * *'
+  schedule: '0 22 * * *'
   suspend: True
