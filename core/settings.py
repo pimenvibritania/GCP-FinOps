@@ -42,6 +42,7 @@ ALLOWED_HOSTS = [
     "cost-management-system.moladin.com",
     "cost-management-system-appscript.moladin.com",
     "airflow.development.mofi.id",
+    "finops-data.moladin.com",
 ]
 
 # Add here your deployment HOSTS
@@ -61,6 +62,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://*.moladin.com",
     "http://airflow.development.mofi.id",
     "https://airflow.development.mofi.id",
+    "http://finops-data.moladin.com",
+    "https://finops-data.moladin.com",
 ]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
@@ -74,6 +77,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://*.moladin.com",
     "http://airflow.development.mofi.id",
     "https://airflow.development.mofi.id",
+    "http://finops-data.moladin.com",
+    "https://finops-data.moladin.com",
 ]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
