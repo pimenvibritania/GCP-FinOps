@@ -64,15 +64,15 @@
                                     <span class="text-{{ data.percent_color }} text-sm font-weight-bolder">{{ data.diff_percent }}% </span>than
                                     last month
                                 </p>
+                                <p class="text-sm">
+                                    {% for env, value in data.index_weight.items %}
+                                        Index Weight {{ env }}: <span
+                                            class="text-success text-sm font-weight-bolder">{{ value }}% </span><br/>
+
+                                    {% endfor %}
+                                </p>
                             </div>
-                            <hr class="dark horizontal my-0">
-                            <div class="card-footer p-3">
-                                {% for env, value in data.index_weight.items %}
-                                    <p>Index Weight {{ env }}: <span
-                                            class="text-success text-sm font-weight-bolder">{{ value }}% </span>
-                                    </p>
-                                {% endfor %}
-                            </div>
+
                         </div>
                     </div>
                 {% endfor %}
