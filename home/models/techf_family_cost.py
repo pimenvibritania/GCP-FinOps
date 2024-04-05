@@ -218,6 +218,4 @@ class TechFamilyCost(BaseModel):
             graph_data[slug]["data_label"].append(month)
             graph_data[slug]["data_cost"].append(cost)
 
-            # print(f"{month} - Tech Family: {slug}, Total Cost: {cost}")
-
         return graph_data

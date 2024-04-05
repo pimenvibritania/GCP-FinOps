@@ -1,6 +1,6 @@
 {% extends 'layouts/base_dashboard.html' %}
 {% load static %}
-
+{% load conversion %}
 {% block title %} GCP Cost {% endblock title %}
 
 {% block content %}
@@ -131,10 +131,10 @@
                                                         class="text-secondary text-xs font-weight-bold">{{ date_range }}</span>
                                                 </td>
                                                 <td class="align-middle text-center text-sm"><span
-                                                        class="text-secondary text-xs font-weight-bold">${{ svc_cost.cost_this_period }} USD</span>
+                                                        class="text-secondary text-xs font-weight-bold">{{ svc_cost.cost_this_period | idr_format }}</span>
                                                 </td>
                                                 <td class="align-middle text-center text-sm"><span
-                                                        class="text-secondary text-xs font-weight-bold">${{ svc_cost.cost_prev_period }} USD</span>
+                                                        class="text-secondary text-xs font-weight-bold">{{ svc_cost.cost_prev_period | idr_format }}</span>
                                                 </td>
                                                 <td class="align-middle text-center text-sm">
                                                     {% if svc_cost.cost_status == "UP" %}
