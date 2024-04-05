@@ -21,7 +21,7 @@
                                         <div class="col-sm-2">
                                             <input style="width: -webkit-fill-available;padding: 4px" width="100%"
                                                    type="date" id="date" name="date"
-                                                   value="{{ input_date }}" required>
+                                                   value="{{ input_date }}" oninput="validateDate()" required required>
                                         </div>
                                         <div class="col-sm-2">
                                             <select class="form-select" name="period" required
@@ -152,5 +152,20 @@
 {% endblock content %}
 
 {% block javascript %}
+    <script>
+        function validateDate() {
+            const selectedDate = document.getElementById('date').value;
+            const today = new Date().toISOString().split('T')[0];
+
+            if (selectedDate > today) {
+                alert("Selected date should not be greater than today's date.");
+                document.getElementById('date').value = '';
+                return false;
+            }
+
+            return true;
+        }
+
+    </script>
     {% include 'includes/script/gcp_report_script.html' %}
 {% endblock javascript %}
