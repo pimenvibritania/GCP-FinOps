@@ -36,6 +36,7 @@ class Conversion:
         percent = abs(
             round(((this_period - previous_period) / previous_period) * 100, 2)
         )
+
         return 0.01 if percent == 0.0 else percent
 
     @classmethod

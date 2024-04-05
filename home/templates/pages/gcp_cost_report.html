@@ -62,22 +62,32 @@
                                 {% if services %}
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <div class="card m-3">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">Total Cost Current Week
-                                                        ({{ current_week }}):</h5>
-                                                    <div class="mt-2 btn bg-gradient-{{ bg_color }} text-lg">
-                                                        <i class="material-icons opacity-10">{{ icon }}</i>
-                                                        {{ total_current_week }}
-                                                    </div>
+                                            <div class="card m-3 h-75">
+                                                <div class="card-body pb-0">
+                                                    <h6 class="card-title">Total Cost Current Week
+                                                        ({{ current_week }})</h6>
+                                                    <p>
+                                                        <span class="font-weight-bold">{{ total_current_week }}</span>
+                                                        <br>
+                                                        <i class="fa {{ icon }} text-{{ text_color }}"
+                                                           aria-hidden="true"></i>
+                                                        <span class="font-weight-bold text-sm">{{ cost_status_percent }}</span>
+                                                        from previous month
+                                                    </p>
+                                                    <p class="text-sm">
+
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="card m-3">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">Total Cost Previous Week ({{ previous_week }}):</h5>
-                                                    <div class="mt-2 btn bg-gradient-warning text-lg">{{ total_previous_week }}</div>
+                                            <div class="card m-3 h-75">
+                                                <div class="card-body pb-0">
+                                                    <h6 class="card-title">Total Cost Previous Week
+                                                        ({{ previous_week }})</h6>
+                                                    <p class="">
+                                                        <span class="font-weight-bold">{{ total_previous_week }}</span>
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>

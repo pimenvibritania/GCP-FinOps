@@ -44,6 +44,7 @@ def gcp_cost_report(request):
             None,
             None,
         )
+        cost_status_percent = 0
 
     else:
         report = BigQuery.get_periodical_cost(input_date, input_period)
@@ -51,6 +52,9 @@ def gcp_cost_report(request):
         date_range = report[input_tf]["data"]["range_date"]
         total_current_week = report[input_tf]["data"]["summary"]["current_period"]
         total_previous_week = report[input_tf]["data"]["summary"]["previous_period"]
+        cost_status_percent = Conversion.get_percentage(
+            total_current_week, total_previous_week
+        )
 
         (
             current_period_from,
@@ -62,12 +66,12 @@ def gcp_cost_report(request):
     tech_family = TechFamily.tech_cost()
 
     if total_current_week > total_previous_week:
-        icon = "arrow_upward"
-        bg_color = "danger"
+        icon = "fa-arrow-up"
+        text_color = "danger"
     else:
-        icon = "arrow_downward"
-        bg_color = "primary"
-
+        icon = "fa-arrow-down"
+        text_color = "primary"
+    print(cost_status_percent)
     data = {
         "tech_family": tech_family,
         "services": services,
@@ -78,9 +82,10 @@ def gcp_cost_report(request):
         "total_current_week": Conversion.idr_format(total_current_week),
         "total_previous_week": Conversion.idr_format(total_previous_week),
         "icon": icon,
-        "bg_color": bg_color,
+        "text_color": text_color,
         "current_week": f"{current_period_from} - {current_period_to}",
         "previous_week": f"{previous_period_from} - {previous_period_to}",
+        "cost_status_percent": f"{cost_status_percent}%",
     }
 
     return render(request, "pages/gcp_cost_report.html", data)
