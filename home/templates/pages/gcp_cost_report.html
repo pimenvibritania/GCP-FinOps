@@ -59,6 +59,31 @@
                         </form>
                         <div class="card-body px-0 pb-2">
                             <div class="table-responsive p-0">
+                                {% if services %}
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="card m-3">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Total Cost Current Week
+                                                        ({{ current_week }}):</h5>
+                                                    <div class="mt-2 btn bg-gradient-{{ bg_color }} text-lg">
+                                                        <i class="material-icons opacity-10">{{ icon }}</i>
+                                                        {{ total_current_week }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card m-3">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Total Cost Previous Week ({{ previous_week }}):</h5>
+                                                    <div class="mt-2 btn bg-gradient-warning text-lg">{{ total_previous_week }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
                                 <table class="table align-items-center mb-0" id="gcpReportCostDatatable">
                                     <thead>
                                     <tr>
