@@ -45,5 +45,4 @@ def cost_report_form(request):
         "input_tf": input_tf,
     }
 
-    print("dataaa\n", data)
     return render(request, "pages/gcp_cost_report.html", data)
