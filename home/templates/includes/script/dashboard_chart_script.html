@@ -96,10 +96,13 @@
             for (const [slug, costData] of Object.entries(data)) {
                 const ctx = document.getElementById(`chart-line-${slug}`).getContext("2d");
 
+                const costLabel = costData.data_label
+                const costValue = costData.data_cost
+
                 new Chart(ctx, {
                     type: "line",
                     data: {
-                        labels: costData.data_label,
+                        labels: costLabel,
                         datasets: [{
                             label: "Total Cost",
                             tension: 0,
@@ -110,70 +113,107 @@
                             borderWidth: 4,
                             backgroundColor: "transparent",
                             fill: true,
-                            data: costData.data_cost,
+                            data: costValue,
                             maxBarThickness: 6
 
                         }],
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false,
+                        maintainAspectRatio:
+                            false,
+                        plugins:
+                            {
+                                legend: {
+                                    display: false,
+                                }
                             }
-                        },
+                        ,
                         interaction: {
                             intersect: false,
-                            mode: 'index',
-                        },
+                            mode:
+                                'index',
+                        }
+                        ,
                         scales: {
                             y: {
                                 grid: {
                                     drawBorder: false,
-                                    display: true,
-                                    drawOnChartArea: true,
-                                    drawTicks: false,
-                                    borderDash: [5, 5],
-                                    color: 'rgba(255, 255, 255, .2)'
-                                },
+                                    display:
+                                        true,
+                                    drawOnChartArea:
+                                        true,
+                                    drawTicks:
+                                        false,
+                                    borderDash:
+                                        [5, 5],
+                                    color:
+                                        'rgba(255, 255, 255, .2)'
+                                }
+                                ,
                                 ticks: {
                                     display: true,
-                                    color: '#f8f9fa',
-                                    padding: 10,
-                                    font: {
-                                        size: 14,
-                                        weight: 300,
-                                        family: "Roboto",
-                                        style: 'normal',
-                                        lineHeight: 2
-                                    },
+                                    color:
+                                        '#f8f9fa',
+                                    padding:
+                                        10,
+                                    font:
+                                        {
+                                            size: 14,
+                                            weight:
+                                                300,
+                                            family:
+                                                "Roboto",
+                                            style:
+                                                'normal',
+                                            lineHeight:
+                                                2
+                                        }
+                                    ,
                                 }
-                            },
+                            }
+                            ,
                             x: {
                                 grid: {
                                     drawBorder: false,
-                                    display: false,
-                                    drawOnChartArea: false,
-                                    drawTicks: false,
-                                    borderDash: [5, 5]
-                                },
+                                    display:
+                                        false,
+                                    drawOnChartArea:
+                                        false,
+                                    drawTicks:
+                                        false,
+                                    borderDash:
+                                        [5, 5]
+                                }
+                                ,
                                 ticks: {
                                     display: true,
-                                    color: '#f8f9fa',
-                                    padding: 10,
-                                    font: {
-                                        size: 14,
-                                        weight: 300,
-                                        family: "Roboto",
-                                        style: 'normal',
-                                        lineHeight: 2
-                                    },
+                                    color:
+                                        '#f8f9fa',
+                                    padding:
+                                        10,
+                                    font:
+                                        {
+                                            size: 14,
+                                            weight:
+                                                300,
+                                            family:
+                                                "Roboto",
+                                            style:
+                                                'normal',
+                                            lineHeight:
+                                                2
+                                        }
+                                    ,
                                 }
-                            },
-                        },
-                    },
-                });
+                            }
+                            ,
+                        }
+                        ,
+                    }
+                    ,
+                })
+                ;
 
             }
         })
