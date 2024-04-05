@@ -119,8 +119,10 @@
                                                 <td class="align-middle text-center text-sm"><span
                                                         class="text-xs font-weight-bold text-uppercase">{{ service.name }}</span>
                                                 </td>
-                                                <td class="align-middle text-center text-sm"><span
-                                                        class="text-secondary text-xs font-weight-bold">{{ svc_cost.environment }}</span>
+                                                <td class="align-middle text-center text-sm">
+                                                    <span class="badge badge-sm bg-gradient-{% if svc_cost.environment == 'production' %}success{% elif svc_cost.environment == 'staging' %}primary{% else %}info{% endif %}">
+                                                        {{ svc_cost.environment }}
+                                                    </span>
                                                 </td>
                                                 <td class="align-middle text-center text-sm"><span
                                                         class="text-secondary text-xs font-weight-bold">{{ svc_cost.gcp_project }}</span>
