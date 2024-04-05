@@ -23,7 +23,7 @@ class GCPCostReport(ListView):
 
 
 @is_authenticated
-def cost_report_form(request):
+def gcp_cost_report(request):
     input_date = request.GET.get("date")
     input_period = request.GET.get("period")
     input_tf = request.GET.get("tech_family")
@@ -33,6 +33,17 @@ def cost_report_form(request):
         date_range = None
         total_current_week = 0
         total_previous_week = 0
+        (
+            current_period_from,
+            current_period_to,
+            previous_period_from,
+            previous_period_to,
+        ) = (
+            None,
+            None,
+            None,
+            None,
+        )
 
     else:
         report = BigQuery.get_periodical_cost(input_date, input_period)
@@ -41,12 +52,12 @@ def cost_report_form(request):
         total_current_week = report[input_tf]["data"]["summary"]["current_period"]
         total_previous_week = report[input_tf]["data"]["summary"]["previous_period"]
 
-    (
-        current_period_from,
-        current_period_to,
-        previous_period_from,
-        previous_period_to,
-    ) = Date.get_date_range(input_date, input_period)
+        (
+            current_period_from,
+            current_period_to,
+            previous_period_from,
+            previous_period_to,
+        ) = Date.get_date_range(input_date, input_period)
 
     tech_family = TechFamily.tech_cost()
 
