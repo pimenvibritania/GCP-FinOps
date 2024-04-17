@@ -3,6 +3,30 @@
 - ✅ **Authentication**: `Django.contrib.AUTH`, Registration
 <br />
 
+## Pre requisite (MacOs)
+
+> 👉 Install Mysql Client
+```bash
+$ brew install mysql
+```
+
+> 👉 Install pkg-config
+```bash
+$ brew install pkg-config
+```
+
+> 👉 Install Weasyprint
+```bash
+$ brew install libffi pango weasyprint
+```
+
+> 👉 Link homebrew
+```bash
+$ sudo ln -s /opt/homebrew/lib /usr/local/lib
+$ export LDFLAGS=-L/opt/homebrew/lib
+$ export DYLD_LIBRARY_PATH=/opt/homebrew/lib
+```
+
 ## Manual Build 
 
 > 👉 Install modules via `VENV`  
