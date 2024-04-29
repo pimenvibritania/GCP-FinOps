@@ -115,15 +115,25 @@ def period_validator(view_func):
     def _wrapped_view(cls, request, *args, **kwargs):
         period = request.GET.get("period")
 
-        if period is None or period not in ["weekly", "monthly"]:
+        if period is None or period != "weekly":
             return JsonResponse(
                 {
                     "success": False,
-                    "message": "The 'period' parameter is required and must be set to either 'weekly' or 'monthly'.",
+                    "message": "The 'period' parameter is required and must be set to 'weekly'",
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return view_func(cls, request, *args, **kwargs)
+
+        # if period is None or period not in ["weekly", "monthly"]:
+        #     return JsonResponse(
+        #         {
+        #             "success": False,
+        #             "message": "The 'period' parameter is required and must be set to either 'weekly' or 'monthly'.",
+        #         },
+        #         status=status.HTTP_400_BAD_REQUEST,
+        #     )
+        # return view_func(cls, request, *args, **kwargs)
 
     return _wrapped_view
 
