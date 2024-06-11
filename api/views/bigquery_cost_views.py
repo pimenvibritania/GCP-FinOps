@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.models.bigquery_cost import BigqueryCost as ApiBigqueryCost
-from api.serializers import (
+from api.serializers.serializers import (
     BigqueryCostSerializers,
 )
 from api.utils.bigquery_cost import formatting_report

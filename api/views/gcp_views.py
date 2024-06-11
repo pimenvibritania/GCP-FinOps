@@ -8,7 +8,7 @@ from api.models.gcp import (
     get_services as get_gcp_services,
     get_projects as get_gcp_projects,
 )
-from api.serializers import (
+from api.serializers.serializers import (
     GCPServiceSerializer,
     GCPProjectSerializer,
     GCPCostSerializer,

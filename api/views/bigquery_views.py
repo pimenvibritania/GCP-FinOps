@@ -11,7 +11,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 
 from api.models.bigquery import BigQuery
-from api.serializers import TechFamilySerializer, IndexWeightSerializer
+from api.serializers.serializers import TechFamilySerializer, IndexWeightSerializer
 from api.utils.conversion import Conversion
 from api.utils.decorator import date_validator, period_validator, user_is_admin
 from api.utils.generator import random_string, pdf

@@ -11,7 +11,7 @@ from ..models.kubecost import (
     KubecostInsertData,
     KubecostCheckStatus,
 )
-from ..serializers import (
+from api.serializers.serializers import (
     KubecostClusterSerializer,
     KubecostDeploymentSerializer,
     KubecostNamespaceMapSerializer,
