@@ -1,10 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from api.serializers import TechFamilySerializer
+from api.serializers.serializers import TechFamilySerializer
 from api.utils.decorator import user_is_admin
 from home.models.tech_family import TechFamily
-from django.db.models import Q
 from django.db import IntegrityError
 
 

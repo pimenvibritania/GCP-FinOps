@@ -14,3 +14,4 @@ from .services import Services
 from .services_db import ServicesDb
 from .tech_family import TechFamily
 from .techf_family_cost import TechFamilyCost
+import home.models.v2

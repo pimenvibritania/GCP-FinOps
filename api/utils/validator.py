@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from home.models import BigqueryUser, Department, GCPProjects
-from ..serializers import DepartmentSerializer, BigqueryUserSerializers
+from api.serializers.serializers import DepartmentSerializer, BigqueryUserSerializers
 from ..utils.exception import (
     UnprocessableEntityException,
     BadRequestException,

@@ -60,3 +60,10 @@ SUPPORT_SKU_IDS = ["B064-0606-E072", "7517-EEE3-D1DD"]
 ATLAS_MDI = ["53FE-5A1F-6519", "BCC4-400E-8ACC"]
 ATLAS_MFI = ["058A-D794-D43C"]
 MONGO_ATLAS = ATLAS_MFI + ATLAS_MDI
+
+GCP_LABEL_TECHFAMILY_MAPPING = {
+    "defi" : "defi_mfi",
+    "infra": "infra_mfi",
+    "mofi": "mofi",
+    "platform": "platform_mfi"
+}

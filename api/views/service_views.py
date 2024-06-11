@@ -4,7 +4,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.serializers import ServiceSerializer
+from api.serializers.serializers import ServiceSerializer
 from api.utils.decorator import user_is_admin
 from home.models.services import Services
 from home.models.tech_family import TechFamily

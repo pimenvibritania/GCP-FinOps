@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 from api.models.__constant import *
-from api.serializers import TechFamilySerializer
+from api.serializers.serializers import TechFamilySerializer
 from api.utils.conversion import Conversion
 from core.settings import (
     EXCLUDED_GCP_SERVICES,
