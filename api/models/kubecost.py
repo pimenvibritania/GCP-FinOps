@@ -12,7 +12,7 @@ from django.db import connection
 from django.db.utils import IntegrityError
 from kubernetes import client, config
 
-from api.serializers import (
+from api.serializers.serializers import (
     KubecostClusterSerializer,
     ServiceSerializer,
     KubecostDeployments,

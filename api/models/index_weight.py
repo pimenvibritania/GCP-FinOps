@@ -5,7 +5,7 @@ import os
 import requests
 from django.db.models import Q, Sum
 
-from api.serializers import IndexWeightSerializer
+from api.serializers.serializers import IndexWeightSerializer
 from api.utils.index_weight import mapping_data, check_current_month
 from home.models import KubecostDeployments, KubecostNamespaces, TechFamily
 
