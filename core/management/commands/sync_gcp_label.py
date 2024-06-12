@@ -1,18 +1,20 @@
-from datetime import datetime, timedelta
-
 from django.core.management.base import BaseCommand
 from api.models.v2.gcp_cost_resource import GCPCostResource
+from api.models.v2.gcp_label_mapping import GCPLabelMapping
+from datetime import datetime, timedelta
 
 
 class Command(BaseCommand):
-    help = "Distribute cost from BigQuery into CMS"
+    help = "Mapping Label from BigQuery into CMS"
 
     def add_arguments(self, parser):
         parser.add_argument('usage_date', type=str, help='Indicates the usage date to be synced')
+        parser.add_argument('label_key', type=str, help='Indicates the label_key to be synced')
         parser.add_argument('total_day', type=int, help='Total day to be synced')
 
     def handle(self, *args, **options):
         usage_date = options['usage_date']
+        label_key = options['label_key']
         total_day = options['total_day']
 
         if total_day <= 0:
@@ -21,4 +23,5 @@ class Command(BaseCommand):
         for day in range(total_day):
             current_date = datetime.strptime(usage_date, "%Y-%m-%d") + timedelta(days=day)
             current_date_f = current_date.strftime("%Y-%m-%d")
-            GCPCostResource.sync_cost(current_date_f)
+
+            GCPLabelMapping.sync_label_mapping(current_date_f, label_key)
