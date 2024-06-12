@@ -1,7 +1,8 @@
-from api.models.__constant import BIGQUERY_RESOURCE_DATASET_MFI, BIGQUERY_MDI_TABLE
+from api.models.__constant import BIGQUERY_RESOURCE_DATASET_MFI, BIGQUERY_MDI_TABLE, TF_PROJECT_MFI
 
 
 def get_cost_resource_query(billing, usage_date):
+
     if billing == "procar":
         return f"""
             SELECT 
@@ -15,7 +16,7 @@ def get_cost_resource_query(billing, usage_date):
             LEFT JOIN UNNEST(tags) AS tag
             WHERE 
               DATE(usage_start_time) = "{usage_date}"
-#               AND service.id = "1934-AA85-20F9"
+              AND project.id IN {tuple(TF_PROJECT_MFI)}
             GROUP BY 
               tag, 
               resource_global, 
