@@ -8,7 +8,7 @@ from api.serializers.v2.gcp_label_mapping_serializers import (
 )
 from home.models import GCPProjects, GCPServices, TechFamily
 from django.db import IntegrityError
-from api.models.__constant import GCP_LABEL_TECHFAMILY_MAPPING
+from api.models.__constant import GCP_LABEL_TECHFAMILY_MAPPING, BIGQUERY_RESOURCE_DATASET_MFI
 
 
 class GCPLabelMappingViews(APIView):
@@ -19,10 +19,12 @@ class GCPLabelMappingViews(APIView):
         # Simple GET method to return an OK response
         return Response("OK", status=status.HTTP_200_OK)
 
+    """
+        Mapping labels from BigQuery into our CMS.
+        Currently, we only support MFI (Procar billing [development]),
+        because MDI (Moladin billing [development]) has already shut down.
+    """
     def post(self, request, *args, **kwargs):
-        # BigQuery dataset identifier
-        dataset = "moladin-mof-devl.mof_devl_project.gcp_billing_export_resource_v1_01B320_ECED51_5ED521"
-
         # Validate incoming request data using the BigqueryLabelMappingSerializers
         serializer = BigqueryLabelMappingSerializers(data=request.data)
 
@@ -43,7 +45,7 @@ class GCPLabelMappingViews(APIView):
               service.description AS svc, 
               service.id AS svc_id, 
               IFNULL(resource.global_name, "unnamed") AS resource_global
-            FROM `{dataset}`
+            FROM `{BIGQUERY_RESOURCE_DATASET_MFI}`
               LEFT JOIN UNNEST(labels) AS label
             WHERE DATE(usage_start_time) = "{usage_date}"
             AND label.key = "{label_key}"
@@ -82,9 +84,9 @@ class GCPLabelMappingViews(APIView):
                     "tech_family": TechFamily.objects.get(slug=tech_family).id,
                 }
             except (
-                TechFamily.DoesNotExist,
-                GCPProjects.DoesNotExist,
-                GCPServices.DoesNotExist,
+                    TechFamily.DoesNotExist,
+                    GCPProjects.DoesNotExist,
+                    GCPServices.DoesNotExist,
             ) as e:
                 # Return error response if any of the related objects are not found
                 error_response = {"error": f"{e}"}

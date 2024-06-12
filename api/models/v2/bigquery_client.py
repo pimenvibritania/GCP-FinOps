@@ -11,7 +11,7 @@ class BigQuery:
         # Initialize the credentials using the service account key file
         self.credentials = service_account.Credentials.from_service_account_file(
             key_path,
-            scopes=["https://www.googleapis.com/auth/cloud-platform"],  # Specify the scopes required for the BigQuery API
+            scopes=["https://www.googleapis.com/auth/cloud-platform"],
         )
 
         # Create a BigQuery client using the project and credentials

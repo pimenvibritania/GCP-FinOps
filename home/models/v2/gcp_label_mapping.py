@@ -28,7 +28,16 @@ class GCPLabelMapping(BaseModel):
     updated_at = models.DateTimeField(auto_now=False, null=True)
 
     def __str__(self):
-        return f"Resource name: `{self.usage_date}` on Tech family ${self.tech_family.name}"
+        return self.identifier
+
+    @classmethod
+    def get_label_mapping(cls, usage_date):
+        return cls.objects.filter(usage_date=usage_date).exclude(label_value="infra")
+
+    @classmethod
+    def get_identifiers(cls, usage_date):
+        return (cls.objects.filter(usage_date=usage_date).exclude(label_value="infra")
+                .values_list('identifier', flat=True))
 
     @classmethod
     def get_all(cls):
