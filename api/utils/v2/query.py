@@ -29,7 +29,7 @@ def get_cost_resource_query(billing, usage_date):
     if billing == "procar":
         return f"""
             SELECT 
-              IFNULL(project.id, "shared-project") AS proj, 
+              IFNULL(project.id, "shared-support-prod") AS proj, 
               service.description AS svc, 
               service.id AS svc_id, 
               IFNULL(resource.global_name, "unlabelled") as resource_global,
@@ -50,7 +50,7 @@ def get_cost_resource_query(billing, usage_date):
     else:
         return f"""
             SELECT 
-              IFNULL(project.id, "shared-project") AS proj, 
+              IFNULL(project.id, "shared-support-prod") AS proj, 
               service.description AS svc, 
               service.id AS svc_id, 
               IFNULL(tag.key, "untagged") AS tag,
