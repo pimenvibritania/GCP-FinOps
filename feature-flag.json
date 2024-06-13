@@ -32,14 +32,23 @@
     "4528-FDD0-A2A0": [],
     "82AF-DE7A-51D0": [],
     "0AC2-4B25-C429": [],
-    "53FE-5A1F-6519": [],
+    "53FE-5A1F-6519": [
+      "platform_mdi",
+      "defi_mdi"
+    ],
     "CAE2-A537-4A95": [],
     "3B6F-D925-520E": [],
-    "058A-D794-D43C": [],
+    "058A-D794-D43C": [
+      "platform_mfi"
+    ],
     "EE82-7A5E-871C": [],
     "5E18-9A83-2867": [],
-    "BCC4-400E-8ACC": []
+    "BCC4-400E-8ACC": [
+      "platform_mdi",
+      "defi_mdi"
+    ]
   },
+
   "excluded_tag_key_mfi": {
     "procar": [
       "defi_mfi",

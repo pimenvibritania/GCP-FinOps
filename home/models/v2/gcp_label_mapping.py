@@ -35,6 +35,10 @@ class GCPLabelMapping(BaseModel):
         return cls.objects.filter(usage_date=usage_date).exclude(label_value="infra")
 
     @classmethod
+    def get_by_label_value(cls, usage_date, label_value):
+        return cls.objects.filter(usage_date=usage_date, label_value=label_value).values_list('identifier', flat=True)
+
+    @classmethod
     def get_identifiers(cls, usage_date):
         return (cls.objects.filter(usage_date=usage_date).exclude(label_value="infra")
                 .values_list('identifier', flat=True))

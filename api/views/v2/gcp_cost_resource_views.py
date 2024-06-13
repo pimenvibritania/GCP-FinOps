@@ -5,26 +5,95 @@ from rest_framework.response import Response
 from api.models.v2.bigquery_client import BigQuery
 from api.serializers.v2.gcp_cost_resource_serializers import BigqueryCostResourceSerializers, GCPCostResourceSerializers
 from api.utils.v2.query import get_cost_resource_query
-from api.models.v2.__constant import TECHFAMILY_GROUP
-from api.models.__constant import TF_PROJECT_INCLUDED, MONGO_ATLAS, ATLAS_MDI_TF, ATLAS_MFI_TF
+from api.models.v2.__constant import TECHFAMILY_GROUP, NULL_PROJECT, SERVICE_NULL_PROJECT_ALLOWED, TF_PROJECT_INCLUDED
 from home.models import IndexWeight, GCPProjects, GCPServices, TechFamily
 from datetime import datetime, timedelta
 from core.settings import EXCLUDED_GCP_SERVICES, INCLUDED_GCP_TAG_KEY
-from home.models.v2 import GCPLabelMapping
+from home.models.v2 import GCPLabelMapping, GCPCostResource
 from api.models.bigquery import BigQuery as BQ
 
 
-class GCPCostResource(generics.ListAPIView):
+class GCPCostResourceViews(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs) -> object:
-        # Validate incoming request data
+
         serializer = BigqueryCostResourceSerializers(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
 
-        return Response("OK", status=status.HTTP_200_OK)
+        day = request.data.get('total_day')
+        if day is None:
+            day = 1
 
+        gcp_services = GCPServices.get_list_services()
+        gcp_costs = GCPCostResource.get_cost_resource(usage_date=serializer.data.get('date'), day=day)
+
+        result = {
+        }
+
+        tf_billing = {value: key for key in TECHFAMILY_GROUP for value in TECHFAMILY_GROUP[key]}
+
+        # Iterate over each cost entry
+        for cost_entry in gcp_costs:
+            tech_family_slug = str(cost_entry["tech_family__slug"])
+            service_name = cost_entry["gcp_service__name"]
+            environment = cost_entry["environment"]
+            previous_cost = cost_entry["previous_cost"]
+            current_cost = cost_entry["current_cost"]
+            billing = tf_billing[tech_family_slug]
+
+            if billing not in result:
+                result[billing] = {}
+
+            if "__summary" not in result[billing]:
+                result[billing]['__summary'] = {
+                    "current_cost": 0,
+                    "previous_cost": 0
+                }
+
+            result[billing]['__summary']['current_cost'] += current_cost
+            result[billing]['__summary']['previous_cost'] += previous_cost
+
+            if tech_family_slug not in result[billing]:
+                result[billing][tech_family_slug] = {}
+
+            if "__summary" not in result[billing][tech_family_slug]:
+                result[billing][tech_family_slug]['__summary'] = {
+                    "current_cost": 0,
+                    "previous_cost": 0
+                }
+
+            result[billing][tech_family_slug]['__summary']['current_cost'] += current_cost
+            result[billing][tech_family_slug]['__summary']['previous_cost'] += previous_cost
+
+            if service_name not in result[billing][tech_family_slug]:
+                result[billing][tech_family_slug][service_name] = {}
+
+            # Assign costs directly without checking environment existence
+            result[billing][tech_family_slug][service_name][environment] = {
+                "previous_cost": previous_cost,
+                "current_cost": current_cost
+            }
+
+        # Fill in missing services with default costs
+        for billing, billing_data in result.items():
+            for tech_family_slug in billing_data:
+                if tech_family_slug == "__summary":
+                    continue
+                for service_name in gcp_services:
+                    if service_name not in billing_data[tech_family_slug]:
+                        billing_data[tech_family_slug][service_name] = {}
+                    for env in ["development", "staging", "production"]:
+                        if env not in billing_data[tech_family_slug][service_name]:
+                            billing_data[tech_family_slug][service_name][env] = {
+                                "previous_cost": 0,
+                                "current_cost": 0
+                            }
+
+        return Response(result, status=status.HTTP_200_OK)
+
+    # noinspection PyMethodMayBeStatic
     def post(self, request, *args, **kwargs):
         # Validate incoming request data
         serializer = BigqueryCostResourceSerializers(data=request.data)
@@ -47,6 +116,7 @@ class GCPCostResource(generics.ListAPIView):
         # Get daily index weight and label mappings for the given usage date
         index_weight = IndexWeight.get_daily_index_weight(usage_date_next_str)
         label_mapping = GCPLabelMapping.get_label_mapping(usage_date=usage_date)
+        exclude_label_identifier = GCPLabelMapping.get_by_label_value(usage_date=usage_date, label_value="infra")
         label_identifier = {label.identifier: label.tech_family.slug for label in label_mapping}
 
         cost_response = {}
@@ -66,16 +136,20 @@ class GCPCostResource(generics.ListAPIView):
             for data in dataset:
                 project_id = data.proj
                 service_id = data.svc_id
+
+                # Excluding cost on null project except ATLAS and Support
+                if project_id in NULL_PROJECT and service_id not in SERVICE_NULL_PROJECT_ALLOWED:
+                    continue
+
+                if billing == "procar":
+                    # Excluding cost by label defined in `exclude_label_identifier` -> "infra"
+                    identifier = f"{service_id}_{data.resource_global}"
+                    if identifier in exclude_label_identifier:
+                        continue
+
                 tag_name = data.tag
                 total_cost = data.total_cost
                 index_weight_tf = index_weight[index_weight_key]
-
-                """
-                    @TODO:
-                    - Handle ATLAS Service
-                    - Handle shared SUPPORT
-                    - Handle Android Project
-                """
 
                 # Skip costs not in TF_PROJECT_INCLUDED
                 if project_id not in TF_PROJECT_INCLUDED:
@@ -86,7 +160,7 @@ class GCPCostResource(generics.ListAPIView):
                 """
                 # Determine environment, handling 'null_project' as a special case
                 environment = (
-                    "all" if project_id == "null_project" else
+                    "production" if project_id == NULL_PROJECT else
                     GCPProjects.get_environment(project_id)["environment"]
                 )
 
