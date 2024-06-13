@@ -18,6 +18,7 @@ class GCPCostResource(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs) -> object:
+        # Validate incoming request data
         serializer = BigqueryCostResourceSerializers(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
@@ -25,6 +26,7 @@ class GCPCostResource(generics.ListAPIView):
         return Response("OK", status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
+        # Validate incoming request data
         serializer = BigqueryCostResourceSerializers(data=request.data)
 
         if not serializer.is_valid():
@@ -37,10 +39,12 @@ class GCPCostResource(generics.ListAPIView):
         """
             Because index weight inserted into CMS DB is -1 day, so need to +1 to match from gcp usage_date
         """
+        # Adjust the usage date by adding one day to match GCP usage date
         usage_date_fmt = datetime.strptime(usage_date, "%Y-%m-%d")
         usage_date_next = usage_date_fmt + timedelta(days=1)
         usage_date_next_str = usage_date_next.strftime("%Y-%m-%d")
 
+        # Get daily index weight and label mappings for the given usage date
         index_weight = IndexWeight.get_daily_index_weight(usage_date_next_str)
         label_mapping = GCPLabelMapping.get_label_mapping(usage_date=usage_date)
         label_identifier = {label.identifier: label.tech_family.slug for label in label_mapping}
@@ -50,6 +54,7 @@ class GCPCostResource(generics.ListAPIView):
         for billing in billing_address:
             index_weight_key = "MFI" if billing == "procar" else "MDI"
 
+            # Fetch data using a query based on billing and usage date
             query = get_cost_resource_query(billing=billing, usage_date=usage_date)
 
             dataset = list(BigQuery.fetch(query=query))
@@ -72,18 +77,14 @@ class GCPCostResource(generics.ListAPIView):
                     - Handle Android Project
                 """
 
-                # if service_id in MONGO_ATLAS:
-                #     altas_tf = ATLAS_MFI_TF if billing == "procar" else ATLAS_MDI_TF
-
-                """
-                    Skipping the cost are not in TF_PROJECT_INCLUDED
-                """
+                # Skip costs not in TF_PROJECT_INCLUDED
                 if project_id not in TF_PROJECT_INCLUDED:
                     continue
 
                 """
                     The `null_project` usually is ATLAS service, so the environment is all
                 """
+                # Determine environment, handling 'null_project' as a special case
                 environment = (
                     "all" if project_id == "null_project" else
                     GCPProjects.get_environment(project_id)["environment"]
@@ -92,11 +93,13 @@ class GCPCostResource(generics.ListAPIView):
                 """
                     Filter by exclude service on feature flag [p2]
                 """
+                # Exclude services based on feature flags
                 excluded_service = EXCLUDED_GCP_SERVICES[service_id]
                 excluded_tf_by_service = [excluded for excluded in excluded_service if excluded in tech_families]
                 included_tf = [included for included in tech_families if included not in excluded_tf_by_service]
                 included_index_weight = index_weight_tf
 
+                # Adjust index weight based on included tech families
                 if len(included_tf) == 1:
                     included_index_weight[included_tf[0]][environment] = 100
                     for exclude in excluded_tf_by_service:
@@ -111,6 +114,7 @@ class GCPCostResource(generics.ListAPIView):
                 """
                     Filter by include in TAG on feature flag [p1]
                 """
+                # Include tags based on feature flags
                 tag_key = index_weight_key
 
                 if tag_name in INCLUDED_GCP_TAG_KEY[tag_key]:
@@ -134,6 +138,7 @@ class GCPCostResource(generics.ListAPIView):
                     Label key included is `tech_family`.
                     Only one label (one tech_family) in one instance.
                 """
+                # Include labels based on mappings, only for 'procar' billing
                 if billing == "procar":
                     resource_name = data.resource_global
                     identifier = f"{service_id}_{resource_name}"
@@ -145,6 +150,7 @@ class GCPCostResource(generics.ListAPIView):
                         for exclude in excluded_tf_by_service:
                             included_index_weight[exclude][environment] = 0
 
+                # Prepare data for each included tech family
                 cost_data_families = []
 
                 for tech_family in included_tf:
@@ -157,6 +163,7 @@ class GCPCostResource(generics.ListAPIView):
                         resource_identifier = resource_global_name
 
                     try:
+                        # Prepare serializer data
                         serializer_data = {
                             "usage_date": usage_date,
                             "cost": total_cost * (tf_index_weight / 100),
@@ -177,18 +184,19 @@ class GCPCostResource(generics.ListAPIView):
                             GCPProjects.DoesNotExist,
                             GCPServices.DoesNotExist,
                     ) as e:
+                        # Handle missing database entries
                         error_response = {"error": f"{e}"}
                         print(error_response)
                         return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
 
+                    # Serialize and save the data
                     serializer_cost = GCPCostResourceSerializers(data=serializer_data)
                     try:
-                        # Save the valid data and add it to the response list
                         if serializer_cost.is_valid():
                             serializer_cost.save()
                             cost_data_families.append(serializer_cost.data)
                     except IntegrityError as e:
-                        # Handle integrity errors (e.g., duplicate entries)
+                        # Handle integrity errors, such as duplicate entries
                         error_response = {"error": f"Duplicate entry for cost resource: [{e}]"}
                         print(error_response)
                         return Response(error_response, status=status.HTTP_400_BAD_REQUEST)

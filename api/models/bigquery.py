@@ -75,7 +75,7 @@ class BigQuery:
                 (SELECT currency_conversion_rate AS currency,FORMAT_TIMESTAMP('%Y-%m-%d', _PARTITIONTIME) AS date 
                 FROM `moladin-shared-devl.shared_devl_project.gcp_billing_export_v1_014380_D715C8_03F1FE` 
                 WHERE _PARTITIONTIME = TIMESTAMP('{current_date_f}') 
-                GROUP BY currency, date)
+                GROUP BY currency, date) as cd
             LIMIT 1
         """
 
