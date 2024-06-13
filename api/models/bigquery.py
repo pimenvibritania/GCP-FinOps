@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 from api.utils.bigquery import *
 from api.utils.date import Date
 from home.models.index_weight import IndexWeight
+from api.models.__constant import BIGQUERY_MFI_TABLE
 
 
 class BigQuery:
@@ -43,6 +44,27 @@ class BigQuery:
         return cls().client.query(query_template).result()
 
     @classmethod
+    def get_daily_conversion_rate(cls, usage_date):
+        query = f"""
+                    SELECT AVG(currency) 
+                    FROM 
+                        (SELECT currency_conversion_rate AS currency,FORMAT_TIMESTAMP('%Y-%m-%d', _PARTITIONTIME) 
+                            AS date 
+                        FROM `{BIGQUERY_MFI_TABLE}` 
+                        WHERE _PARTITIONTIME = TIMESTAMP('{usage_date}') 
+                        GROUP BY currency, date) as cd
+                    LIMIT 1
+                """
+
+        query_job = cls().client.query(query)
+
+        result = ""
+        for res in query_job.result():
+            result = res
+
+        return result[0]
+
+    @classmethod
     def get_conversion_rate(cls, input_date):
         date = datetime.strptime(input_date, "%Y-%m-%d")
         current_date = date - timedelta(days=1)
@@ -53,7 +75,7 @@ class BigQuery:
                 (SELECT currency_conversion_rate AS currency,FORMAT_TIMESTAMP('%Y-%m-%d', _PARTITIONTIME) AS date 
                 FROM `moladin-shared-devl.shared_devl_project.gcp_billing_export_v1_014380_D715C8_03F1FE` 
                 WHERE _PARTITIONTIME = TIMESTAMP('{current_date_f}') 
-                GROUP BY currency, date)
+                GROUP BY currency, date) as cd
             LIMIT 1
         """
 

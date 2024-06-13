@@ -50,5 +50,19 @@
       "platform_mfi"
     ]
   },
-  "excluded_tag_key_mdi": []
+  "excluded_tag_key_mdi": [],
+
+  "tag_included": {
+    "MFI": {
+      "procar": [
+        "mofi"
+      ],
+      "exclude_cost": [
+        "mofi"
+      ]
+    },
+    "MDI": {
+    }
+  }
 }
+

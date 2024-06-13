@@ -12,6 +12,7 @@ env
 *.sqlite*
 
 .env
+.env.prod
 .venv
 .vscode
 out.json
