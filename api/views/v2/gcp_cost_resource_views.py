@@ -26,6 +26,15 @@ class GCPCostResourceViews(generics.ListAPIView):
         if day is None:
             day = 1
 
+        """
+            @TODO:
+            - Filter by:
+                - billing (procar & moladin)
+                - tech-family
+                - day-to-day
+            - Cache
+        """
+
         gcp_services = GCPServices.get_list_services()
         gcp_costs = GCPCostResource.get_cost_resource(usage_date=serializer.data.get('date'), day=day)
 
