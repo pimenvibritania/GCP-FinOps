@@ -6,6 +6,7 @@ from django.db import IntegrityError
 from api.models.v2.__constant import TECHFAMILY_GROUP, TF_PROJECT_INCLUDED, NULL_PROJECT, SERVICE_NULL_PROJECT_ALLOWED
 from api.models.v2.bigquery_client import BigQuery
 from api.serializers.v2.gcp_cost_resource_serializers import BigqueryCostResourceSerializers, GCPCostResourceSerializers
+from api.utils.v2.notify import Notification
 from api.utils.v2.query import get_cost_resource_query
 from core.settings import EXCLUDED_GCP_SERVICES, INCLUDED_GCP_TAG_KEY
 from home.models import IndexWeight, GCPProjects, GCPServices, TechFamily
@@ -190,9 +191,13 @@ class GCPCostResource:
                             cost_data_families.append(serializer_cost.data)
                     except IntegrityError as e:
                         # Handle integrity errors (e.g., duplicate entries)
-                        error_response = {"error": f"Duplicate entry for cost resource: [{e}]"}
-                        print(error_response)
-                        raise Exception(error_response)
+
+                        payload = {
+                            "error_message": f"Duplicate entry for cost resource: [{e}]",
+                            "payload": serializer_data
+                        }
+                        Notification.send_slack_failed(payload)
+                        continue
 
                 cost_response[billing].append(cost_data_families)
 

@@ -1,13 +1,15 @@
 from django.db import IntegrityError
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from django.core.cache import cache
 
+from api.models.__constant import REDIS_TTL, MDI_PROJECT, MFI_PROJECT
 from api.models.v2.bigquery_client import BigQuery
 from api.serializers.v2.gcp_cost_resource_serializers import BigqueryCostResourceSerializers, GCPCostResourceSerializers
 from api.utils.v2.query import get_cost_resource_query
 from api.models.v2.__constant import TECHFAMILY_GROUP, NULL_PROJECT, SERVICE_NULL_PROJECT_ALLOWED, TF_PROJECT_INCLUDED
 from home.models import IndexWeight, GCPProjects, GCPServices, TechFamily
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from core.settings import EXCLUDED_GCP_SERVICES, INCLUDED_GCP_TAG_KEY
 from home.models.v2 import GCPLabelMapping, GCPCostResource
 from api.models.bigquery import BigQuery as BQ
@@ -18,89 +20,107 @@ class GCPCostResourceViews(generics.ListAPIView):
 
     def get(self, request, *args, **kwargs) -> object:
 
-        serializer = BigqueryCostResourceSerializers(data=request.data)
+        serializer = BigqueryCostResourceSerializers(data=request.GET)
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
 
-        day = request.data.get('total_day')
+        day = request.GET.get('day')
         if day is None:
             day = 1
 
-        """
-            @TODO:
-            - Filter by:
-                - billing (procar & moladin)
-                - tech-family
-                - day-to-day
-            - Cache
-        """
+        cache_key = f"cms-cost-resource-{date.today()}-{day}-day"
 
-        gcp_services = GCPServices.get_list_services()
-        gcp_costs = GCPCostResource.get_cost_resource(usage_date=serializer.data.get('date'), day=day)
+        if cache.get(cache_key):
+            result = cache.get(cache_key)
+        else:
+            usage_date = serializer.data.get('date')
+            ranged_date_from = datetime.strptime(usage_date, "%Y-%m-%d") - timedelta(days=(int(day)*2)-1)
+            ranged_date_from_f = ranged_date_from.strftime("%Y-%m-%d")
+            gcp_services = GCPServices.get_list_services()
+            gcp_costs = GCPCostResource.get_cost_resource(usage_date=usage_date, day=int(day))
 
-        result = {
-        }
-
-        tf_billing = {value: key for key in TECHFAMILY_GROUP for value in TECHFAMILY_GROUP[key]}
-
-        # Iterate over each cost entry
-        for cost_entry in gcp_costs:
-            tech_family_slug = str(cost_entry["tech_family__slug"])
-            service_name = cost_entry["gcp_service__name"]
-            environment = cost_entry["environment"]
-            previous_cost = cost_entry["previous_cost"]
-            current_cost = cost_entry["current_cost"]
-            billing = tf_billing[tech_family_slug]
-
-            if billing not in result:
-                result[billing] = {}
-
-            if "__summary" not in result[billing]:
-                result[billing]['__summary'] = {
-                    "current_cost": 0,
-                    "previous_cost": 0
-                }
-
-            result[billing]['__summary']['current_cost'] += current_cost
-            result[billing]['__summary']['previous_cost'] += previous_cost
-
-            if tech_family_slug not in result[billing]:
-                result[billing][tech_family_slug] = {}
-
-            if "__summary" not in result[billing][tech_family_slug]:
-                result[billing][tech_family_slug]['__summary'] = {
-                    "current_cost": 0,
-                    "previous_cost": 0
-                }
-
-            result[billing][tech_family_slug]['__summary']['current_cost'] += current_cost
-            result[billing][tech_family_slug]['__summary']['previous_cost'] += previous_cost
-
-            if service_name not in result[billing][tech_family_slug]:
-                result[billing][tech_family_slug][service_name] = {}
-
-            # Assign costs directly without checking environment existence
-            result[billing][tech_family_slug][service_name][environment] = {
-                "previous_cost": previous_cost,
-                "current_cost": current_cost
+            result = {
             }
 
-        # Fill in missing services with default costs
-        for billing, billing_data in result.items():
-            for tech_family_slug in billing_data:
-                if tech_family_slug == "__summary":
-                    continue
-                for service_name in gcp_services:
-                    if service_name not in billing_data[tech_family_slug]:
-                        billing_data[tech_family_slug][service_name] = {}
-                    for env in ["development", "staging", "production"]:
-                        if env not in billing_data[tech_family_slug][service_name]:
-                            billing_data[tech_family_slug][service_name][env] = {
-                                "previous_cost": 0,
-                                "current_cost": 0
-                            }
+            tf_billing = {value: key for key in TECHFAMILY_GROUP for value in TECHFAMILY_GROUP[key]}
 
-        return Response(result, status=status.HTTP_200_OK)
+            # Iterate over each cost entry
+            for cost_entry in gcp_costs:
+                tech_family_slug = str(cost_entry["tech_family__slug"])
+                service_name = cost_entry["gcp_service__name"]
+                environment = cost_entry["environment"]
+                previous_cost = cost_entry["previous_cost"]
+                current_cost = cost_entry["current_cost"]
+                billing = tf_billing[tech_family_slug]
+
+                if billing not in result:
+                    result[billing] = {}
+
+                if "__summary" not in result[billing]:
+                    result[billing]['__summary'] = {
+                        "name": "procar",
+                        "usage_date": f"{ranged_date_from_f} - {usage_date}",
+                        "current_cost": 0,
+                        "previous_cost": 0
+                    }
+
+                result[billing]['__summary']['current_cost'] += current_cost
+                result[billing]['__summary']['previous_cost'] += previous_cost
+
+                if tech_family_slug not in result[billing]:
+                    result[billing][tech_family_slug] = {}
+
+                if "__summary" not in result[billing][tech_family_slug]:
+                    result[billing][tech_family_slug]['__summary'] = {
+                        "name": tech_family_slug,
+                        "usage_date": f"{ranged_date_from_f} - {usage_date}",
+                        "current_cost": 0,
+                        "previous_cost": 0
+                    }
+
+                result[billing][tech_family_slug]['__summary']['current_cost'] += current_cost
+                result[billing][tech_family_slug]['__summary']['previous_cost'] += previous_cost
+
+                if service_name not in result[billing][tech_family_slug]:
+                    result[billing][tech_family_slug][service_name] = {}
+
+                # Assign costs directly without checking environment existence
+                result[billing][tech_family_slug][service_name][environment] = {
+                    "previous_cost": previous_cost,
+                    "current_cost": current_cost
+                }
+
+            # Fill in missing services with default costs
+            for billing, billing_data in result.items():
+                for tech_family_slug in billing_data:
+                    if tech_family_slug == "__summary":
+                        continue
+                    for service_name in gcp_services:
+                        if service_name not in billing_data[tech_family_slug]:
+                            billing_data[tech_family_slug][service_name] = {}
+                        for env in ["development", "staging", "production"]:
+                            if env not in billing_data[tech_family_slug][service_name]:
+                                billing_data[tech_family_slug][service_name][env] = {
+                                    "previous_cost": 0,
+                                    "current_cost": 0
+                                }
+
+        cache.set(cache_key, result, timeout=REDIS_TTL)
+
+        supported_billing = ["procar", "moladin"]
+        billing_filter = request.GET.get('billing')
+        tech_family_filter = request.GET.get('tech-family')
+
+        if tech_family_filter in MDI_PROJECT:
+            response_data = result["moladin"][tech_family_filter]
+        elif tech_family_filter in MFI_PROJECT:
+            response_data = result["procar"][tech_family_filter]
+        elif billing_filter in supported_billing:
+            response_data = result[billing_filter]
+        else:
+            response_data = result
+
+        return Response(response_data, status=status.HTTP_200_OK)
 
     # noinspection PyMethodMayBeStatic
     def post(self, request, *args, **kwargs):
