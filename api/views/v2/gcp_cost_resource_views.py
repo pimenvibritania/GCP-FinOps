@@ -260,9 +260,9 @@ class GCPCostResourceViews(generics.ListAPIView):
                     tf_index_weight = included_index_weight[tech_family][environment]
                     if billing == "procar":
                         resource_global_name = data.resource_global
-                        resource_identifier = f"{service_id}_{resource_global_name}"
+                        resource_identifier = f"{service_id}_{resource_global_name}_{tag_name}"
                     else:
-                        resource_global_name = f"moladin_{service_id}_{tech_family}_{usage_date}"
+                        resource_global_name = f"moladin_{service_id}_{tech_family}_{usage_date}_{tag_name}"
                         resource_identifier = resource_global_name
 
                     try:
