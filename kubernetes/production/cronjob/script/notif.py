@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 SLACK_WEBHOOK_URL = getenv("SLACK_WEBHOOK_URL")
 
+
 def send_slack(message):
     headers = {"Content-type": "application/json"}
     payload = {"text": message}

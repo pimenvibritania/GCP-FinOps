@@ -68,5 +68,6 @@ class GCPLabelMapping:
                 error_response = {"error": f"Duplicate entry for label mapping: [{e}]"}
                 raise Exception(error_response)
 
-        with open('report.json', 'w') as f:
+        logfile = f"logs/log_label_{usage_date}.json"
+        with open(logfile, 'w') as f:
             json.dump(data_response, f)

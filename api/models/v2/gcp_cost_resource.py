@@ -3,10 +3,10 @@ from datetime import datetime, timedelta
 
 from django.db import IntegrityError
 
-from api.models.__constant import TF_PROJECT_INCLUDED
-from api.models.v2.__constant import TECHFAMILY_GROUP
+from api.models.v2.__constant import TECHFAMILY_GROUP, TF_PROJECT_INCLUDED, NULL_PROJECT, SERVICE_NULL_PROJECT_ALLOWED
 from api.models.v2.bigquery_client import BigQuery
 from api.serializers.v2.gcp_cost_resource_serializers import BigqueryCostResourceSerializers, GCPCostResourceSerializers
+from api.utils.v2.notify import Notification
 from api.utils.v2.query import get_cost_resource_query
 from core.settings import EXCLUDED_GCP_SERVICES, INCLUDED_GCP_TAG_KEY
 from home.models import IndexWeight, GCPProjects, GCPServices, TechFamily
@@ -33,19 +33,23 @@ class GCPCostResource:
         """
             Because index weight inserted into CMS DB is -1 day, so need to +1 to match from gcp usage_date
         """
+        # Adjust the usage date by adding one day to match GCP usage date
         usage_date_fmt = datetime.strptime(usage_date, "%Y-%m-%d")
         usage_date_next = usage_date_fmt + timedelta(days=1)
         usage_date_next_str = usage_date_next.strftime("%Y-%m-%d")
 
         index_weight = IndexWeight.get_daily_index_weight(usage_date_next_str)
         label_mapping = GCPLabelMapping.get_label_mapping(usage_date=usage_date)
+        exclude_label_identifier = GCPLabelMapping.get_by_label_value(usage_date=usage_date, label_value="infra")
         label_identifier = {label.identifier: label.tech_family.slug for label in label_mapping}
 
         cost_response = {}
 
         for billing in billing_address:
+
             index_weight_key = "MFI" if billing == "procar" else "MDI"
 
+            # Fetch data using a query based on billing and usage date
             query = get_cost_resource_query(billing=billing, usage_date=usage_date)
 
             dataset = list(BigQuery.fetch(query=query))
@@ -57,19 +61,20 @@ class GCPCostResource:
             for data in dataset:
                 project_id = data.proj
                 service_id = data.svc_id
+
+                # Excluding cost on null project except ATLAS and Support
+                if project_id in NULL_PROJECT and service_id not in SERVICE_NULL_PROJECT_ALLOWED:
+                    continue
+
+                if billing == "procar":
+                    # Excluding cost by label defined in `exclude_label_identifier` -> "infra"
+                    identifier = f"{service_id}_{data.resource_global}"
+                    if identifier in exclude_label_identifier:
+                        continue
+
                 tag_name = data.tag
                 total_cost = data.total_cost
                 index_weight_tf = index_weight[index_weight_key]
-
-                """
-                    @TODO:
-                    - Handle ATLAS Service
-                    - Handle shared SUPPORT
-                    - Handle Android Project
-                """
-
-                # if service_id in MONGO_ATLAS:
-                #     altas_tf = ATLAS_MFI_TF if billing == "procar" else ATLAS_MDI_TF
 
                 """
                     Skipping the cost are not in TF_PROJECT_INCLUDED
@@ -81,7 +86,7 @@ class GCPCostResource:
                     The `null_project` usually is ATLAS service, so the environment is all
                 """
                 environment = (
-                    "all" if project_id == "null_project" else
+                    "production" if project_id == NULL_PROJECT else
                     GCPProjects.get_environment(project_id)["environment"]
                 )
 
@@ -141,15 +146,16 @@ class GCPCostResource:
                         for exclude in excluded_tf_by_service:
                             included_index_weight[exclude][environment] = 0
 
+                # Prepare data for each included tech family
                 cost_data_families = []
 
                 for tech_family in included_tf:
                     tf_index_weight = included_index_weight[tech_family][environment]
                     if billing == "procar":
                         resource_global_name = data.resource_global
-                        resource_identifier = f"{service_id}_{resource_global_name}"
+                        resource_identifier = f"{service_id}_{resource_global_name}_{tag_name}"
                     else:
-                        resource_global_name = f"moladin_{service_id}_{tech_family}_{usage_date}"
+                        resource_global_name = f"moladin_{service_id}_{tech_family}_{usage_date}_{tag_name}"
                         resource_identifier = resource_global_name
 
                     try:
@@ -185,11 +191,16 @@ class GCPCostResource:
                             cost_data_families.append(serializer_cost.data)
                     except IntegrityError as e:
                         # Handle integrity errors (e.g., duplicate entries)
-                        error_response = {"error": f"Duplicate entry for cost resource: [{e}]"}
-                        print(error_response)
-                        raise Exception(error_response)
+
+                        payload = {
+                            "error_message": f"Duplicate entry for cost resource: [{e}]",
+                            "payload": serializer_data
+                        }
+                        Notification.send_slack_failed(payload)
+                        continue
 
                 cost_response[billing].append(cost_data_families)
 
-        with open('report.json', 'w') as f:
+        logfile = f"logs/log_cost_{usage_date}.json"
+        with open(logfile, 'w') as f:
             json.dump(cost_response, f)

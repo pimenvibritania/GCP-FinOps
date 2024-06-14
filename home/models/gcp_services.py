@@ -23,3 +23,7 @@ class GCPServices(BaseModel):
     @classmethod
     def get_all(cls):
         return cls.objects.all()
+
+    @classmethod
+    def get_list_services(cls):
+        return cls.objects.values_list('name', flat=True)

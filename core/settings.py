@@ -279,3 +279,7 @@ EXCLUDED_GCP_SERVICES = feature_flag.get("excluded_services")
 EXCLUDED_GCP_TAG_KEY_MFI = feature_flag.get("excluded_tag_key_mfi")
 EXCLUDED_GCP_TAG_KEY_MDI = feature_flag.get("excluded_tag_key_mdi")
 INCLUDED_GCP_TAG_KEY = feature_flag.get("tag_included")
+
+SLACK_WEBHOOK_URL = os.getenv('SLACK_WEBHOOK_URL')
+CMS_ADMIN_USERNAME = os.getenv('CRONJOB_USER')
+CMS_ADMIN_PASSWORD = os.getenv('CRONJOB_PASSWORD')

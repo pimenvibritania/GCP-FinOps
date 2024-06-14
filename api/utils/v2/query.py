@@ -1,4 +1,5 @@
-from api.models.__constant import BIGQUERY_RESOURCE_DATASET_MFI, BIGQUERY_MDI_TABLE, TF_PROJECT_MFI
+from api.models.v2.__constant import (BIGQUERY_RESOURCE_DATASET_MFI, BIGQUERY_MDI_TABLE, TF_PROJECT_MFI,
+                                      TF_PROJECT_ANDROID, TF_PROJECT_MDI)
 
 
 def get_label_mapping_query(usage_date, label_key):
@@ -28,7 +29,7 @@ def get_cost_resource_query(billing, usage_date):
     if billing == "procar":
         return f"""
             SELECT 
-              IFNULL(project.id, "null_project") AS proj, 
+              IFNULL(project.id, "shared-support-prod") AS proj, 
               service.description AS svc, 
               service.id AS svc_id, 
               IFNULL(resource.global_name, "unlabelled") as resource_global,
@@ -38,7 +39,7 @@ def get_cost_resource_query(billing, usage_date):
             LEFT JOIN UNNEST(tags) AS tag
             WHERE 
               DATE(usage_start_time) = "{usage_date}"
-              AND project.id IN {tuple(TF_PROJECT_MFI)}
+              AND (project.id IN {tuple(TF_PROJECT_MFI + TF_PROJECT_ANDROID)} OR project.id IS NULL)
             GROUP BY 
               tag, 
               resource_global, 
@@ -49,7 +50,7 @@ def get_cost_resource_query(billing, usage_date):
     else:
         return f"""
             SELECT 
-              project.id AS proj, 
+              IFNULL(project.id, "shared-support-prod") AS proj, 
               service.description AS svc, 
               service.id AS svc_id, 
               IFNULL(tag.key, "untagged") AS tag,
@@ -58,6 +59,7 @@ def get_cost_resource_query(billing, usage_date):
             LEFT JOIN UNNEST(tags) AS tag
             WHERE 
               DATE(usage_start_time) = "{usage_date}"
+              AND (project.id IN {tuple(TF_PROJECT_MDI + TF_PROJECT_ANDROID)} OR project.id IS NULL)
             GROUP BY 
               tag, 
               proj, svc, svc_id

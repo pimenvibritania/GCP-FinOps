@@ -1,4 +1,8 @@
+from datetime import timedelta, datetime
+from django.db.models import FloatField, F
+
 from django.db import models
+from django.db.models import Sum, Case, When, Value
 
 from home.models.base_model import BaseModel
 from home.models.gcp_projects import GCPProjects
@@ -57,3 +61,44 @@ class GCPCostResource(BaseModel):
             "project_cost": f"Rp. {round(self.project_cost, 2)}",
             "conversion_rate": f"Rp. {round(self.conversion_rate, 2)}",
         }
+
+    @classmethod
+    def get_cost_resource(cls, usage_date, day=1):
+        if day < 1:
+            raise Exception("day must higher than 0")
+
+        usage_date_time = datetime.strptime(usage_date, "%Y-%m-%d")
+
+        current_period_from = usage_date_time - timedelta(days=day - 1)
+
+        previous_period_to = current_period_from - timedelta(days=1)
+        previous_period_from = previous_period_to - timedelta(days=day - 1)
+
+        queryset = (cls.objects.filter(
+            usage_date__range=(previous_period_from, usage_date_time)
+        ).values(
+            'tech_family__slug',
+            'gcp_service__name',
+            'environment',
+        ).annotate(
+            previous_cost=Sum(
+                Case(
+                    When(usage_date__range=(previous_period_from, previous_period_to),
+                         then=F('cost')),
+                    default=Value(0),
+                    output_field=FloatField()
+                )
+            ),
+            current_cost=Sum(
+                Case(
+                    When(usage_date__range=(current_period_from, usage_date_time),
+                         then=F('cost')),
+                    default=Value(0),
+                    output_field=FloatField()
+                )
+            )
+        ).order_by(
+            'tech_family__slug'
+        ))
+
+        return queryset
