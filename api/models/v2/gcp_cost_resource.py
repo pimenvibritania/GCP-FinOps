@@ -28,7 +28,8 @@ class GCPCostResource:
 
         usage_date = serializer.data.get('date')
 
-        billing_address = ["procar", "moladin"]
+        # billing_address = ["procar", "moladin"]
+        billing_address = ["moladin"]
 
         """
             Because index weight inserted into CMS DB is -1 day, so need to +1 to match from gcp usage_date
@@ -93,6 +94,14 @@ class GCPCostResource:
                 """
                     Filter by exclude service on feature flag [p2]
                 """
+                if not EXCLUDED_GCP_SERVICES.get(service_id):
+                    payload = {
+                        "error_message": f"service id: {service_id} not found in feature flag or DB, please sync!",
+                        "payload": EXCLUDED_GCP_SERVICES
+                    }
+                    Notification.send_slack_failed(payload)
+                    continue
+
                 excluded_service = EXCLUDED_GCP_SERVICES[service_id]
                 excluded_tf_by_service = [excluded for excluded in excluded_service if excluded in tech_families]
                 included_tf = [included for included in tech_families if included not in excluded_tf_by_service]
@@ -150,6 +159,7 @@ class GCPCostResource:
                 cost_data_families = []
 
                 for tech_family in included_tf:
+                    print(tech_family)
                     tf_index_weight = included_index_weight[tech_family][environment]
                     if billing == "procar":
                         resource_global_name = data.resource_global
@@ -173,7 +183,7 @@ class GCPCostResource:
                             "gcp_service": GCPServices.objects.get(sku=service_id).id,
                             "tech_family": TechFamily.objects.get(slug=tech_family).id,
                         }
-                        print(serializer_data)
+                        print("DATA", serializer_data)
                     except (
                             TechFamily.DoesNotExist,
                             GCPProjects.DoesNotExist,
@@ -191,7 +201,6 @@ class GCPCostResource:
                             cost_data_families.append(serializer_cost.data)
                     except IntegrityError as e:
                         # Handle integrity errors (e.g., duplicate entries)
-
                         payload = {
                             "error_message": f"Duplicate entry for cost resource: [{e}]",
                             "payload": serializer_data
