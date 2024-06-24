@@ -153,7 +153,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -203,7 +202,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -214,7 +212,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -264,7 +261,6 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
@@ -283,3 +279,24 @@ INCLUDED_GCP_TAG_KEY = feature_flag.get("tag_included")
 SLACK_WEBHOOK_URL = os.getenv('SLACK_WEBHOOK_URL')
 CMS_ADMIN_USERNAME = os.getenv('CRONJOB_USER')
 CMS_ADMIN_PASSWORD = os.getenv('CRONJOB_PASSWORD')
+
+APP_ENVIRONMENT = os.getenv('ENVIRONMENT')
+
+MAIL_DATA_DEVL = {
+    "from": os.getenv("FROM_MAIL_DEV"),
+    "to": os.getenv("TO_MAIL_DEV")
+}
+
+MAIL_DATA_PROD = {
+    "from": "DevOps Engineer <noreply@moladin.com>",
+    "to": None,
+    "cc": [
+        "buyung@moladin.com",
+        "sylvain@moladin.com",
+        "devops-engineer@moladin.com",
+    ],
+}
+
+MAIL_DATA = MAIL_DATA_DEVL if APP_ENVIRONMENT == "development" else MAIL_DATA_PROD
+
+MAILGUN_API_KEY = os.getenv('MAILGUN_API_KEY')

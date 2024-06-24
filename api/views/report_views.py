@@ -300,7 +300,10 @@ def formatting_report(request, payload_data):
             extract_idle_data["data"],
             data,
             bigquery_payload["__extras__"]["index_weight"],
-        )  # idle cost
+        )
+
+        print(idle_cost_data)
+        # idle cost
         if idle_cost_data:
             context.update(idle_cost_data)
 

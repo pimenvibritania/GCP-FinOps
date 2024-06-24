@@ -2,7 +2,7 @@ from datetime import timedelta, datetime
 from django.db.models import FloatField, F
 
 from django.db import models
-from django.db.models import Sum, Case, When, Value
+from django.db.models import Sum, Case, When, Value, Avg
 
 from home.models.base_model import BaseModel
 from home.models.gcp_projects import GCPProjects
@@ -79,6 +79,7 @@ class GCPCostResource(BaseModel):
         ).values(
             'tech_family__slug',
             'gcp_service__name',
+            'gcp_project__identity',
             'environment',
         ).annotate(
             previous_cost=Sum(
@@ -102,3 +103,16 @@ class GCPCostResource(BaseModel):
         ))
 
         return queryset
+
+    @classmethod
+    def get_conversion_rate(cls, usage_date: str, day=1):
+        if day < 1:
+            raise Exception("day must higher than 0")
+
+        usage_date_time = datetime.strptime(usage_date, "%Y-%m-%d")
+
+        current_period_from = usage_date_time - timedelta(days=day - 1)
+
+        return cls.objects.filter(
+            usage_date__range=(current_period_from, usage_date_time)
+        ).aggregate(Avg('conversion_rate'))['conversion_rate__avg']
