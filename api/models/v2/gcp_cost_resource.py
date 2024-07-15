@@ -30,8 +30,7 @@ class GCPCostResource:
 
         usage_date = serializer.data.get('date')
 
-        # billing_address = ["procar", "moladin"]
-        billing_address = ["moladin"]
+        billing_address = ["procar", "moladin"]
 
         """
             Because index weight inserted into CMS DB is -1 day, so need to +1 to match from gcp usage_date
@@ -54,7 +53,6 @@ class GCPCostResource:
 
             # Fetch data using a query based on billing and usage date
             query = get_cost_resource_query(billing=billing, usage_date=usage_date)
-
             dataset = list(BigQuery.fetch(query=query))
 
             tech_families = TECHFAMILY_GROUP[billing]
@@ -73,6 +71,7 @@ class GCPCostResource:
                     # Excluding cost by label defined in `exclude_label_identifier` -> "infra"
                     identifier = f"{service_id}_{data.resource_global}"
                     if identifier in exclude_label_identifier:
+                        print("exclude identifier")
                         continue
 
                 tag_name = data.tag
@@ -83,6 +82,7 @@ class GCPCostResource:
                     Skipping the cost are not in TF_PROJECT_INCLUDED
                 """
                 if project_id not in TF_PROJECT_INCLUDED:
+                    print("tf not included")
                     continue
 
                 """
@@ -96,7 +96,7 @@ class GCPCostResource:
                 """
                     Filter by exclude service on feature flag [p2]
                 """
-                if not EXCLUDED_GCP_SERVICES.get(service_id):
+                if EXCLUDED_GCP_SERVICES.get(service_id) is None:
                     payload = {
                         "error_message": f"service id: {service_id} not found in feature flag or DB, please sync!",
                         "payload": EXCLUDED_GCP_SERVICES
@@ -110,6 +110,7 @@ class GCPCostResource:
                 included_index_weight = index_weight_tf
 
                 if len(included_tf) == 1:
+                    print("exclude by service")
                     included_index_weight[included_tf[0]][environment] = 100
                     for exclude in excluded_tf_by_service:
                         included_index_weight[exclude][environment] = 0
@@ -120,6 +121,7 @@ class GCPCostResource:
                         included_index_weight[tf][environment] += unused_index_weight / 2
                     included_index_weight[excluded_tf_by_service[0]][environment] = 0
 
+                print("included after service", included_tf)
                 """
                     Filter by include in TAG on feature flag [p1]
                 """
@@ -132,6 +134,7 @@ class GCPCostResource:
                     excluded_tf_by_service = [excluded for excluded in tech_families if excluded not in included_tf]
 
                     if len(included_tf) == 1:
+                        print("include by tag")
                         included_index_weight[included_tf[0]][environment] = 100
                         for exclude in excluded_tf_by_service:
                             included_index_weight[exclude][environment] = 0
@@ -151,6 +154,7 @@ class GCPCostResource:
                     identifier = f"{service_id}_{resource_name}"
 
                     if identifier in label_identifier:
+                        print("exclude by label")
                         included_tf = [label_identifier[identifier]]
                         included_index_weight[included_tf[0]][environment] = 100
                         excluded_tf_by_service = [excluded for excluded in tech_families if excluded not in included_tf]
@@ -197,10 +201,11 @@ class GCPCostResource:
 
                     serializer_cost = GCPCostResourceSerializers(data=serializer_data)
                     try:
+                        pass
                         # Save the valid data and add it to the response list
-                        if serializer_cost.is_valid():
-                            serializer_cost.save()
-                            cost_data_families.append(serializer_cost.data)
+                        # if serializer_cost.is_valid():
+                        #     serializer_cost.save()
+                        #     cost_data_families.append(serializer_cost.data)
                     except IntegrityError as e:
                         # Handle integrity errors (e.g., duplicate entries)
                         payload = {
