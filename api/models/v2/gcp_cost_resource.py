@@ -203,9 +203,9 @@ class GCPCostResource:
                     try:
                         pass
                         # Save the valid data and add it to the response list
-                        # if serializer_cost.is_valid():
-                        #     serializer_cost.save()
-                        #     cost_data_families.append(serializer_cost.data)
+                        if serializer_cost.is_valid():
+                            serializer_cost.save()
+                            cost_data_families.append(serializer_cost.data)
                     except IntegrityError as e:
                         # Handle integrity errors (e.g., duplicate entries)
                         payload = {
