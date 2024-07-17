@@ -1,3 +1,4 @@
+import copy
 import json
 from datetime import datetime, timedelta, date
 
@@ -44,7 +45,6 @@ class GCPCostResource:
         label_mapping = GCPLabelMapping.get_label_mapping(usage_date=usage_date)
         exclude_label_identifier = GCPLabelMapping.get_by_label_value(usage_date=usage_date, label_value="infra")
         label_identifier = {label.identifier: label.tech_family.slug for label in label_mapping}
-
         cost_response = {}
 
         for billing in billing_address:
@@ -56,6 +56,7 @@ class GCPCostResource:
             dataset = list(BigQuery.fetch(query=query))
 
             tech_families = TECHFAMILY_GROUP[billing]
+            index_weight_tf = copy.deepcopy(index_weight[index_weight_key])
 
             cost_response[billing] = []
 
@@ -76,7 +77,6 @@ class GCPCostResource:
 
                 tag_name = data.tag
                 total_cost = data.total_cost
-                index_weight_tf = index_weight[index_weight_key]
 
                 """
                     Skipping the cost are not in TF_PROJECT_INCLUDED
@@ -107,10 +107,11 @@ class GCPCostResource:
                 excluded_service = EXCLUDED_GCP_SERVICES[service_id]
                 excluded_tf_by_service = [excluded for excluded in excluded_service if excluded in tech_families]
                 included_tf = [included for included in tech_families if included not in excluded_tf_by_service]
-                included_index_weight = index_weight_tf
+                included_index_weight = copy.deepcopy(index_weight_tf)
 
                 if len(included_tf) == 1:
-                    print("exclude by service")
+                    if billing == "procar":
+                        print("include service 100", included_tf[0])
                     included_index_weight[included_tf[0]][environment] = 100
                     for exclude in excluded_tf_by_service:
                         included_index_weight[exclude][environment] = 0
@@ -121,20 +122,19 @@ class GCPCostResource:
                         included_index_weight[tf][environment] += unused_index_weight / 2
                     included_index_weight[excluded_tf_by_service[0]][environment] = 0
 
-                print("included after service", included_tf)
                 """
                     Filter by include in TAG on feature flag [p1]
                 """
                 tag_key = index_weight_key
 
                 if tag_name in INCLUDED_GCP_TAG_KEY[tag_key]:
-                    included_index_weight = index_weight_tf
                     included_tag = INCLUDED_GCP_TAG_KEY[tag_key][tag_name]
                     included_tf = included_tag
                     excluded_tf_by_service = [excluded for excluded in tech_families if excluded not in included_tf]
 
                     if len(included_tf) == 1:
-                        print("include by tag")
+                        if billing == "procar":
+                            print("include tag 100", tag_key)
                         included_index_weight[included_tf[0]][environment] = 100
                         for exclude in excluded_tf_by_service:
                             included_index_weight[exclude][environment] = 0
@@ -152,9 +152,8 @@ class GCPCostResource:
                 if billing == "procar":
                     resource_name = data.resource_global
                     identifier = f"{service_id}_{resource_name}"
-
                     if identifier in label_identifier:
-                        print("exclude by label")
+                        print("include label", resource_name)
                         included_tf = [label_identifier[identifier]]
                         included_index_weight[included_tf[0]][environment] = 100
                         excluded_tf_by_service = [excluded for excluded in tech_families if excluded not in included_tf]
@@ -165,7 +164,7 @@ class GCPCostResource:
                 cost_data_families = []
 
                 for tech_family in included_tf:
-                    print(tech_family)
+                    # print(tech_family)
                     tf_index_weight = included_index_weight[tech_family][environment]
                     if billing == "procar":
                         resource_global_name = data.resource_global
