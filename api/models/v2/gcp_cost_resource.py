@@ -15,6 +15,7 @@ from core.settings import EXCLUDED_GCP_SERVICES, INCLUDED_GCP_TAG_KEY
 from home.models import IndexWeight, GCPProjects, GCPServices, TechFamily
 from home.models.v2 import GCPLabelMapping, GCPCostResource as CostResource
 from api.models.bigquery import BigQuery as BQ
+from api.utils.v2.index_weight import count_child_keys
 
 
 class GCPCostResource:
@@ -42,6 +43,11 @@ class GCPCostResource:
         usage_date_next_str = usage_date_next.strftime("%Y-%m-%d")
 
         index_weight = IndexWeight.get_daily_index_weight(usage_date_next_str)
+        total_child_iw = count_child_keys(index_weight)
+
+        if int(total_child_iw) < 18:
+            index_weight = IndexWeight.get_daily_index_weight(usage_date)
+
         label_mapping = GCPLabelMapping.get_label_mapping(usage_date=usage_date)
         exclude_label_identifier = GCPLabelMapping.get_by_label_value(usage_date=usage_date, label_value="infra")
         label_identifier = {label.identifier: label.tech_family.slug for label in label_mapping}
