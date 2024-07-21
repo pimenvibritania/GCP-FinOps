@@ -42,11 +42,24 @@ class GCPCostResource:
         usage_date_next = usage_date_fmt + timedelta(days=1)
         usage_date_next_str = usage_date_next.strftime("%Y-%m-%d")
 
-        index_weight = IndexWeight.get_daily_index_weight(usage_date_next_str)
-        total_child_iw = count_child_keys(index_weight)
+        index_weight_fn = False
+        usage_date_fn = usage_date_next_str
 
-        if int(total_child_iw) < 18:
-            index_weight = IndexWeight.get_daily_index_weight(usage_date)
+        index_weight = None
+
+        while not index_weight_fn:
+
+            index_weight_each = IndexWeight.get_daily_index_weight(usage_date_fn)
+
+            total_child_iw = count_child_keys(index_weight_each)
+
+            if int(total_child_iw) < 18:
+                usage_date_change = datetime.strptime(usage_date_fn, "%Y-%m-%d")
+                usage_date_use = usage_date_change - timedelta(days=1)
+                usage_date_fn = usage_date_use.strftime("%Y-%m-%d")
+            else:
+                index_weight = index_weight_each
+                index_weight_fn = True
 
         label_mapping = GCPLabelMapping.get_label_mapping(usage_date=usage_date)
         exclude_label_identifier = GCPLabelMapping.get_by_label_value(usage_date=usage_date, label_value="infra")
