@@ -64,8 +64,10 @@ ATLAS_MFI = ["058A-D794-D43C"]
 MONGO_ATLAS = ATLAS_MFI + ATLAS_MDI
 
 ATLAS_MDI_TF = "dana_tunai"
-ATLAS_MFI_TF = "mofi" # include defi_mfi
+ATLAS_MFI_TF = "mofi"  # include defi_mfi
 # android project for all MDI
+
+GCP_LABEL_INCLUDED = ["defi", "infra", "mofi", "platform"]
 
 GCP_LABEL_TECHFAMILY_MAPPING = {
     "defi": "defi_mfi",

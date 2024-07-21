@@ -2,7 +2,7 @@ import json
 
 from django.db import IntegrityError
 
-from api.models.__constant import GCP_LABEL_TECHFAMILY_MAPPING
+from api.models.__constant import GCP_LABEL_TECHFAMILY_MAPPING, GCP_LABEL_INCLUDED
 from api.models.v2.bigquery_client import BigQuery
 from api.serializers.v2.gcp_label_mapping_serializers import BigqueryLabelMappingSerializers, GCPLabelMappingSerializers
 from api.utils.v2.query import get_label_mapping_query
@@ -29,8 +29,12 @@ class GCPLabelMapping:
         # Iterate through the dataset
         for data in dataset:
             try:
+                label = data.label_value
+
+                if label not in GCP_LABEL_INCLUDED:
+                    continue
                 # Map the label value to a tech family using a predefined mapping
-                tech_family = GCP_LABEL_TECHFAMILY_MAPPING.get(data.label_value)
+                tech_family = GCP_LABEL_TECHFAMILY_MAPPING.get(label)
                 # Create an identifier by combining the service ID and resource global name
                 identifier = f"{data.svc_id}_{data.resource_global}"
 
