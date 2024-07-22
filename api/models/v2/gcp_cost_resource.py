@@ -195,8 +195,7 @@ class GCPCostResource:
 
                     try:
                         serializer_data = {
-                            "usage_date": "2030-01-01",
-                            # "usage_date": usage_date,
+                            "usage_date": usage_date,
                             "cost": total_cost * (tf_index_weight / 100),
                             "project_cost": total_cost,
                             "conversion_rate": BQ.get_daily_conversion_rate(usage_date),
