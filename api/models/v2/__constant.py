@@ -1,8 +1,13 @@
 import os
 
+TECHFAMILY_MDI = ["dana_tunai", "platform_mdi", "defi_mdi"]
+TECHFAMILY_MFI = ["mofi", "platform_mfi", "defi_mfi"]
+
+TECHFAMILIES = TECHFAMILY_MFI + TECHFAMILY_MDI
+
 TECHFAMILY_GROUP = {
-    "procar": ["mofi", "platform_mfi", "defi_mfi"],
-    "moladin": ["dana_tunai", "platform_mdi", "defi_mdi"]
+    "procar": TECHFAMILY_MFI,
+    "moladin": TECHFAMILY_MDI
 }
 
 SERVICE_NULL_PROJECT_ALLOWED = [
