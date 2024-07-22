@@ -47,6 +47,7 @@ class GCPCostResource:
 
         index_weight = None
 
+        # Handling index weight if environment not found, total 18 index weight for all environment on all tech family.
         while not index_weight_fn:
 
             index_weight_each = IndexWeight.get_daily_index_weight(usage_date_fn)
@@ -243,7 +244,7 @@ class GCPCostResource:
     def get_cost(usage_date, day, billing_filter=None, tech_family_filter=None):
 
         cache_key = f"cms-cost-resource-{date.today()}-{day}-day"
-
+        print(cache_key)
         if cache.get(cache_key):
             result = cache.get(cache_key)
         else:
@@ -309,12 +310,18 @@ class GCPCostResource:
                 if service_name not in result[billing][tech_family_slug]:
                     result[billing][tech_family_slug][service_name] = {}
 
-                # Assign costs directly without checking environment existence
-                result[billing][tech_family_slug][service_name][environment] = {
-                    "previous_cost": previous_cost,
-                    "current_cost": current_cost,
-                    "gcp_project": gcp_project
-                }
+                # Append cost if there are multiple gcp project in one service (like Atlas in null & pr*)
+                if result[billing][tech_family_slug][service_name].get(environment):
+                    result[billing][tech_family_slug][service_name][environment]["previous_cost"] += previous_cost
+                    result[billing][tech_family_slug][service_name][environment]["current_cost"] += current_cost
+                    result[billing][tech_family_slug][service_name][environment]["gcp_project"] += f", {gcp_project}"
+                else:
+                    # Assign costs directly if environment not exist
+                    result[billing][tech_family_slug][service_name][environment] = {
+                        "previous_cost": previous_cost,
+                        "current_cost": current_cost,
+                        "gcp_project": gcp_project
+                    }
 
             # Fill in missing (not used) services with default costs
             for billing, billing_data in result.items():

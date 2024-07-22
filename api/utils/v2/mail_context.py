@@ -42,21 +42,21 @@ class MailContext:
 
         # Initialize HTML table template for GCP cost details
         table_template_gcp = """
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width:160px">Service</th>
-                                <th>GCP Project</th>
-                                <th>Environment</th>
-                                <th>Current IDR</th>
-                                <th>Current USD</th>
-                                <th>Previous IDR</th>
-                                <th>Previous USD</th>
-                                <th style="width:75px">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                """
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:160px">Service</th>
+                            <th>GCP Project</th>
+                            <th>Environment</th>
+                            <th>Current IDR</th>
+                            <th>Current USD</th>
+                            <th>Previous IDR</th>
+                            <th>Previous USD</th>
+                            <th style="width:75px">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            """
 
         # Loop through services in GCP data and populate the table
         for service in gcp_data:
@@ -88,16 +88,16 @@ class MailContext:
                     cost_status_service_gcp = """Equal"""
 
                 row = f"""
-                            {tr_first}
-                                <td>{gcp_project}</td>
-                                <td>{environment}</td>
-                                <td>{Conversion.idr_format(current_service_cost_period)}</td>
-                                <td>{ConversionV2.convert_usd(current_service_cost_period, current_rate_gcp)} USD</td>
-                                <td>{Conversion.idr_format(previous_service_cost_period)}</td>
-                                <td>{ConversionV2.convert_usd(previous_service_cost_period, previous_rate_gcp)} USD</td>
-                                <td>{cost_status_service_gcp}</td>
-                            </tr>
-                        """
+                        {tr_first}
+                            <td>{gcp_project}</td>
+                            <td>{environment}</td>
+                            <td>{Conversion.idr_format(current_service_cost_period)}</td>
+                            <td>{ConversionV2.convert_usd(current_service_cost_period, current_rate_gcp)} USD</td>
+                            <td>{Conversion.idr_format(previous_service_cost_period)}</td>
+                            <td>{ConversionV2.convert_usd(previous_service_cost_period, previous_rate_gcp)} USD</td>
+                            <td>{cost_status_service_gcp}</td>
+                        </tr>
+                    """
 
                 table_template_gcp += row
 
