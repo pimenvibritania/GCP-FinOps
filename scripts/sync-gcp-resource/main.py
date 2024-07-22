@@ -38,7 +38,7 @@ def main(date_start, c_day, c_loop):
         date_start_use = date_start + timedelta(days=add_day)
         date_start_use_str = date_start_use.strftime("%Y-%m-%d")
 
-        command = f"python3 ../../manage.py sync_gcp_cost_resource {date_start_use_str} {c_day}"
+        command = f"python3 manage.py sync_gcp_cost_resource {date_start_use_str} {c_day}"
         tasks.append(command)
         add_day += int(c_day)
 
