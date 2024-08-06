@@ -191,7 +191,8 @@ async def send_email_task(
             "to": to_email,
             "cc": [
                 "buyung@moladin.com",
-                "sylvain@moladin.com",
+                # "sylvain@moladin.com",
+                "quekyb@moladin.com",
                 "devops-engineer@moladin.com",
                 "praz@moladin.com",
                 "data-team@moladin.com",
