@@ -47,6 +47,13 @@ pipeline {
                         env.versioningCode = "release"
                         env.consul = "https://consul-gcp.production.jinny.id/v1/kv/${serviceName}/backend"
                         currentBuild.result = hudson.model.Result.SUCCESS.toString()
+                    } else if (env.BRANCH_NAME =~ /OPS_PROD.*$/){
+                        env.resourceEnv = "finops_release"
+                        env.versioningCode = "finops_release"
+                        env.serviceName = "moladin-finops"
+                        env.deploymentName = "moladin-finops"
+                        env.consul = "https://consul-gcp.production.jinny.id/v1/kv/${serviceName}/backend"
+                        currentBuild.result = hudson.model.Result.SUCCESS.toString()
                     } else {
                         echo "environment server not match"
                         currentBuild.getRawBuild().getExecutor().interrupt(Result.SUCCESS)
@@ -75,7 +82,7 @@ pipeline {
                             sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
                             sh 'consulMantisCommand.py --get ${consul}/hot ${consulToken} FEATURE_FLAG | sed "s/\'/\\"/g" > feature-flag.json'
 
-                        } else if (env.BRANCH_NAME =~ /PROD.*$/){
+                        } else if (env.BRANCH_NAME =~ /PROD.*$/ || env.resourceEnv == "moladin-finops"){
                             sh "getConsul.py ${consul}/cold ${consulProdToken} > .env"
                             sh "getConsul.py ${consul}/hot ${consulProdToken} >> .env"
                             sh 'consulMantisCommand.py --get ${consul}/cold ${consulProdToken} SERVICE_ACCOUNT | sed "s/\'/\\"/g" > service-account.json'
@@ -156,7 +163,7 @@ pipeline {
         stage ("Deployment To Release") {
             when {
                 expression {
-                    currentBuild.result == "SUCCESS" && env.resourceEnv == "release"
+                    currentBuild.result == "SUCCESS" && ( env.resourceEnv == "release" || env.resourceEnv == "moladin-finops")
                 }
             }
             steps {
