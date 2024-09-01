@@ -42,6 +42,7 @@ ALLOWED_HOSTS = [
     "cost-management-system.moladin.com",
     "cost-management-system-appscript.moladin.com",
     "airflow.development.mofi.id",
+    "finops.moladin.com",
     "finops-data.moladin.com",
 ]
 
@@ -64,6 +65,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://airflow.development.mofi.id",
     "http://finops-data.moladin.com",
     "https://finops-data.moladin.com",
+    "http://finops.moladin.com",
+    "https://finops.moladin.com",
 ]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
@@ -79,6 +82,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://airflow.development.mofi.id",
     "http://finops-data.moladin.com",
     "https://finops-data.moladin.com",
+    "http://finops.moladin.com",
+    "https://finops.moladin.com",
 ]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
