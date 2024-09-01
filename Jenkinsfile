@@ -12,7 +12,6 @@ pipeline {
         codeRepo = "git@bitbucket.org:moladinTech/${serviceName}.git"
         dockerUsername = "ubuntu"
         servicePort = "8000"
-        deploymentName = "${serviceName}"
         emailJenkinsServiceAccount = "infra-prod-sa-id@moladin-infra-prod.iam.gserviceaccount.com"
         keyJenkinsServiceAccount = credentials('jenkinsServiceAccountInfra')
         garLocation = "asia-southeast2-docker.pkg.dev"
@@ -48,6 +47,7 @@ pipeline {
                         env.resourceEnv = "release"
                         env.versioningCode = "release"
                         env.imageName = "${serviceName}"
+                        env.deploymentName = "${serviceName}"
                         env.consul = "https://consul-gcp.production.jinny.id/v1/kv/${serviceName}/backend"
                         currentBuild.result = hudson.model.Result.SUCCESS.toString()
                     } else if (env.BRANCH_NAME =~ /FINOPS.*$/){
