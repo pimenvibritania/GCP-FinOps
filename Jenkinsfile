@@ -49,7 +49,7 @@ pipeline {
                         env.versioningCode = "release"
                         env.consul = "https://consul-gcp.production.jinny.id/v1/kv/${serviceName}/backend"
                         currentBuild.result = hudson.model.Result.SUCCESS.toString()
-                    } else if (env.BRANCH_NAME =~ /PROD_FINOPS.*$/){
+                    } else if (env.BRANCH_NAME =~ /FINOPS.*$/){
                         env.resourceEnv = "finops_release"
                         env.versioningCode = "finops_release"
                         env.serviceName = "moladin-finops"
