@@ -54,7 +54,7 @@ pipeline {
                         env.versioningCode = "finops_release"
                         env.serviceName = "moladin-finops"
                         env.deploymentName = "moladin-finops"
-                        env.consul = "https://consul-gcp.production.jinny.id/v1/kv/moladin-finops/backend"
+                        env.consulFinops = "https://consul-gcp.production.jinny.id/v1/kv/moladin-finops/backend"
                         currentBuild.result = hudson.model.Result.SUCCESS.toString()
                     } else {
                         echo "environment server not match"
@@ -84,12 +84,19 @@ pipeline {
                             sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
                             sh 'consulMantisCommand.py --get ${consul}/hot ${consulToken} FEATURE_FLAG | sed "s/\'/\\"/g" > feature-flag.json'
 
-                        } else if (env.BRANCH_NAME =~ /PROD.*$/ || env.resourceEnv == "moladin-finops"){
-                            sh "getConsul.py ${env.consul}/cold ${consulProdToken} > .env"
-                            sh "getConsul.py ${env.consul}/hot ${consulProdToken} >> .env"
-                            sh 'consulMantisCommand.py --get ${env.consul}/cold ${consulProdToken} SERVICE_ACCOUNT | sed "s/\'/\\"/g" > service-account.json'
-                            sh 'consulMantisCommand.py --get ${env.consul}/cold ${consulProdToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
-                            sh 'consulMantisCommand.py --get ${env.consul}/hot ${consulProdToken} FEATURE_FLAG | sed "s/\'/\\"/g" > feature-flag.json'
+                        } else if (env.BRANCH_NAME =~ /PROD.*$/){
+                            sh "getConsul.py ${consul}/cold ${consulProdToken} > .env"
+                            sh "getConsul.py ${consul}/hot ${consulProdToken} >> .env"
+                            sh 'consulMantisCommand.py --get ${consul}/cold ${consulProdToken} SERVICE_ACCOUNT | sed "s/\'/\\"/g" > service-account.json'
+                            sh 'consulMantisCommand.py --get ${consul}/cold ${consulProdToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
+                            sh 'consulMantisCommand.py --get ${consul}/hot ${consulProdToken} FEATURE_FLAG | sed "s/\'/\\"/g" > feature-flag.json'
+                        }
+                        } else if (env.resourceEnv == "moladin-finops"){
+                            sh "getConsul.py ${consulFinops}/cold ${consulProdToken} > .env"
+                            sh "getConsul.py ${consulFinops}/hot ${consulProdToken} >> .env"
+                            sh 'consulMantisCommand.py --get ${consulFinops}/cold ${consulProdToken} SERVICE_ACCOUNT | sed "s/\'/\\"/g" > service-account.json'
+                            sh 'consulMantisCommand.py --get ${consulFinops}/cold ${consulProdToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
+                            sh 'consulMantisCommand.py --get ${consulFinops}/hot ${consulProdToken} FEATURE_FLAG | sed "s/\'/\\"/g" > feature-flag.json'
                         }
                         sh "docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:${shortCommitHash}-${BUILD_NUMBER} ."
                         sh "cd kubernetes/development/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${serviceName}:cronjob-${shortCommitHash}-${BUILD_NUMBER} -f Dockerfile.cronjob ."
