@@ -84,7 +84,7 @@ pipeline {
                             sh 'consulMantisCommand.py --get ${consul}/cold ${consulToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
                             sh 'consulMantisCommand.py --get ${consul}/hot ${consulToken} FEATURE_FLAG | sed "s/\'/\\"/g" > feature-flag.json'
 
-                        } else if (env.BRANCH_NAME =~ /PROD.*$/ || env.resourceEnv == "moladin-finops"){
+                        } else if (env.BRANCH_NAME =~ /PROD.*$/ || env.BRANCH_NAME =~ /FINOPS.*$/){
                             sh "getConsul.py ${consul}/cold ${consulProdToken} > .env"
                             sh "getConsul.py ${consul}/hot ${consulProdToken} >> .env"
                             sh 'consulMantisCommand.py --get ${consul}/cold ${consulProdToken} SERVICE_ACCOUNT | sed "s/\'/\\"/g" > service-account.json'
