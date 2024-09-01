@@ -37,12 +37,14 @@ pipeline {
                         echo "Due feature branch not coverage for right now, the build will skip"
                         currentBuild.getRawBuild().getExecutor().interrupt(Result.SUCCESS)
                         sleep(1)
-                    } else if (env.BRANCH_NAME == "main") {
-                        env.resourceEnv = "development"
-                        env.versioningCode = "devl"
-                        env.consul = "https://consul-gcp.staging.jinny.id/v1/kv/${serviceName}/backend"
-                        currentBuild.result = hudson.model.Result.SUCCESS.toString()
-                    } else if (env.BRANCH_NAME =~ /PROD.*$/){
+                    }
+//                      else if (env.BRANCH_NAME == "main") {
+//                         env.resourceEnv = "development"
+//                         env.versioningCode = "devl"
+//                         env.consul = "https://consul-gcp.staging.jinny.id/v1/kv/${serviceName}/backend"
+//                         currentBuild.result = hudson.model.Result.SUCCESS.toString()
+//                     }
+                     else if (env.BRANCH_NAME =~ /PROD.*$/){
                         env.resourceEnv = "release"
                         env.versioningCode = "release"
                         env.consul = "https://consul-gcp.production.jinny.id/v1/kv/${serviceName}/backend"
