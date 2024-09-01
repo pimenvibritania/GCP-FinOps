@@ -54,7 +54,7 @@ pipeline {
                         env.versioningCode = "finops_release"
                         env.serviceName = "moladin-finops"
                         env.deploymentName = "moladin-finops"
-                        env.consul = "https://consul-gcp.production.jinny.id/v1/kv/${serviceName}/backend"
+                        env.consul = "https://consul-gcp.production.jinny.id/v1/kv/moladin-finops/backend"
                         currentBuild.result = hudson.model.Result.SUCCESS.toString()
                     } else {
                         echo "environment server not match"
