@@ -89,7 +89,10 @@ pipeline {
                             sh 'consulMantisCommand.py --get ${consul}/cold ${consulProdToken} KUBECOST_SA | sed "s/\'/\\"/g" > kubecost_sa.json'
                             sh 'consulMantisCommand.py --get ${consul}/hot ${consulProdToken} FEATURE_FLAG | sed "s/\'/\\"/g" > feature-flag.json'
                         }
+
                         sh "docker build -t ${garLocation}/${garProject}/${garRepository}/${imageName}:${shortCommitHash}-${BUILD_NUMBER} ."
+                        sh "docker build -t ${garLocation}/${garProject}/${garRepository}/${imageName}:latest ."
+
                         sh "cd kubernetes/development/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-${shortCommitHash}-${BUILD_NUMBER} -f Dockerfile.cronjob ."
                         sh "cd kubernetes/development/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-kubecost-check-status -f Dockerfile.cronjob ."
                         sh "cd kubernetes/development/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-send-report-devl -f Dockerfile.cronjob ."
@@ -101,10 +104,12 @@ pipeline {
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-sync-techfamily-cost-prod -f Dockerfile.cronjob ."
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-${shortCommitHash}-${BUILD_NUMBER} -f Dockerfile.cronjob ."
 
-                        // NEW FinOps
+                        // NEW FinOps Build
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-sync-gcp-label -f Dockerfile.cronjob ."
 
+                        // Push Images
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${imageName}:${shortCommitHash}-${BUILD_NUMBER}"
+                        sh "docker push ${garLocation}/${garProject}/${garRepository}/${imageName}:latest"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-${shortCommitHash}-${BUILD_NUMBER}"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-kubecost-check-status"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-send-report-devl"
@@ -116,7 +121,7 @@ pipeline {
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-sync-index-weight-prod"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-sync-techfamily-cost-prod"
 
-                        // NEW FinOps
+                        // NEW FinOps Push
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-sync-gcp-label"
 
                         currentBuild.result = 'SUCCESS'

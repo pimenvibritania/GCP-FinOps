@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: finops-sync-gcp-cost-resource
+  namespace: moladin-finops
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - args:
+                - /bin/sh
+                - -c
+                - python manage.py sync_current_gcp_cost_resource
+              envFrom:
+                - secretRef:
+                    name: moladin-finops-cold-app-secret
+              image: asia-southeast2-docker.pkg.dev/moladin-infra-prod/infra-prod/moladin-finops:latest
+              imagePullPolicy: Always
+              name: finops-sync-gcp-cost-resource
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          securityContext: { }
+          terminationGracePeriodSeconds: 30
+  schedule: '30 6 * * *'
+  suspend: True

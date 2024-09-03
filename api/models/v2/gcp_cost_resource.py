@@ -173,7 +173,6 @@ class GCPCostResource:
                     resource_name = data.resource_global
                     identifier = f"{service_id}_{resource_name}"
                     if identifier in label_identifier:
-                        print("include label", resource_name)
                         included_tf = [label_identifier[identifier]]
                         included_index_weight[included_tf[0]][environment] = 100
                         excluded_tf_by_service = [excluded for excluded in tech_families if excluded not in included_tf]
