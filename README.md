@@ -1,4 +1,4 @@
-# Cost Management System
+# FinOps GCP
 
 - ✅ **Authentication**: `Django.contrib.AUTH`, Registration
 <br />
