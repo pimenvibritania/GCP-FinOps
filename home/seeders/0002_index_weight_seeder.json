@@ -82,17 +82,5 @@
         "environment": "all",
         "created_at": "2023-01-01T14:33:16.825Z"
     }
-  },
-  {
-    "model": "home.indexweight",
-    "pk": 8,
-    "fields": {
-        "is_deleted": false,
-        "deleted_at": null,
-        "tech_family": 9,
-        "value": 100,
-        "environment": "production",
-        "created_at": "2023-01-01T14:33:16.825Z"
-    }
   }
 ]

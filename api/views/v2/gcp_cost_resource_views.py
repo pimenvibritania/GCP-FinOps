@@ -17,26 +17,59 @@ class GCPCostResourceViews(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs) -> object:
+        """
+        Handles GET requests to retrieve GCP cost resource data.
+    
+        Parameters:
+        - request: The incoming request object containing GET parameters.
+        - args: Additional positional arguments.
+        - kwargs: Additional keyword arguments.
+    
+        Returns:
+        - A Response object containing the retrieved cost resource data or error messages.
+          If the request is valid, the HTTP status code will be 200 (HTTP_200_OK).
+          If the request is invalid, the HTTP status code will be 400 (HTTP_400_BAD_REQUEST).
+        """
 
+        # Validate incoming request data using the BigqueryCostResourceSerializers
         serializer = BigqueryCostResourceSerializers(data=request.GET)
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
 
+        # Extract the required parameters from the serializer data
         usage_date = serializer.data.get('date')
 
+        # Get the 'day' parameter from the GET request, default to 1 if not provided
         day = request.GET.get('day')
         if day is None:
             day = 1
 
+        # Get the 'billing' and 'tech-family' parameters from the GET request
         billing = request.GET.get("billing")
         tech_family = request.GET.get("tech-family")
+
+        # Retrieve cost resource data using the GCPCostResource model
         response_data = GCPCostResource.get_cost(usage_date, day, billing_filter=billing,
                                                  tech_family_filter=tech_family)
 
+        # Return the retrieved cost resource data as a Response object
         return Response(response_data, status=status.HTTP_200_OK)
 
     # noinspection PyMethodMayBeStatic
+
     def post(self, request, *args, **kwargs):
+        """
+        Process and save GCP cost resource data from a POST request.
+
+        Parameters:
+        - self: The instance of the class.
+        - request: An instance of the HttpRequest class containing information about the incoming request.
+        - *args: Variable length argument list to pass to the function.
+        - **kwargs: Keyword arguments to pass to the function.
+
+        Returns: - An instance of the Response class containing the HTTP response status code and the data to be sent
+        as a response to the client.
+        """
         # Validate incoming request data
         serializer = BigqueryCostResourceSerializers(data=request.data)
 
@@ -48,7 +81,7 @@ class GCPCostResourceViews(generics.ListAPIView):
         billing_address = ["procar", "moladin"]
 
         """
-            Because index weight inserted into CMS DB is -1 day, so need to +1 to match from gcp usage_date
+        Because index weight inserted into CMS DB is -1 day, so need to +1 to match from GCP usage_date
         """
         # Adjust the usage date by adding one day to match GCP usage date
         usage_date_fmt = datetime.strptime(usage_date, "%Y-%m-%d")
@@ -68,7 +101,6 @@ class GCPCostResourceViews(generics.ListAPIView):
 
             # Fetch data using a query based on billing and usage date
             query = get_cost_resource_query(billing=billing, usage_date=usage_date)
-
             dataset = list(BigQuery.fetch(query=query))
 
             tech_families = TECHFAMILY_GROUP[billing]
@@ -98,7 +130,7 @@ class GCPCostResourceViews(generics.ListAPIView):
                     continue
 
                 """
-                    The `null_project` usually is ATLAS service, so the environment is all
+                The `null_project` usually is ATLAS service, so the environment is all
                 """
                 # Determine environment, handling 'null_project' as a special case
                 environment = (
@@ -107,7 +139,7 @@ class GCPCostResourceViews(generics.ListAPIView):
                 )
 
                 """
-                    Filter by exclude service on feature flag [p2]
+                Filter by exclude service on feature flag [p2]
                 """
                 # Exclude services based on feature flags
                 excluded_service = EXCLUDED_GCP_SERVICES[service_id]
@@ -128,7 +160,7 @@ class GCPCostResourceViews(generics.ListAPIView):
                     included_index_weight[excluded_tf_by_service[0]][environment] = 0
 
                 """
-                    Filter by include in TAG on feature flag [p1]
+                Filter by include in TAG on feature flag [p1]
                 """
                 # Include tags based on feature flags
                 tag_key = index_weight_key
@@ -150,9 +182,9 @@ class GCPCostResourceViews(generics.ListAPIView):
                         included_index_weight[excluded_tf_by_service[0]][environment] = 0
 
                 """
-                    Filter by include label (by mapping) - only support for procar (MFI) billing.
-                    Label key included is `tech_family`.
-                    Only one label (one tech_family) in one instance.
+                Filter by include label (by mapping) - only support for procar (MFI) billing.
+                Label key included is `tech_family`.
+                Only one label (one tech_family) in one instance.
                 """
                 # Include labels based on mappings, only for 'procar' billing
                 if billing == "procar":

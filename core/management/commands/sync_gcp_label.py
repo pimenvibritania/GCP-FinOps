@@ -3,6 +3,7 @@ from api.models.v2.gcp_cost_resource import GCPCostResource
 from api.models.v2.gcp_label_mapping import GCPLabelMapping
 from datetime import datetime, timedelta
 
+
 class Command(BaseCommand):
     help = "Mapping Label from BigQuery into CMS"
 

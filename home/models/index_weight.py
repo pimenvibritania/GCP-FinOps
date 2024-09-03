@@ -9,6 +9,12 @@ from datetime import datetime, timedelta
 class IndexWeight(BaseModel):
     class Meta:
         db_table = "index_weight"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["environment", "created_at", "tech_family"],
+                name="unique_daily_index_weight",
+            )
+        ]
 
     tech_family = models.ForeignKey(
         TechFamily, related_name="index_weight", on_delete=models.PROTECT, blank=False
@@ -16,7 +22,7 @@ class IndexWeight(BaseModel):
 
     value = models.FloatField()
     environment = models.CharField(max_length=12, choices=EnvironmentType.choices())
-    created_at = models.DateTimeField(auto_now_add=True, auto_now=False, blank=False)
+    created_at = models.DateTimeField(blank=False)
 
     def __str__(self):
         return self.environment

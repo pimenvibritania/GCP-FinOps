@@ -55,7 +55,7 @@ class GCPLabelMapping:
                     GCPServices.DoesNotExist,
             ) as e:
                 # Return error response if any of the related objects are not found
-                error_response = {"error": f"{e}"}
+                error_response = {"error": f"Error serializing data: {e}"}
                 raise Exception(error_response)
 
             # Validate the prepared data using GCPLabelMappingSerializers
@@ -75,3 +75,5 @@ class GCPLabelMapping:
         logfile = f"logs/log_label_{usage_date}.json"
         with open(logfile, 'w') as f:
             json.dump(data_response, f)
+
+        return data_response
