@@ -97,3 +97,28 @@ class Mailer:
 
         os.remove(pdf_file)
 
+    @staticmethod
+    async def send_monthly_report(subject, template_path, context, excel_file):
+        email_content = render_to_string(template_path, context)
+
+        MAIL_DATA["subject"] = subject
+        MAIL_DATA["html"] = email_content
+        MAIL_DATA["o:tag"] = "important"
+
+        # Read the PDF file and prepare the email attachment
+        with open(excel_file, "rb") as xlsx_attachment:
+            xlsx_content = xlsx_attachment.read()
+
+        files = [("attachment", (excel_file, xlsx_content,
+                                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))]
+
+        # Send the email using AsyncClient
+        async with AsyncClient() as client:
+            response = await client.post(
+                os.getenv("MAILGUN_URL"),
+                auth=("api", MAILGUN_API_KEY),
+                data=MAIL_DATA,
+                files=files,
+            )
+            if response.status_code != 200:
+                raise ValueError(response.content)

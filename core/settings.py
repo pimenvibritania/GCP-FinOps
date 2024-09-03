@@ -294,10 +294,9 @@ MAIL_DATA_DEVL = {
 
 MAIL_DATA_PROD = {
     "from": "DevOps Engineer <noreply@moladin.com>",
-    "to": None,
+    "to": "quekyb@moladin.com",
     "cc": [
         "buyung@moladin.com",
-        "sylvain@moladin.com",
         "devops-engineer@moladin.com",
     ],
 }
