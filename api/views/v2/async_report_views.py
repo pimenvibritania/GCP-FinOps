@@ -119,7 +119,7 @@ async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_c
     worksheet[f"C{total_rows}"].fill = fill_color
 
     # Write TOTAL SHARED COST
-    worksheet.merge_cells(f"A{total_rows}:B{total_rows}")
+    worksheet.merge_cells(f"A{total_rows + 1}:B{total_rows + 1}")
     worksheet[f"A{total_rows + 1}"].value = "+Shared Cost"
     worksheet[f"A{total_rows + 1}"].font = bold_font
     worksheet[f"A{total_rows + 1}"].border = border
