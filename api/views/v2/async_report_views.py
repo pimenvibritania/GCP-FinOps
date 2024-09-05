@@ -16,7 +16,7 @@ from openpyxl.styles import Border, Side, Font, Alignment, PatternFill
 import shutil
 
 
-async def monthly_report(gcp_data, kubecost_data, date, excel_file):
+async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_cost, shared_cud_cost):
     template_path = "api/templates/v2/template.xlsx"
 
     rates = BigQuery.get_current_conversion_rate()
@@ -81,7 +81,7 @@ async def monthly_report(gcp_data, kubecost_data, date, excel_file):
 
     worksheet.column_dimensions['A'].width = 5
     worksheet.column_dimensions['B'].width = 35
-    worksheet.column_dimensions['C'].width = 15
+    worksheet.column_dimensions['C'].width = 17
 
     worksheet.column_dimensions['D'].width = 15
 
@@ -109,25 +109,59 @@ async def monthly_report(gcp_data, kubecost_data, date, excel_file):
     # Write GCP TOTAL Cost
     total_rows = len(services) + 2
     worksheet.merge_cells(f"A{total_rows}:B{total_rows}")
-    worksheet[f"A{total_rows}"].value = "TOTAL"
+    worksheet[f"A{total_rows}"].value = "Total"
     worksheet[f"A{total_rows}"].font = bold_font
     worksheet[f"A{total_rows}"].border = border
     worksheet[f"A{total_rows}"].fill = fill_color
-
     worksheet[f"C{total_rows}"].value = Conversion.idr_format(total_current_cost)
     worksheet[f"C{total_rows}"].font = bold_font
     worksheet[f"C{total_rows}"].border = border
     worksheet[f"C{total_rows}"].fill = fill_color
 
-    # Conversion rate row
-    worksheet[f"B{total_rows + 2}"].value = "Current GCP Conversion Rate"
-    worksheet[f"B{total_rows + 2}"].font = bold_font
-    worksheet[f"B{total_rows + 2}"].border = border
-    worksheet[f"B{total_rows + 2}"].fill = secondary_fill_color
-    worksheet[f"C{total_rows + 2}"].value = Conversion.idr_format(rate["idr"])
+    # Write TOTAL SHARED COST
+    worksheet.merge_cells(f"A{total_rows}:B{total_rows}")
+    worksheet[f"A{total_rows + 1}"].value = "+Shared Cost"
+    worksheet[f"A{total_rows + 1}"].font = bold_font
+    worksheet[f"A{total_rows + 1}"].border = border
+    worksheet[f"A{total_rows + 1}"].fill = fill_color
+    worksheet[f"C{total_rows + 1}"].value = Conversion.idr_format(shared_cost)
+    worksheet[f"C{total_rows + 1}"].font = bold_font
+    worksheet[f"C{total_rows + 1}"].border = border
+    worksheet[f"C{total_rows + 1}"].fill = fill_color
+
+    # Write CUD Total Cost
+    positive_cud_cost = abs(cud_data)
+    positive_shared_cud_cost = abs(shared_cud_cost)
+    total_cud = positive_cud_cost + positive_shared_cud_cost
+
+    worksheet.merge_cells(f"A{total_rows + 2}:B{total_rows + 2}")
+    worksheet[f"A{total_rows + 2}"].value = "-CUD Cost"
+    worksheet[f"A{total_rows + 2}"].font = bold_font
+    worksheet[f"A{total_rows + 2}"].border = border
+    worksheet[f"C{total_rows + 2}"].value = Conversion.idr_format(total_cud)
     worksheet[f"C{total_rows + 2}"].font = bold_font
     worksheet[f"C{total_rows + 2}"].border = border
-    worksheet[f"C{total_rows + 2}"].fill = secondary_fill_color
+
+    worksheet.merge_cells(f"A{total_rows + 3}:B{total_rows + 3}")
+    worksheet[f"A{total_rows + 3}"].value = "TOTAL Cost After CUD"
+    worksheet[f"A{total_rows + 3}"].font = bold_font
+    worksheet[f"A{total_rows + 3}"].border = border
+    worksheet[f"A{total_rows + 3}"].fill = fill_color
+    worksheet[f"C{total_rows + 3}"].value = Conversion.idr_format(total_current_cost + shared_cost - total_cud)
+    worksheet[f"C{total_rows + 3}"].font = bold_font
+    worksheet[f"C{total_rows + 3}"].border = border
+    worksheet[f"C{total_rows + 3}"].fill = fill_color
+
+    # Conversion rate row
+    worksheet.merge_cells(f"A{total_rows + 5}:B{total_rows + 5}")
+    worksheet[f"A{total_rows + 5}"].value = "Current GCP Conversion Rate"
+    worksheet[f"A{total_rows + 5}"].font = bold_font
+    worksheet[f"A{total_rows + 5}"].border = border
+    worksheet[f"A{total_rows + 5}"].fill = secondary_fill_color
+    worksheet[f"C{total_rows + 5}"].value = Conversion.idr_format(rate["idr"])
+    worksheet[f"C{total_rows + 5}"].font = bold_font
+    worksheet[f"C{total_rows + 5}"].border = border
+    worksheet[f"C{total_rows + 5}"].fill = secondary_fill_color
 
     # Write Kubecost header row
     header = ['No', 'Service Name (Kubecost)', 'Total Cost (USD)', 'Total Cost (IDR)']
@@ -181,7 +215,7 @@ async def monthly_report(gcp_data, kubecost_data, date, excel_file):
 
 # Function to process the report generation and email sending
 async def process_report(tech_family, kubecost_data, gcp_data, idle_data, index_weight,
-                         conversion_rate, metadata, period, date, excel_file):
+                         conversion_rate, metadata, period, excel_file, cud_cost, shared_cost, shared_cud_cost):
     context = {}
     loop = asyncio.get_event_loop()
 
@@ -195,7 +229,7 @@ async def process_report(tech_family, kubecost_data, gcp_data, idle_data, index_
         context.update(idle_cost_context)
 
     if period == "monthly":
-        await monthly_report(gcp_data, kubecost_data, date, excel_file)
+        await monthly_report(gcp_data, kubecost_data, excel_file, cud_cost, shared_cost, shared_cud_cost)
     else:
         # Create async tasks for generating GCP and Kubecost contexts
         async_tasks = [
@@ -257,12 +291,17 @@ async def create_report(request, date=None, period=None):
             None, GCPCostResource.get_cost, date, day
         ),
         loop.run_in_executor(None, KubecostReport.report, date, period),
+        loop.run_in_executor(None, GCPCostResource.get_cud_cost, date, day),
+        loop.run_in_executor(None, GCPCostResource.get_shared_cost, date, day)
     ]
 
     result = await asyncio.gather(*async_tasks)
 
     gcp_result = result[0]
     kubecost_result = result[1]
+    cud_result = result[2]
+    shared_cost = result[3]
+
     # Extract idle data from Kubecost result
     idle_data = next(
         (
@@ -293,8 +332,10 @@ async def create_report(request, date=None, period=None):
                     conversion_rate=gcp_result["__extras__"]["conversion_rate"],
                     metadata=metadata,
                     period=period,
-                    date=date,
-                    excel_file=excel_file
+                    excel_file=excel_file,
+                    cud_cost=cud_result[project][techfamily],
+                    shared_cost=shared_cost['shared_cost'][project][techfamily],
+                    shared_cud_cost=shared_cost['cud_cost'][project][techfamily]
                 )
             )
         )
@@ -303,7 +344,6 @@ async def create_report(request, date=None, period=None):
 
     # Send monthly report just for VP
     if period == "monthly":
-
         period_date = gcp_result["moladin"]["__summary"]["usage_date_current"]
 
         subject = f"Monthly GCP Cost Report - {period_date}"

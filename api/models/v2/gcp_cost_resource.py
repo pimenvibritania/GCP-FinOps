@@ -8,14 +8,15 @@ from django.db import IntegrityError
 from api.models.__constant import REDIS_TTL, MDI_PROJECT, MFI_PROJECT
 from api.models.v2.__constant import TECHFAMILY_GROUP, TF_PROJECT_INCLUDED, NULL_PROJECT, SERVICE_NULL_PROJECT_ALLOWED
 from api.models.v2.bigquery_client import BigQuery
+from api.models.v2.index_weight import SharedIndexWeight
 from api.serializers.v2.gcp_cost_resource_serializers import BigqueryCostResourceSerializers, GCPCostResourceSerializers
 from api.utils.v2.notify import Notification
-from api.utils.v2.query import get_cost_resource_query
+from api.utils.v2.query import get_cost_resource_query, get_cud_cost_query, get_shared_cost_query
 from core.settings import EXCLUDED_GCP_SERVICES, INCLUDED_GCP_TAG_KEY
 from home.models import IndexWeight, GCPProjects, GCPServices, TechFamily
 from home.models.v2 import GCPLabelMapping, GCPCostResource as CostResource
 from api.models.bigquery import BigQuery as BQ
-from api.utils.v2.index_weight import count_child_keys
+from api.utils.v2.index_weight import count_child_keys, adjust_index
 
 
 class GCPCostResource:
@@ -370,3 +371,88 @@ class GCPCostResource:
         else:
             response_data = result
         return response_data
+
+    @staticmethod
+    def get_cud_cost(usage_date, day):
+        data = {
+            "date": usage_date
+        }
+
+        serializer = BigqueryCostResourceSerializers(data=data)
+
+        if not serializer.is_valid():
+            raise Exception("Date not valid")
+
+        formatting = "%Y-%m-%d"
+        current_date_to = datetime.strptime(usage_date, formatting)
+        current_date_from = current_date_to - timedelta(days=(int(day) - 1))
+        current_date_from_fmt = current_date_from.strftime(formatting)
+
+        index_weight_fn = False
+        usage_date_fn = usage_date
+        index_weight = None
+
+        # Handling index weight if environment not found, total 18 index weight for all environment on all tech family.
+        while not index_weight_fn:
+
+            index_weight_each = IndexWeight.get_daily_index_weight(usage_date_fn)
+
+            total_child_iw = count_child_keys(index_weight_each)
+
+            if int(total_child_iw) < 18:
+                usage_date_change = datetime.strptime(usage_date_fn, "%Y-%m-%d")
+                usage_date_use = usage_date_change - timedelta(days=1)
+                usage_date_fn = usage_date_use.strftime("%Y-%m-%d")
+            else:
+                index_weight = index_weight_each
+                index_weight_fn = True
+
+        adjusted_index = adjust_index(index_weight)
+        cud_cost = {
+            "__summary": {}
+        }
+
+        for billing in ["MFI", "MDI"]:
+            query = get_cud_cost_query(billing, current_date_from_fmt, usage_date)
+            cud = list(BigQuery.fetch(query=query))[0]["CUD_credits"]
+            cud_cost["__summary"][billing] = cud
+            cud_cost[billing] = {}
+            for tech_fam in adjusted_index[billing]:
+                cud_cost[billing][tech_fam] = cud * (adjusted_index[billing][tech_fam]["production"] / 100)
+
+        return cud_cost
+
+    @staticmethod
+    def get_shared_cost(usage_date, day):
+
+        formatting = "%Y-%m-%d"
+        current_date_to = datetime.strptime(usage_date, formatting)
+        current_date_from = current_date_to - timedelta(days=(int(day) - 1))
+        current_date_from_fmt = current_date_from.strftime(formatting)
+
+        result = {}
+
+        for billing in ["MFI", "MDI"]:
+            cud_query = get_cud_cost_query(billing, current_date_from_fmt, usage_date, shared=True)
+            cud = list(BigQuery.fetch(query=cud_query))[0]["CUD_credits"]
+            cost_query = get_shared_cost_query(billing, current_date_from_fmt, usage_date)
+            cost = list(BigQuery.fetch(query=cost_query))[0]["cost"]
+            result[billing] = {
+                "cud_cost": cud,
+                "shared_cost": cost
+            }
+
+        shared_index_weight = SharedIndexWeight.get_data(usage_date, day)
+
+        result_shared_cost = {}
+        result_cud_cost = {}
+
+        for billing, billing_value in shared_index_weight.items():
+            result_shared_cost[billing] = {data: result[billing]['shared_cost'] * (billing_value[data] / 100)
+                                           for data in billing_value}
+            result_cud_cost[billing] = {data: result[billing]['cud_cost'] * (billing_value[data] / 100)
+                                        for data in billing_value}
+        return {
+            "cud_cost": result_cud_cost,
+            "shared_cost": result_shared_cost
+        }

@@ -1,5 +1,6 @@
 from api.models.v2.__constant import (BIGQUERY_RESOURCE_DATASET_MFI, BIGQUERY_MDI_TABLE, TF_PROJECT_MFI,
-                                      TF_PROJECT_ANDROID, TF_PROJECT_MDI, ATLAS_PROJECT_MFI, ATLAS_PROJECT_MDI)
+                                      TF_PROJECT_ANDROID, TF_PROJECT_MDI, ATLAS_PROJECT_MFI, ATLAS_PROJECT_MDI,
+                                      SHARED_PROJECT_MFI, SHARED_PROJECT_MDI)
 
 
 def get_label_mapping_query(usage_date, label_key):
@@ -23,6 +24,44 @@ def get_label_mapping_query(usage_date, label_key):
               svc_id, 
               resource_global
         """
+
+
+def get_shared_cost_query(billing, usage_date_from, usage_date_to):
+    if billing == "MFI":
+        projects = SHARED_PROJECT_MFI
+        dataset = BIGQUERY_RESOURCE_DATASET_MFI
+    else:
+        projects = SHARED_PROJECT_MDI
+        dataset = BIGQUERY_MDI_TABLE
+
+    return f"""
+        SELECT SUM(cost) as cost
+        FROM {dataset}
+        WHERE DATE(usage_start_time) BETWEEN "{usage_date_from}" AND "{usage_date_to}"
+        AND project.id IN {tuple(projects)}
+    """
+
+
+def get_cud_cost_query(billing, usage_date_from, usage_date_to, shared=None):
+    if billing == "MFI":
+        projects = tuple(TF_PROJECT_MFI + TF_PROJECT_ANDROID + ATLAS_PROJECT_MFI)
+        if shared:
+            projects = tuple(SHARED_PROJECT_MFI)
+        dataset = BIGQUERY_RESOURCE_DATASET_MFI
+    else:
+        projects = tuple(TF_PROJECT_MDI + TF_PROJECT_ANDROID + ATLAS_PROJECT_MDI)
+        if shared:
+            projects = tuple(SHARED_PROJECT_MDI)
+        dataset = BIGQUERY_MDI_TABLE
+
+    return f"""
+        SELECT SUM(credits.amount) as CUD_credits
+        FROM {dataset}
+        LEFT JOIN UNNEST(credits) AS credits
+        WHERE credits.type is not NULL
+        AND DATE(usage_start_time) BETWEEN "{usage_date_from}" AND "{usage_date_to}"
+        AND (project.id IN {projects} OR project.id IS NULL)
+    """
 
 
 def get_cost_resource_query(billing, usage_date):
