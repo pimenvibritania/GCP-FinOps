@@ -42,6 +42,19 @@ def get_shared_cost_query(billing, usage_date_from, usage_date_to):
     """
 
 
+# Only for MFI Dataset
+def get_labeled_cost_query(usage_date_from, usage_date_to, resource_global):
+    return f"""
+        SELECT 
+          SUM(cost) AS total_cost
+        FROM {BIGQUERY_RESOURCE_DATASET_MFI}
+        WHERE 
+          DATE(usage_start_time) BETWEEN "{usage_date_from}" AND "{usage_date_to}"
+          AND resource.global_name IN {tuple(resource_global)}
+          AND (project.id IN {tuple(TF_PROJECT_MFI + TF_PROJECT_ANDROID + ATLAS_PROJECT_MFI)} OR project.id IS NULL) 
+    """
+
+
 def get_cud_cost_query(billing, usage_date_from, usage_date_to, shared=None):
     if billing == "MFI":
         projects = tuple(TF_PROJECT_MFI + TF_PROJECT_ANDROID + ATLAS_PROJECT_MFI)

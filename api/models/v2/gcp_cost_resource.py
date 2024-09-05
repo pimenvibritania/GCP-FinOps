@@ -11,7 +11,8 @@ from api.models.v2.bigquery_client import BigQuery
 from api.models.v2.index_weight import SharedIndexWeight
 from api.serializers.v2.gcp_cost_resource_serializers import BigqueryCostResourceSerializers, GCPCostResourceSerializers
 from api.utils.v2.notify import Notification
-from api.utils.v2.query import get_cost_resource_query, get_cud_cost_query, get_shared_cost_query
+from api.utils.v2.query import get_cost_resource_query, get_cud_cost_query, get_shared_cost_query, \
+    get_labeled_cost_query
 from core.settings import EXCLUDED_GCP_SERVICES, INCLUDED_GCP_TAG_KEY
 from home.models import IndexWeight, GCPProjects, GCPServices, TechFamily
 from home.models.v2 import GCPLabelMapping, GCPCostResource as CostResource
@@ -437,10 +438,15 @@ class GCPCostResource:
             cud = list(BigQuery.fetch(query=cud_query))[0]["CUD_credits"]
             cost_query = get_shared_cost_query(billing, current_date_from_fmt, usage_date)
             cost = list(BigQuery.fetch(query=cost_query))[0]["cost"]
+
             result[billing] = {
                 "cud_cost": cud,
                 "shared_cost": cost
             }
+
+            if billing == "MFI":
+                label_cost = GCPCostResource.get_labeled_cost(usage_date, day)
+                result[billing]["shared_cost"] += label_cost
 
         shared_index_weight = SharedIndexWeight.get_data(usage_date, day)
 
@@ -456,3 +462,24 @@ class GCPCostResource:
             "cud_cost": result_cud_cost,
             "shared_cost": result_shared_cost
         }
+
+    @staticmethod
+    def get_labeled_cost(usage_date, day, label="infra"):
+        formatting = "%Y-%m-%d"
+        current_date_to = datetime.strptime(usage_date, formatting)
+        current_date_from = current_date_to - timedelta(days=(int(day) - 1))
+        current_date_from_fmt = current_date_from.strftime(formatting)
+
+        resource_qs = GCPLabelMapping.objects.filter(
+            usage_date__gte=current_date_from.date(),
+            usage_date__lte=current_date_to.date(),
+            label_value=label
+        ).values("resource_global_name")
+
+        resource_data = [v['resource_global_name'] for v in resource_qs]
+
+        query = get_labeled_cost_query(current_date_from_fmt, usage_date, resource_data)
+        result = list(BigQuery.fetch(query=query))[0]["total_cost"]
+
+        return result
+
