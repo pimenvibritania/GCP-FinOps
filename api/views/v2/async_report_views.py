@@ -1,5 +1,4 @@
 import asyncio
-import os
 
 from api.models.bigquery import BigQuery
 from api.models.v2.gcp_cost_resource import GCPCostResource
@@ -90,15 +89,18 @@ async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_c
     worksheet.column_dimensions['G'].width = 15
     worksheet.column_dimensions['H'].width = 15
 
+    sorted_services = dict(sorted(services.items(), key=lambda item: item[1], reverse=True))
+
     # Write GCP data rows
-    for row_num, service in enumerate(services, 1):
+    for row_num, service in enumerate(sorted_services, 1):
+
         cell1 = worksheet.cell(row=row_num + 1, column=1)
         cell2 = worksheet.cell(row=row_num + 1, column=2)
         cell3 = worksheet.cell(row=row_num + 1, column=3)
 
         cell1.value = row_num
         cell2.value = service
-        cell3.value = Conversion.idr_format(services[service])
+        cell3.value = Conversion.idr_format(sorted_services[service])
 
         cell1.border = border
         cell2.border = border
@@ -173,8 +175,10 @@ async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_c
         cell.alignment = center_alignment
         cell.fill = fill_color
 
+    sorted_kubecost = dict(sorted(kubecost_services.items(), key=lambda x: float(x[1]['idr'][2:].replace('.', '')
+                                                                                 .replace(',', '.')), reverse=True))
     # Write Kubecost rows data
-    for row_num, service in enumerate(kubecost_services, 1):
+    for row_num, service in enumerate(sorted_kubecost, 1):
         cell1 = worksheet.cell(row=row_num + 1, column=5)
         cell2 = worksheet.cell(row=row_num + 1, column=6)
         cell3 = worksheet.cell(row=row_num + 1, column=7)
@@ -182,8 +186,8 @@ async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_c
 
         cell1.value = row_num
         cell2.value = service
-        cell3.value = kubecost_services[service]["usd"]
-        cell4.value = kubecost_services[service]["idr"]
+        cell3.value = sorted_kubecost[service]["usd"]
+        cell4.value = sorted_kubecost[service]["idr"]
 
         cell1.border = border
         cell2.border = border
@@ -287,9 +291,7 @@ async def create_report(request, date=None, period=None):
 
     # Create async tasks for fetching GCP and Kubecost data
     async_tasks = [
-        loop.run_in_executor(
-            None, GCPCostResource.get_cost, date, day
-        ),
+        loop.run_in_executor(None, GCPCostResource.get_cost, date, day),
         loop.run_in_executor(None, KubecostReport.report, date, period),
         loop.run_in_executor(None, GCPCostResource.get_cud_cost, date, day),
         loop.run_in_executor(None, GCPCostResource.get_shared_cost, date, day)

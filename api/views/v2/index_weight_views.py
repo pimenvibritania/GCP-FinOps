@@ -46,6 +46,9 @@ class SharedIndexWeightViews(APIView):
         if day is None:
             day = 1
 
-        data = SharedIndexWeight.get_data(usage_date, day)
+        if day == 1:
+            data = SharedIndexWeight.get_daily_index(usage_date)
+        else:
+            data = SharedIndexWeight.get_data(usage_date, day)
 
         return Response(data, status=status.HTTP_200_OK)

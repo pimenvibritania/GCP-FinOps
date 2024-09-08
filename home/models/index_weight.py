@@ -72,7 +72,7 @@ class IndexWeight(BaseModel):
             SELECT iw.id, iw.value, iw.environment, tf.project, tf.slug 
             FROM index_weight iw
             JOIN tech_family AS tf ON iw.tech_family_id = tf.id
-            WHERE iw.created_at > "{usage_date}" and iw.created_at < "{date_after_str}"
+            WHERE iw.created_at >= "{usage_date}" and iw.created_at <= "{date_after_str}"
             GROUP BY iw.environment, tf.slug
         """
 

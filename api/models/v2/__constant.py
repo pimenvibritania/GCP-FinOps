@@ -39,11 +39,11 @@ TF_PROJECT_INCLUDED = (TF_PROJECT_MFI + TF_PROJECT_MDI + TF_PROJECT_ANDROID + AL
 
 BIGQUERY_RESOURCE_DATASET_MFI = os.getenv("BIGQUERY_RESOURCE_DATASET_MFI")
 BIGQUERY_RESOURCE_DATASET_MDI = None
-BIGQUERY_MDI_TABLE = os.getenv("BIGQUERY_MDI_TABLE")
+BIGQUERY_MDI_TABLE = os.getenv("BIGQUERY_MDI_TABLE_NEW")
 
 MERGED_DEFI = ["defi_mdi", "defi_mfi"]
 MERGED_PLATFORM = ["platform_mdi", "platform_mfi"]
 
 SHARED_PROJECT_MFI = ["moladin-mof-data-devl", "moladin-mof-data-prod"]
-SHARED_PROJECT_MDI = ["moladin-archive-prod", "moladin-data-devl", "moladin-data-prod",
+SHARED_PROJECT_MDI = ["moladin-archive-prod", "moladin-data-devl", "moladin-data-prod", "moladin-infra-devl", "moladin-infra-prod",
                       "moladin-itcorp-devl", "moladin-itcorp-prod", "moladin-security-prod", "ybqtest"]

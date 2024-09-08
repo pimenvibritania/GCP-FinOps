@@ -9,6 +9,7 @@ from django.db.models.functions import Round
 
 from api.serializers.serializers import IndexWeightSerializer
 from api.utils.index_weight import mapping_data
+from api.utils.v2.index_weight import count_child_keys, adjust_index
 from home.models import KubecostDeployments, KubecostNamespaces, TechFamily
 from datetime import datetime, timedelta
 from home.models.index_weight import IndexWeight
@@ -150,7 +151,7 @@ class SyncIndexWeight:
                             logger.error(serializer.errors)
 
         """
-            Add hardcoded development index (bypass development)
+            Add hardcoded development index (bypass development) on MDI
         """
         staging_mdi = {}
         for key_mdi in percentages["MDI"]:
@@ -212,11 +213,12 @@ class SharedIndexWeight:
         current_date_to = datetime.strptime(usage_date, formatting)
         current_date_from = current_date_to - timedelta(days=(int(day) - 1))
 
-        results = IndexWeight.objects.filter(
+        results = (IndexWeight.objects.filter(
             created_at__gte=current_date_from.date(),
             created_at__lte=current_date_to.date(),
             environment='production'
-        ).values('environment').annotate(tech_family=F('tech_family__slug')).annotate(value=Round(Avg('value'), 2))
+        ).values('environment').annotate(tech_family=F('tech_family__slug'))
+                   .annotate(value=Round(Avg('value'), 2)))
 
         index_weight = {
             "MDI": {},
@@ -228,7 +230,7 @@ class SharedIndexWeight:
             index_weight[billing][result['tech_family']] = result['value']
 
         # Additional Index Weight (based forecast)
-        over_dana_tunai = index_weight["MDI"]["dana_tunai"] / 2
+        over_dana_tunai = index_weight["MDI"]["dana_tunai"] * (70/100)
         over_platform_mdi = index_weight["MDI"]["platform_mdi"] / 2
         over_platform_mfi = index_weight["MFI"]["platform_mfi"] / 2
 
@@ -236,7 +238,7 @@ class SharedIndexWeight:
             "MDI": {
                 "defi_mdi": round(index_weight["MDI"]["defi_mdi"] + (over_dana_tunai / 2) + (over_platform_mdi / 2), 2),
                 "platform_mdi": round(over_platform_mdi + (over_dana_tunai / 2), 2),
-                "dana_tunai": round(over_dana_tunai + (over_platform_mdi / 2), 2)
+                "dana_tunai": round((index_weight["MDI"]["dana_tunai"] - over_dana_tunai) + (over_platform_mdi / 2), 2)
             },
             "MFI": {
                 "defi_mfi": round(index_weight["MFI"]["defi_mfi"] + (over_platform_mfi / 2), 2),
@@ -262,3 +264,116 @@ class SharedIndexWeight:
                 result_index[project][max_system] -= round(diff, 2)
 
         return result_index
+
+    @staticmethod
+    def get_daily_index(usage_date):
+
+        index_weight_fn = False
+        usage_date_fn = usage_date
+
+        raw_index_weight = None
+
+        # Handling index weight if environment not found, total 18 index weight for all environment on all tech family.
+        while not index_weight_fn:
+
+            index_weight_each = IndexWeight.get_daily_index_weight(usage_date_fn)
+
+            total_child_iw = count_child_keys(index_weight_each)
+
+            if int(total_child_iw) < 18:
+                usage_date_change = datetime.strptime(usage_date_fn, "%Y-%m-%d")
+                usage_date_use = usage_date_change - timedelta(days=1)
+                usage_date_fn = usage_date_use.strftime("%Y-%m-%d")
+            else:
+                raw_index_weight = index_weight_each
+                index_weight_fn = True
+
+        shared_index = {}
+        result = {}
+
+        index_weight = adjust_index(raw_index_weight)
+
+        for billing, index_family in index_weight.items():
+            shared_index[billing] = {}
+            result[billing] = {}
+            for family, environment in index_family.items():
+                shared_index[billing][family] = {}
+                result[billing][family] = {}
+                for env in environment:
+
+                    index = index_weight[billing][family][env]
+
+                    # Sharing index weight, (dana tunai -70% & separate to another family)
+                    if family == "dana_tunai":
+                        index_share = index * (70 / 100)
+
+                        # getting index from platform mdi, append value if not exist
+                        if not shared_index[billing].get("platform_mdi"):
+                            shared_index[billing]["platform_mdi"] = {}
+                        if not shared_index[billing]["platform_mdi"].get(env):
+                            index_platform = index_weight[billing]["platform_mdi"][env]
+                            shared_index[billing]["platform_mdi"][env] = round(index_platform / 2, 2)
+
+                        shared_index_platform = shared_index[billing]["platform_mdi"][env]
+                        shared_index[billing][family][env] = round(index_share, 2)
+
+                        # result of dana_tunai is dana_tunai - 70% + (shared platform mdi /2)
+                        result[billing][family][env] = round(index - index_share + shared_index_platform / 2, 2)
+
+                    elif family == "defi_mdi":
+                        # getting index from dana tunai, append value if not exist
+                        if not shared_index[billing].get("dana_tunai"):
+                            shared_index[billing]["dana_tunai"] = {}
+                        if not shared_index[billing]["dana_tunai"].get(env):
+                            index_dana = index_weight[billing]["dana_tunai"][env]
+                            shared_index[billing]["dana_tunai"][env] = round(index_dana * (70 / 100), 2)
+
+                        # getting index from platform mdi, append value if not exist
+                        if not shared_index[billing].get("platform_mdi"):
+                            shared_index[billing]["platform_mdi"] = {}
+                        if not shared_index[billing]["platform_mdi"].get(env):
+                            index_platform = index_weight[billing]["platform_mdi"][env]
+                            shared_index[billing]["platform_mdi"][env] = round(index_platform / 2, 2)
+
+                        shared_index_dt = shared_index[billing]["dana_tunai"][env]
+                        shared_index_platform = shared_index[billing]["platform_mdi"][env]
+
+                        # result of defi_mdi is defi_mdi + (70% dana_tunai / 2) + (shared platform_mdi / 2)
+                        result[billing][family][env] = round(index + shared_index_dt / 2 + shared_index_platform / 2, 2)
+
+                    elif family == "platform_mdi":
+                        index_share = index / 2
+
+                        # getting index from dana tunai, append value if not exist
+                        if not shared_index[billing].get("dana_tunai"):
+                            shared_index[billing]["dana_tunai"] = {}
+                        if not shared_index[billing]["dana_tunai"].get(env):
+                            index_dana = index_weight[billing]["dana_tunai"][env]
+                            shared_index[billing]["dana_tunai"][env] = round(index_dana * (70 / 100), 2)
+
+                        shared_index_dt = shared_index[billing]["dana_tunai"][env]
+                        shared_index[billing][family][env] = index_share
+
+                        # result of platform_mdi is (platform_mdi / 2) + (70% dana_tunai / 2)
+                        result[billing][family][env] = round(index_share + shared_index_dt/2, 2)
+
+                    elif family == "platform_mfi":
+                        index_share = index / 2
+                        shared_index[billing][family][env] = index_share
+
+                        # result of platform_mfi is (platform_mfi / 2)
+                        result[billing][family][env] = round(index_share, 2)
+
+                    elif family == "mofi" or family == "defi_mfi":
+                        # getting index from platform_mfi, append value if not exist
+                        if not shared_index[billing].get("platform_mfi"):
+                            shared_index[billing]["platform_mfi"] = {}
+                        if not shared_index[billing]["platform_mfi"].get(env):
+                            index_dana = index_weight[billing]["platform_mfi"][env]
+                            shared_index[billing]["platform_mfi"][env] = round(index_dana * (70 / 100), 2)
+
+                        shared_index_platform = shared_index[billing]["platform_mfi"][env]
+                        # result of mofi is mofi + (shared platform_mfi / 2)
+                        result[billing][family][env] = round(index + shared_index_platform/2, 2)
+
+        return adjust_index(result)

@@ -21,13 +21,15 @@ def adjust_index(data):
                 diff = 100 - current_sum
                 # Find the system with the smallest value for this environment
                 min_system = min(systems, key=lambda x: systems[x][env])
-                systems[min_system][env] += diff
+                min_system_env = systems[min_system][env]
+                systems[min_system][env] = round((min_system_env + diff), 2)
 
             # If sum is more than 100, subtract the difference from the largest value
             elif current_sum > 100:
                 diff = current_sum - 100
                 # Find the system with the largest value for this environment
                 max_system = max(systems, key=lambda x: systems[x][env])
-                systems[max_system][env] -= diff
+                max_system_env = systems[max_system][env]
+                systems[max_system][env] = round((max_system_env - diff), 2)
 
     return data

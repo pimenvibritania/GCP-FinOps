@@ -14,7 +14,7 @@ from api.utils.v2.notify import Notification
 from api.utils.v2.query import get_cost_resource_query, get_cud_cost_query, get_shared_cost_query, \
     get_labeled_cost_query
 from core.settings import EXCLUDED_GCP_SERVICES, INCLUDED_GCP_TAG_KEY
-from home.models import IndexWeight, GCPProjects, GCPServices, TechFamily
+from home.models import GCPProjects, GCPServices, TechFamily
 from home.models.v2 import GCPLabelMapping, GCPCostResource as CostResource
 from api.models.bigquery import BigQuery as BQ
 from api.utils.v2.index_weight import count_child_keys, adjust_index
@@ -52,7 +52,7 @@ class GCPCostResource:
         # Handling index weight if environment not found, total 18 index weight for all environment on all tech family.
         while not index_weight_fn:
 
-            index_weight_each = IndexWeight.get_daily_index_weight(usage_date_fn)
+            index_weight_each = SharedIndexWeight.get_daily_index(usage_date_fn)
 
             total_child_iw = count_child_keys(index_weight_each)
 
@@ -340,7 +340,7 @@ class GCPCostResource:
                                     "gcp_project": "-"
                                 }
 
-            index_weight = IndexWeight.get_index_weight()
+            index_weight = SharedIndexWeight.get_daily_index(usage_date)
             current_conversion_rate = CostResource.get_conversion_rate(usage_date=usage_date, day=int(day))
             previous_conversion_rate = CostResource.get_conversion_rate(
                 usage_date=previous_date_to.strftime(formatting),
@@ -396,7 +396,7 @@ class GCPCostResource:
         # Handling index weight if environment not found, total 18 index weight for all environment on all tech family.
         while not index_weight_fn:
 
-            index_weight_each = IndexWeight.get_daily_index_weight(usage_date_fn)
+            index_weight_each = SharedIndexWeight.get_daily_index(usage_date_fn)
 
             total_child_iw = count_child_keys(index_weight_each)
 
@@ -482,4 +482,3 @@ class GCPCostResource:
         result = list(BigQuery.fetch(query=query))[0]["total_cost"]
 
         return result
-
