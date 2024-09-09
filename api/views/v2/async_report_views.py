@@ -33,7 +33,7 @@ async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_c
         bottom=Side(border_style="thin", color="000000")
     )
     bold_font = Font(bold=True)
-    center_alignment = Alignment(horizontal='center')
+    center_alignment = Alignment(horizontal='center', vertical='center')
     fill_color = PatternFill(fgColor="b6d7a8", fill_type="solid")
     secondary_fill_color = PatternFill(fgColor="9fc5e8", fill_type="solid")
 
@@ -53,20 +53,28 @@ async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_c
         if total_current_cost > 0:
             services[service] = total_current_cost
 
+    total_current_cost = gcp_data["__summary"]['current_cost']
+    total_current_cost_kubecost = kubecost_data["data"]["summary"]["cost_this_period"]
+    positive_cud_cost = abs(cud_data)
+    positive_shared_cud_cost = abs(shared_cud_cost)
+    total_cud = positive_cud_cost + positive_shared_cud_cost
+    total_after_cud = (total_current_cost + shared_cost) - total_cud
+
     kubecost_services = {}
-    total_current_cost_kubecost = 0
 
     for service in kubecost_data["data"]["services"]:
+        index_kubecost = (service["cost_this_period"] / total_current_cost_kubecost) * 100
+
+        usd_cost = service["cost_this_period"]
+        idr_app_cost = total_after_cud * (index_kubecost / 100)
+
         kubecost_services[service["service_name"]] = {
-            "usd": Conversion.usd_format(service["cost_this_period"]),
-            "idr": Conversion.convert_idr(service["cost_this_period"], rate["idr"])
+            "kubecost_usd": Conversion.usd_format(usd_cost),
+            "kubecost_idr": Conversion.convert_idr(usd_cost, rate["idr"]),
+            "app_cost_usd": Conversion.convert_usd(idr_app_cost, rate["idr"]),
+            "app_cost_idr": Conversion.idr_format(idr_app_cost),
+            "index_weight": index_kubecost
         }
-        total_current_cost_kubecost += service["cost_this_period"]
-
-    total_current_cost_kubecost_usd = Conversion.usd_format(total_current_cost_kubecost)
-    total_current_cost_kubecost_idr = Conversion.convert_idr(total_current_cost_kubecost, rate["idr"])
-
-    total_current_cost = gcp_data["__summary"]['current_cost']
 
     # Write GCP header row
     header = ['No', 'GCP Service Name', 'Total Cost (IDR)']
@@ -79,15 +87,15 @@ async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_c
         cell.fill = fill_color
 
     worksheet.column_dimensions['A'].width = 5
-    worksheet.column_dimensions['B'].width = 35
+    worksheet.column_dimensions['B'].width = 50
     worksheet.column_dimensions['C'].width = 17
 
     worksheet.column_dimensions['D'].width = 15
 
     worksheet.column_dimensions['E'].width = 5
     worksheet.column_dimensions['F'].width = 35
-    worksheet.column_dimensions['G'].width = 15
-    worksheet.column_dimensions['H'].width = 15
+    worksheet.column_dimensions['G'].width = 20
+    worksheet.column_dimensions['H'].width = 20
 
     sorted_services = dict(sorted(services.items(), key=lambda item: item[1], reverse=True))
 
@@ -122,7 +130,7 @@ async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_c
 
     # Write TOTAL SHARED COST
     worksheet.merge_cells(f"A{total_rows + 1}:B{total_rows + 1}")
-    worksheet[f"A{total_rows + 1}"].value = "+Shared Cost"
+    worksheet[f"A{total_rows + 1}"].value = "+Shared Cost (Infra, Data, ITCorp, Security & YBQTest)"
     worksheet[f"A{total_rows + 1}"].font = bold_font
     worksheet[f"A{total_rows + 1}"].border = border
     worksheet[f"A{total_rows + 1}"].fill = fill_color
@@ -132,10 +140,6 @@ async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_c
     worksheet[f"C{total_rows + 1}"].fill = fill_color
 
     # Write CUD Total Cost
-    positive_cud_cost = abs(cud_data)
-    positive_shared_cud_cost = abs(shared_cud_cost)
-    total_cud = positive_cud_cost + positive_shared_cud_cost
-
     worksheet.merge_cells(f"A{total_rows + 2}:B{total_rows + 2}")
     worksheet[f"A{total_rows + 2}"].value = "-CUD Cost"
     worksheet[f"A{total_rows + 2}"].font = bold_font
@@ -149,7 +153,7 @@ async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_c
     worksheet[f"A{total_rows + 3}"].font = bold_font
     worksheet[f"A{total_rows + 3}"].border = border
     worksheet[f"A{total_rows + 3}"].fill = fill_color
-    worksheet[f"C{total_rows + 3}"].value = Conversion.idr_format(total_current_cost + shared_cost - total_cud)
+    worksheet[f"C{total_rows + 3}"].value = Conversion.idr_format(total_after_cud)
     worksheet[f"C{total_rows + 3}"].font = bold_font
     worksheet[f"C{total_rows + 3}"].border = border
     worksheet[f"C{total_rows + 3}"].fill = fill_color
@@ -166,28 +170,37 @@ async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_c
     worksheet[f"C{total_rows + 5}"].fill = secondary_fill_color
 
     # Write Kubecost header row
-    header = ['No', 'Service Name (Kubecost)', 'Total Cost (USD)', 'Total Cost (IDR)']
+    header = ['No', 'Service Name', 'Total Cost (USD)', 'Total Cost (IDR)']
     for col_num, column_title in enumerate(header, 5):
-        cell = worksheet.cell(row=1, column=col_num)
-        cell.value = column_title
-        cell.border = border
-        cell.font = bold_font
-        cell.alignment = center_alignment
-        cell.fill = fill_color
+        for row in range(2):
+            cell = worksheet.cell(row=row+1, column=col_num)
+            cell.value = column_title
+            cell.border = border
+            cell.font = bold_font
+            cell.alignment = center_alignment
+            cell.fill = fill_color
 
-    sorted_kubecost = dict(sorted(kubecost_services.items(), key=lambda x: float(x[1]['idr'][2:].replace('.', '')
+    worksheet.merge_cells("E1:E2")
+    worksheet.merge_cells("F1:F2")
+    worksheet.merge_cells("G1:H1")
+
+    cell_g = worksheet.cell(row=1, column=7)
+    cell_g.value = "Application Based Costs"
+
+    sorted_kubecost = dict(sorted(kubecost_services.items(), key=lambda x: float(x[1]['app_cost_idr'][2:]
+                                                                                 .replace('.', '')
                                                                                  .replace(',', '.')), reverse=True))
     # Write Kubecost rows data
     for row_num, service in enumerate(sorted_kubecost, 1):
-        cell1 = worksheet.cell(row=row_num + 1, column=5)
-        cell2 = worksheet.cell(row=row_num + 1, column=6)
-        cell3 = worksheet.cell(row=row_num + 1, column=7)
-        cell4 = worksheet.cell(row=row_num + 1, column=8)
+        cell1 = worksheet.cell(row=row_num + 2, column=5)
+        cell2 = worksheet.cell(row=row_num + 2, column=6)
+        cell3 = worksheet.cell(row=row_num + 2, column=7)
+        cell4 = worksheet.cell(row=row_num + 2, column=8)
 
         cell1.value = row_num
         cell2.value = service
-        cell3.value = sorted_kubecost[service]["usd"]
-        cell4.value = sorted_kubecost[service]["idr"]
+        cell3.value = sorted_kubecost[service]["app_cost_usd"]
+        cell4.value = sorted_kubecost[service]["app_cost_idr"]
 
         cell1.border = border
         cell2.border = border
@@ -197,19 +210,19 @@ async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_c
         cell1.alignment = center_alignment
 
     # Write Kubecost TOTAL Cost
-    total_rows = len(kubecost_services) + 2
+    total_rows = len(kubecost_services) + 3
     worksheet.merge_cells(f"E{total_rows}:F{total_rows}")
     worksheet[f"E{total_rows}"].value = "TOTAL"
     worksheet[f"E{total_rows}"].font = bold_font
     worksheet[f"E{total_rows}"].border = border
     worksheet[f"E{total_rows}"].fill = fill_color
 
-    worksheet[f"G{total_rows}"].value = total_current_cost_kubecost_usd
+    worksheet[f"G{total_rows}"].value = Conversion.convert_usd(total_after_cud, rate["idr"])
     worksheet[f"G{total_rows}"].font = bold_font
     worksheet[f"G{total_rows}"].border = border
     worksheet[f"G{total_rows}"].fill = fill_color
 
-    worksheet[f"H{total_rows}"].value = total_current_cost_kubecost_idr
+    worksheet[f"H{total_rows}"].value = Conversion.idr_format(total_after_cud)
     worksheet[f"H{total_rows}"].font = bold_font
     worksheet[f"H{total_rows}"].border = border
     worksheet[f"H{total_rows}"].fill = fill_color

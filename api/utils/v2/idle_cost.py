@@ -23,7 +23,7 @@ def get_idle_cost(idle_data, index_weight):
         project = item["project"]
         cluster_name = item["cluster_name"]
         environment = item["environment"]
-        iw = index_weight[environment]["value"]
+        iw = index_weight[environment]
         cost_this_period = item["cost_this_period"] * (iw / 100)
         cost_prev_period = item["cost_prev_period"] * (iw / 100)
         total_current_idle_cost += cost_this_period
