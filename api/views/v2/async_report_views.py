@@ -6,6 +6,7 @@ from api.models.kubecost import KubecostReport
 from api.utils.decorator import *
 from api.models.v2.__constant import TECHFAMILIES, TECHFAMILY_MFI
 from api.utils.v2.conversion import Conversion
+from api.utils.v2.date import count_days_in_month
 from api.utils.v2.idle_cost import get_idle_cost
 from api.utils.v2.mail_context import MailContext
 from api.utils.v2.mailer import Mailer
@@ -14,6 +15,8 @@ from openpyxl.styles import Border, Side, Font, Alignment, PatternFill
 
 import shutil
 
+from api.utils.v2.merge_project import merge_gcp_cost
+
 
 async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_cost, shared_cud_cost):
     template_path = "api/templates/v2/template.xlsx"
@@ -21,7 +24,7 @@ async def monthly_report(gcp_data, kubecost_data, excel_file, cud_data, shared_c
     rates = BigQuery.get_current_conversion_rate()
 
     rate = {
-        "idr": Conversion.unpack_idr(Conversion.idr_format(rate["currency_conversion_rate"]))
+        "idr": rate["currency_conversion_rate"]
         for rate in rates
     }
 
@@ -300,7 +303,7 @@ async def create_report(request, date=None, period=None):
     loop = asyncio.get_event_loop()
 
     # Determine the report period duration
-    day = 7 if period == "weekly" else 30 if period == "monthly" else 1
+    day = 7 if period == "weekly" else count_days_in_month(date) if period == "monthly" else 1
 
     # Create async tasks for fetching GCP and Kubecost data
     async_tasks = [
@@ -316,6 +319,8 @@ async def create_report(request, date=None, period=None):
     kubecost_result = result[1]
     cud_result = result[2]
     shared_cost = result[3]
+
+    # merged_gcp_result = merge_gcp_cost(gcp_result)
 
     # Extract idle data from Kubecost result
     idle_data = next(

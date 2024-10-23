@@ -26,3 +26,5 @@ scripts/sync-gcp-cost/service-account.json
 
 
 Pipfile*
+
+playground.py

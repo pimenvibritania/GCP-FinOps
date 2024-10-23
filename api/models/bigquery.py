@@ -36,8 +36,8 @@ class BigQuery:
     def get_current_conversion_rate(cls):
         query_template = f"""
                 SELECT currency_conversion_rate
-                FROM `{BIGQUERY_MDI_TABLE}`
-                ORDER BY currency_conversion_rate DESC
+                FROM `{BIGQUERY_RESOURCE_DATASET_MFI}`
+                ORDER BY DATE(usage_start_time) DESC
                 LIMIT 1;
             """
 
