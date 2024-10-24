@@ -20,7 +20,6 @@ service-account.json
 
 /home/templates/temp
 media/
-logs/
 scripts/sync-gcp-cost/.env
 scripts/sync-gcp-cost/service-account.json
 
