@@ -102,6 +102,7 @@ pipeline {
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-sync-gcp-cost-prod -f Dockerfile.cronjob ."
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-sync-index-weight-prod -f Dockerfile.cronjob ."
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-sync-techfamily-cost-prod -f Dockerfile.cronjob ."
+                        sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-monthly-report -f Dockerfile.cronjob ."
                         sh "cd kubernetes/production/cronjob/script; docker build -t ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-${shortCommitHash}-${BUILD_NUMBER} -f Dockerfile.cronjob ."
 
                         // NEW FinOps Build
@@ -120,6 +121,7 @@ pipeline {
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-send-data-report-prod"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-sync-index-weight-prod"
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-sync-techfamily-cost-prod"
+                        sh "docker push ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-monthly-report"
 
                         // NEW FinOps Push
                         sh "docker push ${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-sync-gcp-label"
@@ -174,6 +176,7 @@ pipeline {
                         sh "kubectl --context ${context} -n ${namespace} set image cronjob.batch/cms-sync-gcp-cost cms-sync-gcp-cost=${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-sync-gcp-cost-prod"
                         sh "kubectl --context ${context} -n ${namespace} set image cronjob.batch/kubecost-check-uncategorized kubecost-check-uncategorized=${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-${shortCommitHash}-${BUILD_NUMBER}"
                         sh "kubectl --context ${context} -n ${namespace} set image cronjob.batch/cms-sync-techfamily-cost cms-sync-techfamily-cost=${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-sync-techfamily-cost-prod"
+                        sh "kubectl --context ${context} -n ${namespace} set image cronjob.batch/finops-create-report-monthly finops-create-report-monthly=${garLocation}/${garProject}/${garRepository}/${imageName}:cronjob-monthly-report"
 
                         currentBuild.result = 'SUCCESS'
                     } catch(e) {
