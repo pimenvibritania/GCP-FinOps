@@ -13,6 +13,7 @@ env
 
 .env
 .env.prod
+.env.local
 .venv
 .vscode
 out.json

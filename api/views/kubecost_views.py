@@ -93,6 +93,7 @@ class KubecostInsertDataViews(APIView):
     def post(self, request, *args, **kwargs):
         date = request.data.get("date")
         try:
+            print("preparing insert data")
             KubecostInsertData.insert_data(date)
 
             message = f"Kubecost data '{date}' successfully inserted."
