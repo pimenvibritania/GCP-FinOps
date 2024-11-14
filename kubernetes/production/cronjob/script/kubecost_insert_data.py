@@ -25,6 +25,7 @@ def insert_kubecost_data():
     auth_credentials = (KUBECOST_CRONJOB_USER, KUBECOST_CRONJOB_PASSWORD)
     date = yesterday
     try:
+        print(endpoint, date)
         response = requests.post(endpoint, json={"date": date}, auth=auth_credentials)
         if response.status_code not in [200, 403]:
             logs = f"{current_datetime} - Kubecost Daily Cronjob Failed. Date: {date}, Response: {response.status_code}, {response.text}"
