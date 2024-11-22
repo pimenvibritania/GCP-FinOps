@@ -1,0 +1,802 @@
+git log --graph --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white green)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all > history.txt
+
+*   3df6074 - (14 minutes ago) Merge branch 'main' of github.com:pimenvibritania/GCP-FinOps - Pirman Abdurohman (HEAD -> main, gh/main)
+|\  
+| * 49880a4 - (3 months ago) Update README.md - G̴̡̥̺̼̠̪̺̠̹͗̈́̍͗̈́͂͠l̷̡͙͍̝̊̋̂̑̋̕͜͜ö̵̫͔̹̜̮́̉̄w̸͙͑̂̉̾͝l̷̡̡̧͕̩̙̆̄̊̈́͝y̷̡̡̡̧̲͔͍̮̭̋̎̈́͑̔͘ͅ ̸̢̛̥̫͇̋f̴̛̬̹̼͚͈̱̩̹͎̒̏̔ǟ̴̬̬̻̦̦͇͉̦͊̓̋̄̚͘ķ̷̡̗̻͚̩̘͚̻͙̃̒̒̎ẽ̶̥̀r̸̜̖͔̟̖̋̇̂̔
+* | 936c66a - (8 days ago) update kubecost - Pirman Abdurohman (tag: FINOPS_20241114, origin/main, origin/HEAD)
+* | 98b405f - (8 days ago) update kubecost - Pirman Abdurohman
+* | 483fe81 - (3 weeks ago) update - Pirman Abdurohman
+* | cab3b58 - (4 weeks ago) update - Pirman Abdurohman (tag: FINOPS_20241024)
+* | 4a494e7 - (4 weeks ago) update - Pirman Abdurohman (tag: FINOPS_20241023)
+* | 3d7a9e6 - (2 months ago) new formula - Pirman Abdurohman
+* | 2dce04a - (3 months ago) adjust index weight - Pirman Abdurohman
+* | e7b8fc4 - (3 months ago) cud and shared cost with cud - Pirman Abdurohman
+* | 2ac8fe2 - (3 months ago) cud and shared cost with cud - Pirman Abdurohman
+* | f5c3f6d - (3 months ago) cud and shared cost with cud - Pirman Abdurohman
+* | b23d000 - (3 months ago) cron gcp cost resources - Pirman Abdurohman (tag: FINOPS_20240904)
+* | c3f4d5e - (3 months ago) formatting mail report - Pirman Abdurohman
+* | 43fa5e5 - (3 months ago) sync index & label v2 - Pirman Abdurohman (tag: FINOPS_20240903_2)
+* | 854f650 - (3 months ago) sync index & label v2 - Pirman Abdurohman (tag: FINOPS_20240903)
+|/  
+* 0b05a98 - (3 months ago) pipeline - Pirman Abdurohman
+* b2521cd - (3 months ago) pipeline - Pirman Abdurohman (tag: FINOPS_20240901_5)
+* 00c8710 - (3 months ago) pipeline - Pirman Abdurohman (tag: FINOPS_20240901_4)
+* aa2ddd9 - (3 months ago) pipeline - Pirman Abdurohman (tag: FINOPS_20240901_3)
+* 631b9eb - (3 months ago) pipeline - Pirman Abdurohman (tag: FINOPS_20240901_2)
+* e4f5782 - (3 months ago) pipeline - Pirman Abdurohman (tag: OPS_PROD_20240901_7, tag: FINOPS_20240901)
+* cfd110c - (3 months ago) pipeline - Pirman Abdurohman (tag: OPS_PROD_20240901_6)
+* 24343d2 - (3 months ago) pipeline - Pirman Abdurohman (tag: OPS_PROD_20240901_5)
+* a96b1ba - (3 months ago) pipeline - Pirman Abdurohman (tag: OPS_PROD_20240901_4)
+* 5f876f6 - (3 months ago) pipeline - Pirman Abdurohman (tag: OPS_PROD_20240901_3)
+* c4c5664 - (3 months ago) pipeline - Pirman Abdurohman (tag: OPS_PROD_20240901_2)
+* 3422711 - (3 months ago) pipeline - Pirman Abdurohman (tag: OPS_PROD_20240901)
+* dc1145b - (3 months ago) pipeline - Pirman Abdurohman
+* dcff5ed - (3 months ago) pipelinw - Pirman Abdurohman
+* 7dcb19e - (4 months ago) change mail - Pirman Abdurohman
+* ef50d56 - (4 months ago) automate sync - Pirman Abdurohman
+*   3ccadef - (4 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - Pirman Abdurohman
+|\  
+| *   1a4de3c - (4 months ago) Merged in BEI-1667 (pull request #81) - Pirman Abdurohman
+| |\  
+* | | 3c4380e - (4 months ago) automate sync - Pirman Abdurohman (origin/BEI-1667, BEI-1667)
+| |/  
+|/|   
+* | cf21ea9 - (4 months ago) handling atlas project - Pirman Abdurohman
+* | 4dbae6d - (4 months ago) handling atlas project - Pirman Abdurohman
+|/  
+*   c9b5794 - (4 months ago) Merged in BEI-1618 (pull request #79) - Pirman Abdurohman
+|\  
+| * 329cb56 - (4 months ago) handling empty iw - Pirman Abdurohman (origin/BEI-1618, BEI-1618)
+| * 0ce0eeb - (4 months ago) fix - Pirman Abdurohman
+| * f77fdf0 - (4 months ago) fix - Pirman Abdurohman
+| * 5d7df53 - (4 months ago) fix - Pirman Abdurohman
+| * 0ebb7d2 - (4 months ago) fix - Pirman Abdurohman
+| * 8e87a79 - (4 months ago) fix - Pirman Abdurohman
+| * 7bff99e - (5 months ago) reporting into email - Pirman Abdurohman
+* |   81d2e92 - (5 months ago) Merged in devops/development-update-affinity (pull request #80) - Automation Create PR
+|\ \  
+| |/  
+|/|   
+| * 72d4413 - (5 months ago) Update resource requests and limits - Automation Create PR
+|/  
+*   163d2ff - (5 months ago) Merged in BEI-BEI-1603 (pull request #78) - Pirman Abdurohman
+|\  
+| * 46056ec - (5 months ago) handling service id not found - Pirman Abdurohman (origin/BEI-BEI-1603, BEI-BEI-1603)
+* | 806dd07 - (5 months ago) Merged in BEI-BEI-1603 (pull request #77) - Pirman Abdurohman
+|\| 
+| * 1fb4029 - (5 months ago) extend filter, add cache, add slack alert - Pirman Abdurohman
+| * 8ecca82 - (5 months ago) extend filter, add cache, add slack alert - Pirman Abdurohman
+| * 33b2d98 - (5 months ago) including mongo svc and android project, excluding spec label - Pirman Abdurohman
+| * 4205423 - (5 months ago) including mongo svc and android project, excluding spec label - Pirman Abdurohman
+| * cd5f40d - (5 months ago) including mongo svc and android project, excluding spec label - Pirman Abdurohman
+|/  
+*   9bba4a1 - (5 months ago) Merged in BEI-1598 (pull request #76) - Pirman Abdurohman
+|\  
+| *   fd05092 - (5 months ago) Merged main into BEI-1598 - Pirman Abdurohman (origin/BEI-1598)
+| |\  
+| |/  
+|/|   
+* |   7f3d501 - (5 months ago) Merged in BEI-1592 (pull request #75) - Pirman Abdurohman
+|\ \  
+| | * e7ba465 - (5 months ago) gcp cost resources - Pirman Abdurohman (BEI-1598)
+| | * 96d6206 - (5 months ago) gcp cost resources - Pirman Abdurohman
+| | * a257e3e - (5 months ago) gcp cost resources - Pirman Abdurohman
+| | * e6be4d3 - (5 months ago) gcp cost resources - Pirman Abdurohman
+| |/  
+| * 187ab56 - (5 months ago) gcp cost label mapping - Pirman Abdurohman (origin/BEI-1592, BEI-1592)
+| * 167566e - (5 months ago) gcp cost label mapping - Pirman Abdurohman
+|/  
+| * 8ada64b - (4 months ago) update weasy print - Pirman Abdurohman (tag: PROD_2024_08_08)
+| * 1dd6fc0 - (4 months ago) change mail - Pirman Abdurohman (tag: PROD_2024_08_06)
+|/  
+* f24e7e8 - (7 months ago) remove monthly report - Pirman Abdurohman (tag: PROD_20240429)
+* 97ddc67 - (7 months ago) how to - pimenvibritania
+* c462609 - (8 months ago) fix total cost - pirmanabd (tag: PROD_20240405_2)
+*   80ffd3a - (8 months ago) Merged in BEI-1443 (pull request #74) - Pirman Abdurohman (tag: PROD_20240405)
+|\  
+| * c26efe1 - (8 months ago) template tags - pirmanabd (origin/BEI-1443)
+|/  
+*   ebfdf19 - (8 months ago) Merged in BEI-1449 (pull request #73) - Pirman Abdurohman
+|\  
+| * 8a8af54 - (8 months ago) improve style - pirmanabd (origin/BEI-1449)
+|/  
+*   20f2ccc - (8 months ago) Merged in BEI-1448 (pull request #72) - Pirman Abdurohman
+|\  
+| * 8d9acf6 - (8 months ago) fix navbar and breadcrumb - pirmanabd (origin/BEI-1448)
+|/  
+*   0a2811a - (8 months ago) Merged in BEI-1446 (pull request #71) - Pirman Abdurohman
+|\  
+| * 4f90ba4 - (8 months ago) add total cost - pirmanabd (origin/BEI-1446)
+|/  
+*   3875166 - (8 months ago) Merged in BEI-1445 (pull request #70) - Pirman Abdurohman
+|\  
+| * 9aa509c - (8 months ago) fix date input - pirmanabd (origin/BEI-1445)
+* | 4d60b74 - (8 months ago) Merged in BEI-60 (pull request #69) - Pirman Abdurohman (tag: PROD_20240404_4)
+|\| 
+| * 556c900 - (8 months ago) fix value error data - pirmanabd (origin/BEI-60)
+* | 6cfed61 - (8 months ago) Merged in BEI-60 (pull request #68) - Pirman Abdurohman (tag: PROD_20240404_3)
+|\| 
+| * 7937c65 - (8 months ago) separate service for data team - pirmanabd
+|/  
+* af82155 - (8 months ago) fix: indexweight position - pirmanabd (tag: PROD_20240404_2)
+*   80d600d - (8 months ago) Merged in BEI-57 (pull request #67) - Pirman Abdurohman (tag: PROD_20240404)
+|\  
+| * 94b4722 - (8 months ago) conversion rate dashboard - pirmanabd (origin/BEI-57)
+* | 9884d43 - (8 months ago) Merged in BEI-1437 (pull request #66) - Pirman Abdurohman
+|\| 
+| * 1d510df - (8 months ago) Add index weight do overview - pirmanabd (origin/BEI-1437)
+|/  
+*   17703d4 - (8 months ago) Merged in BEI-84 (pull request #65) - Pirman Abdurohman
+|\  
+| * 26bd190 - (8 months ago) change time cronjob - pirmanabd (origin/BEI-84)
+| * e20f5c2 - (8 months ago) change metadata - pirmanabd
+|/  
+*   97b7b81 - (8 months ago) Merged in BEI-124 (pull request #64) - Pirman Abdurohman
+|\  
+| * ea88202 - (8 months ago) fix footer - pirmanabd (origin/BEI-124)
+|/  
+*   00a4997 - (8 months ago) Merged in BEI-97 (pull request #63) - Pirman Abdurohman
+|\  
+| * 49c0dbd - (8 months ago) fix table - pirmanabd (origin/BEI-97)
+|/  
+*   45505bd - (8 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd (tag: PROD_20240403)
+|\  
+| *   fab4826 - (8 months ago) Merged in BEI-1430 (pull request #62) - Pirman Abdurohman (tag: PROD_20240402)
+| |\  
+| | * 0ba19c1 - (8 months ago) monthly graph - pirmanabd (origin/BEI-1430)
+| |/  
+* / dcf1736 - (8 months ago) update webhook slack - pirmanabd (origin/BEI-449)
+|/  
+*   9b1b99d - (8 months ago) Merge branch 'BEI-1427' - pirmanabd (tag: PROD_20240401_02)
+|\  
+| * a0a5378 - (8 months ago) cronjob for sync techfam - pirmanabd
+* | 868655e - (8 months ago) Merged in BEI-1427 (pull request #61) - Pirman Abdurohman
+|\| 
+| * 9145b0c - (8 months ago) cronjob for sync techfam - pirmanabd (origin/BEI-1427)
+|/  
+*   9735421 - (8 months ago) Merged in BEI-1121 (pull request #60) - Pirman Abdurohman (tag: PROD_20240401)
+|\  
+| * 794df11 - (8 months ago) dashboard overview pertech fam - pirmanabd (origin/BEI-1121)
+| * 3377fa3 - (8 months ago) dashboard overview - pirmanabd
+| * ec9d77e - (8 months ago) dashboard overview - pirmanabd
+|/  
+* 56e5066 - (8 months ago) cron - pirmanabd (tag: PROD_20240319_2)
+*   ed39057 - (8 months ago) Merged in BEI-1302 (pull request #52) - Pirman Abdurohman (tag: PROD_20240319)
+|\  
+| * 0b3442a - (8 months ago) new indexweight source kubecost - pirmanabd (origin/BEI-1302)
+| *   19acbb4 - (8 months ago) new indexweight source kubecost - pirmanabd
+| |\  
+| * | 224d8e5 - (8 months ago) new indexweight source kubecost - pirmanabd
+| * | 89f2485 - (8 months ago) new indexweight source kubecost - pirmanabd
+| * | a94e088 - (10 months ago) new sync index weight - pirmanabd
+* | | 891a952 - (8 months ago) skip get-crendentials shared-devl-cluster - Maulana Ibrahim (tag: PROD_20240315_02)
+* | | 0ec226f - (8 months ago) skip shared-stag for kubecost check-status - Maulana Ibrahim (tag: PROD_20240315_01)
+| |/  
+|/|   
+| | * d8efce1 - (9 months ago) feat(BEI-1347): exclude cost by label - pirmanabd (origin/BEI-1347)
+| |/  
+|/|   
+| | *   adf7d48 - (9 months ago) Merge branch 'main' into BEI-1121-be-fe-create-new-dashboard-overview-report - Heri Rusmanto (origin/BEI-1121-be-fe-create-new-dashboard-overview-report)
+| | |\  
+| |_|/  
+|/| |   
+* | |   3d9f483 - (9 months ago) Merged in fix/data-report (pull request #58) - Pirman Abdurohman (tag: PROD_20240228)
+|\ \ \  
+| * | | a54c15e - (9 months ago) fix(data-report): change from event loop to sync_to_async - pirmanabd (origin/fix/data-report)
+| | | * 1607707 - (9 months ago) Merge branch 'main' into BEI-1121-be-fe-create-new-dashboard-overview-report - Heri Rusmanto
+| | |/| 
+| |/|/  
+| |/|   
+|/| |   
+* | | a14a984 - (9 months ago) add instance_id for services_db table - Maulana Ibrahim (tag: PROD_20240227_01)
+* | | 4bd6e94 - (9 months ago) update check_uncategorized - Maulana Ibrahim (tag: PROD_20240221_01)
+|/ /  
+* |   351fc8c - (9 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd (tag: PROD_20240212)
+|\ \  
+| * | 04c8963 - (10 months ago) Jenkinsfile edited online with Bitbucket - Pirman Abdurohman (tag: PROD_20240205_02)
+| * |   d8d5158 - (10 months ago) Merged in BEI-1314 (pull request #57) - Pirman Abdurohman (tag: PROD_20240205_01)
+| |\ \  
+| | * | 0b90bd1 - (10 months ago) data rpeort - pirmanabd (tag: PROD_20240205, origin/BEI-1314)
+| |/ /  
+* / / 26d7f62 - (9 months ago) fix(BEI-1330): percentages not accurate - pirmanabd
+|/ /  
+* | 226eb57 - (10 months ago) fix - pirmanabd
+* |   7ed90d9 - (10 months ago) Merged in BEI-1275 (pull request #56) - Pirman Abdurohman
+|\ \  
+| * | 4c5dfda - (10 months ago) report - pirmanabd (origin/BEI-1275)
+* | | 0d0a86b - (10 months ago) Merged in BEI-1275 (pull request #55) - Pirman Abdurohman (tag: PROD_20240202)
+|\| | 
+| * | 29ab1f3 - (10 months ago) report - pirmanabd
+| * | 8c82c84 - (10 months ago) report - pirmanabd
+| |/  
+* | ff4c26f - (10 months ago) fix kubecost insert-data - Maulana Ibrahim (tag: PROD_20240201_01)
+* | 84a3517 - (10 months ago) fix jenkinsfile - Maulana Ibrahim (tag: PROD_20240131_03)
+* | aea1843 - (10 months ago) fix jenkinsfile - Maulana Ibrahim (tag: PROD_20240131_02)
+* |   19ed0e1 - (10 months ago) Merged in BEI-1303 (pull request #54) - Maulana Ibrahim
+|\ \  
+| * | a15d11c - (10 months ago) BEI-1303: Alerting Kubecost Uncategorized Services - Maulana Ibrahim (tag: PROD_20240131_01, origin/BEI-1303)
+* | | 870c580 - (10 months ago) Merged in BEI-1303 (pull request #53) - Maulana Ibrahim
+|\| | 
+| |/  
+|/|   
+| * e171134 - (10 months ago) BEI-1303: Alerting Kubecost Uncategorized Services - Maulana Ibrahim
+|/  
+*   9078c5c - (10 months ago) Merged in BEI-1281 (pull request #51) - Pirman Abdurohman
+|\  
+| * 604b895 - (10 months ago) user cost detai; - pirmanabd (origin/BEI-1281)
+* | e4124e3 - (10 months ago) move consul and database from shared-devl to shared-staging - Maulana Ibrahim
+* | d1ae30b - (10 months ago) move consul and database from shared-devl to shared-staging - Maulana Ibrahim
+* | 596ab55 - (10 months ago) add services_db table - Maulana Ibrahim (tag: PROD_20240123_01)
+|/  
+* 5b6f260 - (10 months ago) unique constraINt - pirmanabd (tag: PROD_20240122)
+* 1c9b04d - (10 months ago) return user email instead of user name - pirmanabd (tag: PROD_20240118, origin/BEI-1277)
+* 80d2c24 - (10 months ago) fix pagination - pirmanabd (origin/BEI-1274)
+* 4791e46 - (10 months ago) email department - pirmanabd
+* 178d6e8 - (10 months ago) fix - pirmanabd (tag: PROD_20240116_2)
+*   b1d5a57 - (10 months ago) Merged in BEI-1269 (pull request #50) - Pirman Abdurohman (tag: PROD_20240116)
+|\  
+| * 769be79 - (10 months ago) Update delete endpoint - pirmanabd (origin/BEI-1269)
+|/  
+* 026d7b8 - (10 months ago) cors - pirmanabd (tag: PROD_20240115_3, tag: PROD_20240115_2)
+* 4634239 - (10 months ago) cors - pirmanabd (tag: PROD_20240115)
+* e13cf35 - (11 months ago) fix - pirmanabd (tag: PROD_20240112_1)
+*   36ea507 - (11 months ago) Merged in BEI-1260 (pull request #49) - Pirman Abdurohman (tag: PROD_20240112)
+|\  
+| * fdbea94 - (11 months ago) feat(BEI-1260): validate - pirmanabd (origin/BEI-1260)
+* | 5a78f72 - (11 months ago) Merged in BEI-1260 (pull request #48) - Pirman Abdurohman (tag: PROD_20240110)
+|\| 
+| * 0d0e940 - (11 months ago) feat(BEI-1260): API - pirmanabd
+| * 566f8f4 - (11 months ago) feat(BEI-1258): model for bq user cost - pirmanabd
+|/  
+*   9d8effa - (11 months ago) Merged in BEI-1241 (pull request #47) - Pirman Abdurohman (tag: PROD_20231217)
+|\  
+| * 6f75a38 - (11 months ago) feat(BEI-1241): fix misscalculated support and include mongo - pirmanabd (origin/BEI-1241)
+| * e827503 - (12 months ago) feat(BEI-1241): split cost categories, remove atlas & support - pirmanabd
+|/  
+*   c179865 - (12 months ago) Merged in BEI-1208 (pull request #46) - Pirman Abdurohman
+|\  
+| *   52468c1 - (12 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system into BEI-1208 - pirmanabd (origin/BEI-1208)
+| |\  
+| |/  
+|/|   
+* |   af0f1dc - (12 months ago) Merged in kubecost/check-status (pull request #45) - Maulana Ibrahim (tag: PROD_20231211_01)
+|\ \  
+| * | 5a6c937 - (12 months ago) add retry for kubecost check status - Maulana Ibrahim (origin/kubecost/check-status)
+|/ /  
+* | d2ef7b1 - (12 months ago) update kubecontext mof-stag-regional-cluster - Maulana Ibrahim (tag: PROD_20231208_01)
+* |   202ecaa - (12 months ago) Merged in BEI-1208 (pull request #44) - Pirman Abdurohman (tag: PROD_20231206)
+|\ \  
+| * \   ffab04c - (12 months ago) Merged main into BEI-1208 - Pirman Abdurohman
+| |\ \  
+| |/ /  
+|/| |   
+* | | bcebcf3 - (12 months ago) fix jenkinsfile - Maulana Ibrahim (tag: PROD_20231201_03)
+* | | bc061ab - (12 months ago) fix jenkinsfile - Maulana Ibrahim (tag: PROD_20231201_02)
+* | |   400e3d0 - (12 months ago) Merged in BEI-1224 (pull request #43) - Maulana Ibrahim (tag: PROD_20231201_1)
+|\ \ \  
+| * | | 2d8d75a - (12 months ago) (BEI-1224): Exclude shared-devl-cluster in kubecost-check-status - Maulana Ibrahim (origin/BEI-1224)
+| * | | cc24516 - (12 months ago) (BEI-1224): Exclude shared-devl-cluster in kubecost-check-status - Maulana Ibrahim
+|/ / /  
+| | * 992f1cc - (12 months ago) feat(BEI-1208)|fix(monthly-cost): excluding service cost by tag - pirmanabd
+| |/  
+| * 0fcb784 - (12 months ago) feat(BEI-1208)|fix(monthly-cost): excluding service cost by tag - pirmanabd
+| * b16b59e - (1 year ago) gcp cost takeout service by tag - pirmanabd
+|/  
+* 02a0bf0 - (1 year ago) fix cms by sku - pajri oktara (tag: PROD_20231116_02)
+*   13a129c - (1 year ago) Merged in BEI-1207 (pull request #42) - Maulana Ibrahim (tag: PROD_20231116_01)
+|\  
+| * b0fd0a3 - (1 year ago) update email - Maulana Ibrahim (origin/BEI-1207)
+| * 3be0b66 - (1 year ago) feat(BEI-1207): Daily Report by SKU - Maulana Ibrahim
+| * 80e8765 - (1 year ago) initial - pirmanabd (origin/1207)
+| * f6c75ce - (1 year ago) initial - pirmanabd
+| * 553a3d4 - (1 year ago) initial - pirmanabd
+| *   5e0b7e2 - (1 year ago) a - pirmanabd
+| |\  
+| * | 049d2c6 - (1 year ago) a - pirmanabd
+* | | 85efff5 - (1 year ago) add script send by sku - pajri oktara
+| |/  
+|/|   
+* |   249072d - (1 year, 1 month ago) Merged in BEI-1193 (pull request #41) - Pirman Abdurohman
+|\ \  
+| * | 0307ea1 - (1 year, 1 month ago) feat(BEI-1193): excluding service cost by tag - pirmanabd (origin/BEI-1193)
+* | | 152b867 - (1 year, 1 month ago) Merged in BEI-1195 (pull request #40) - Pirman Abdurohman (tag: PROD_20231106)
+|\| | 
+| |/  
+|/|   
+| * 3c45f08 - (1 year, 1 month ago) exclude by tag (temporary) - pirmanabd (origin/BEI-1195)
+|/  
+*   764618b - (1 year, 1 month ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\  
+| * 5309529 - (1 year, 1 month ago) update kubeconfig for mof-devl-regional-cluster - Maulana Ibrahim
+* | f617e34 - (1 year, 1 month ago) up - pirmanabd
+|/  
+*   c19b02e - (1 year, 1 month ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd (tag: PROD_20231101)
+|\  
+| *   6b8c57b - (1 year, 1 month ago) Merged in BEI-1176 (pull request #39) - Pirman Abdurohman
+| |\  
+* | | 70fb772 - (1 year, 1 month ago) feat(BEI-1176): fix monitor kuma - pirmanabd
+* | | 1325836 - (1 year, 1 month ago) Merge branch 'main' into BEI-1176 - pirmanabd
+|\| | 
+| |/  
+|/|   
+| * ef2b057 - (1 year, 1 month ago) fix(removeLimit): remove limit - pirmanabd (tag: PROD_20231023)
+* | 5092a11 - (1 year, 1 month ago) feat(BEI-1176): exclude service techfamily - pirmanabd (origin/BEI-1176)
+* | 5282110 - (1 year, 1 month ago) feat(BEI-1176): exclude service techfamily - pirmanabd
+* | a6c953a - (1 year, 1 month ago) feat(BEI-1176): exclude service techfamily - pirmanabd
+* | 5b44e54 - (1 year, 1 month ago) feat(BEI-1176): add service id bigquery - pirmanabd
+|/  
+*   717bbed - (1 year, 1 month ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\  
+| *   ad2bbe5 - (1 year, 1 month ago) Merged in BEI-1180 (pull request #38) - Pirman Abdurohman
+| |\  
+* | \   384089e - (1 year, 1 month ago) Merge branch 'BEI-1180' - pirmanabd
+|\ \ \  
+| |/ /  
+|/| |   
+| * | d7a6b80 - (1 year, 1 month ago) feat(BEI-1180): fix index weight issue - pirmanabd
+| |/  
+| * f000502 - (1 year, 1 month ago) feat(BEI-1180): mapping Kuma host - pirmanabd (origin/BEI-1180)
+* | 3153a30 - (1 year, 1 month ago) Merged in fix/connection (pull request #37) - Pirman Abdurohman (tag: PROD_20231020)
+|\| 
+| * 5eb74be - (1 year, 1 month ago) fix(mysql): server gone issue - pirmanabd (origin/fix/connection)
+* |   f676195 - (1 year, 1 month ago) Merged in cleanup-kubecost-variable (pull request #36) - Maulana Ibrahim
+|\ \  
+| |/  
+|/|   
+| * a156478 - (1 year, 1 month ago) cleanup kubecost variable - Maulana Ibrahim (origin/cleanup-kubecost-variable)
+|/  
+* e03c498 - (1 year, 1 month ago) feat(BEI-1175): remove connection pooling - pirmanabd (tag: PROD_20231018_4)
+* 3d45d76 - (1 year, 1 month ago) feat(BEI-1173): disable gcp logs - pirmanabd (tag: PROD_20231018_3)
+* 46ed625 - (1 year, 1 month ago) feat(BEI-1126): update apidocs - pirmanabd (tag: PROD_20231018_2)
+* 9388204 - (1 year, 1 month ago) feat(BEI-1126): update requirements - pirmanabd (tag: PROD_20231018)
+*   e364cf7 - (1 year, 1 month ago) Merged in BEI-1126 (pull request #35) - Pirman Abdurohman
+|\  
+| * f7041ca - (1 year, 1 month ago) feat(BEI-1126): api to sync cms <> living doc <> kuma - pirmanabd (origin/BEI-1126)
+|/  
+*   770c373 - (1 year, 1 month ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd (tag: PROD_20231017_02)
+|\  
+| *   40a2585 - (1 year, 1 month ago) Merged in BEI-1168 (pull request #34) - Pirman Abdurohman (tag: PROD_20231017_01)
+| |\  
+| | * 9a3e6dc - (1 year, 1 month ago) feat(1168): limit budget monthly for each tech family - pirmanabd (origin/BEI-1168)
+| | * b4291e3 - (1 year, 1 month ago) feat(1168): limit budget monthly for each tech family - pirmanabd
+| * |   fa50859 - (1 year, 1 month ago) Merged in BEI-1123 (pull request #33) - Maulana Ibrahim
+| |\ \  
+| | |/  
+| |/|   
+| | * 1928d4f - (1 year, 1 month ago) update bg-color and button - Maulana Ibrahim (origin/BEI-1123)
+| | * 3810877 - (1 year, 1 month ago) update bg-color and button - Maulana Ibrahim
+| | * fe3a968 - (1 year, 1 month ago) feat(BEI-1123): Kubecost Dashbaord / Menu - Maulana Ibrahim
+| |/  
+* / b0c9e5c - (1 year, 1 month ago) fix validator - pirmanabd
+|/  
+* 764780b - (1 year, 1 month ago) fix(percentage): fix - pirmanabd
+* 64cad3a - (1 year, 1 month ago) fix(percentage): fix - pirmanabd
+* fb81d48 - (1 year, 1 month ago) fix(seeder): fix seeder - pirmanabd
+* cf6b48b - (1 year, 1 month ago) fix(seeder): fix seeder - pirmanabd
+* fcc11e5 - (1 year, 1 month ago) fix(dockerfile): update baseimage python version - pirmanabd
+* 1333695 - (1 year, 1 month ago) add install_krew script for baseimage - Maulana Ibrahim
+* 382ac58 - (1 year, 1 month ago) add dockerfile base image - Maulana Ibrahim
+*   a0389e6 - (1 year, 1 month ago) Merged in BEI-1174 (pull request #32) - Pirman Abdurohman
+|\  
+| * f19648a - (1 year, 1 month ago) feat(BEI-1174): update openapi schema - pirmanabd (origin/BEI-1174)
+|/  
+* 4b382a3 - (1 year, 1 month ago) fix(clean): cleaning before release - pirmanabd
+*   54237bf - (1 year, 1 month ago) fix(resolveConflict): conflict - pirmanabd
+|\  
+| * b020a72 - (1 year, 2 months ago) feat: implement role management - Heri Rusmanto (origin/BEI-1099)
+| * 3982464 - (1 year, 2 months ago) Add gitignore python - Heri Rusmanto
+| *   cd1f9ed - (1 year, 2 months ago) Merge branch 'main' into BEI-1099 - Heri Rusmanto
+| |\  
+| * | 1e0f087 - (1 year, 3 months ago) feat(BEI-1099): Role access - pirmanabd
+* | | 47ce09f - (1 year, 1 month ago) fix(typo): Dockerfile - pirmanabd
+* | |   44d45cf - (1 year, 1 month ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\ \ \  
+| * \ \   4873d8c - (1 year, 1 month ago) Merged in BEI-1150 (pull request #31) - Pirman Abdurohman
+| |\ \ \  
+* | | | | 333a45c - (1 year, 1 month ago) fix(typo): Dockerfile - pirmanabd
+| |/ / /  
+|/| | |   
+* | | | 60391c6 - (1 year, 1 month ago) feat(BEI-1167): Update percentage more than 100%, coz not reflag the comparator value - pirmanabd (origin/BEI-1150)
+* | | | e668519 - (1 year, 1 month ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system into BEI-1150 - pirmanabd
+|\| | | 
+| * | | 8a5ba7c - (1 year, 1 month ago) add send-wa parameter - Maulana Ibrahim
+* | | | bc07f02 - (1 year, 1 month ago) feat(BEI-1150): adding loki logs into response - pirmanabd
+* | | | 305a48b - (1 year, 1 month ago) feat(BEI-1150): seeder tech family - pirmanabd
+* | | | ab1b065 - (1 year, 1 month ago) feat(BEI-1150): fix - pirmanabd
+* | | | 342ed18 - (1 year, 2 months ago) feat(BEI-1150): resolve conflict - pirmanabd
+|\| | | 
+| * | | 2eba22d - (1 year, 2 months ago) update dockerfile - Maulana Ibrahim (tag: PROD_20231006_01)
+| * | |   5edef9e - (1 year, 2 months ago) Merged in create-report-cronjob (pull request #29) - Maulana Ibrahim
+| |\ \ \  
+| | * | | e0c70b6 - (1 year, 2 months ago) update create-report date cronjob - Maulana Ibrahim (origin/create-report-cronjob)
+| |/ / /  
+* | | | b710140 - (1 year, 2 months ago) feat(BEI-1150): cronjob and aleet - pirmanabd
+* | | | 071fcc0 - (1 year, 2 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system into BEI-1150 - pirmanabd
+|\| | | 
+| * | |   a5369db - (1 year, 2 months ago) Merged in BEI-1125 (pull request #28) - Maulana Ibrahim
+| |\ \ \  
+| | |_|/  
+| |/| |   
+| | * | 67544ac - (1 year, 2 months ago) fix(BEI-1125): uncomment send_mail - Maulana Ibrahim (origin/BEI-1125)
+| | * | dd01ed1 - (1 year, 2 months ago) update(BEI-1125): pic_telp max length 500, try except post wa api, templating wa message - Maulana Ibrahim
+| | * | 3f29a2c - (1 year, 2 months ago) feat(BEI-1125): WhatsApp Integration - Maulana Ibrahim
+| |/ /  
+* | | a5a9857 - (1 year, 2 months ago) feat(BEI-1150): standalone script for sync ranged date - pirmanabd
+* | | 308d56d - (1 year, 2 months ago) feat(BEI-1150): Sync cost with spesific date (daily) - pirmanabd
+|/ /  
+* | da9a0d3 - (1 year, 2 months ago) fix: handling non-zero return when kubectl cost command - Maulana Ibrahim
+* |   4733903 - (1 year, 2 months ago) Merged in BEI-1127 (pull request #25) - Maulana Ibrahim
+|\ \  
+| * | dcea3a9 - (1 year, 2 months ago) feat(BEI-1127): implement soft delete - Maulana Ibrahim (origin/BEI-1127)
+* | |   c806ee0 - (1 year, 2 months ago) Merged in tech-family-export-pdf-excel (pull request #26) - Muhammad Iqbal
+|\ \ \  
+| |/ /  
+|/| |   
+| * | 6abf34a - (1 year, 2 months ago) update button for export pdf and excel - Muhamad Iqbal (origin/tech-family-export-pdf-excel)
+* | | a83f0c5 - (1 year, 2 months ago) feat(BEI-1129): monthly data validation - pirmanabd (origin/BEI-1129)
+|/ /  
+* | 3a7bd9b - (1 year, 2 months ago) (FIX/views):fix error views - pirmanabd
+* |   274c8a8 - (1 year, 2 months ago) Merged in BEI-1095 (pull request #19) - Pirman Abdurohman (tag: PROD_20230911_OAUTH)
+|\ \  
+| * | 19ae270 - (1 year, 2 months ago) (FIX/mail):update jenkinsfile - pirmanabd (origin/BEI-1095)
+| * |   3c1b419 - (1 year, 2 months ago) Merge branch 'main' into BEI-1095 - pirmanabd
+| |\ \  
+| * | | 4264afb - (1 year, 3 months ago) feat(BEI-1095): Implement Google Oauth2 - pirmanabd
+| * | | fc81537 - (1 year, 3 months ago) feat(BEI-1095): Implement Google Oauth2 - pirmanabd
+| * | | 4385880 - (1 year, 3 months ago) feat(BEI-1095): Implement Google Oauth2 - pirmanabd
+| | |/  
+| |/|   
+* | | 94a8375 - (1 year, 2 months ago) (FIX/mail):fix sender devl - pirmanabd (tag: PROD_20230911_07)
+* | | 2b3fe4e - (1 year, 2 months ago) (FIX/cron):fix package - pirmanabd (tag: PROD_20230911_06)
+* | | 5e43ac0 - (1 year, 2 months ago) (FIX/mail):update jenkinsfile - pirmanabd (tag: PROD_20230911_05)
+| |/  
+|/|   
+* | c4770d3 - (1 year, 2 months ago) (FIX/mail):update cc mail - pirmanabd (tag: PROD_20230911_04)
+* |   9ac7bef - (1 year, 2 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\ \  
+| * | 9d3d2e3 - (1 year, 2 months ago) fix jenkinsfile release - Maulana Ibrahim (tag: PROD_20230911_03)
+| * | b3e744d - (1 year, 2 months ago) fix jenkinsfile - Maulana Ibrahim (tag: PROD_20230911_02)
+* | | 2604f14 - (1 year, 2 months ago) cron - pirmanabd
+|/ /  
+* | 465999d - (1 year, 2 months ago) fix: add set-image cronjob jenkinsfile production - Maulana Ibrahim
+* | e18b5f9 - (1 year, 2 months ago) rename folder kubernetes - Maulana Ibrahim
+* | db77a31 - (1 year, 2 months ago) feat(BEI-1111): csv file - pirmanabd (tag: PROD_20230911)
+* |   c6635c0 - (1 year, 2 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\ \  
+| * \   ae7f8ca - (1 year, 2 months ago) Merged in BEI-1111 (pull request #23) - Pirman Abdurohman
+| |\ \  
+| | * \   650a2e5 - (1 year, 2 months ago) Merged main into BEI-1111 - Pirman Abdurohman (origin/BEI-1111)
+| | |\ \  
+| | |/ /  
+| |/| |   
+| | * | 9608db8 - (1 year, 2 months ago) feat(BEI-1111): separate bigquery billing, import csv - pirmanabd
+| | * | 58aa0ff - (1 year, 2 months ago) feat(BEI-1111): separate bigquery billing, import csv - pirmanabd
+| | * | 16affda - (1 year, 2 months ago) feat(BEI-1111): separate bigquery billing, import csv - pirmanabd
+| | * | 37cc5f7 - (1 year, 2 months ago) feat(BEI-1111): separate bigquery billing, import csv - pirmanabd
+* | | | fd50710 - (1 year, 2 months ago) feat(BEI-1111): csv file - pirmanabd
+|/ / /  
+* | | c65415c - (1 year, 3 months ago) Merged in BEI-1100 (pull request #21) - Pirman Abdurohman
+|\| | 
+| * | 49313b9 - (1 year, 3 months ago) feat(BEI-1100): cronjob - pirmanabd (origin/BEI-1100)
+| |/  
+* |   76fbe88 - (1 year, 3 months ago) Merged in BEI-1088 (pull request #22) - Maulana Ibrahim
+|\ \  
+| * | 505a7b4 - (1 year, 3 months ago) feat(BEI-1088): Tech Family Menu - Maulana Ibrahim (origin/BEI-1088)
+|/ /  
+* |   7f5c123 - (1 year, 3 months ago) Merged in BEI-1102 (pull request #20) - Maulana Ibrahim
+|\ \  
+| |/  
+|/|   
+| * ffd077b - (1 year, 3 months ago) feat(BEI-1102): Refactor CRUD to use Ajax and hit /api endpoint - Maulana Ibrahim (origin/BEI-1102)
+|/  
+*   5ce1c0a - (1 year, 3 months ago) Merged in BEI-1093 (pull request #18) - Pirman Abdurohman
+|\  
+| * 998e03c - (1 year, 3 months ago) feat(BEI-1094): reformat - pirmanabd (origin/BEI-1093)
+|/| 
+| * 557351e - (1 year, 3 months ago) feat(BEI-1094): reformat - pirmanabd
+| * 827eb84 - (1 year, 3 months ago) feat(BEI-1094): Reformating FE - pirmanabd
+* |   fb1ff0d - (1 year, 3 months ago) Merged in BEI-1076 (pull request #17) - Pirman Abdurohman
+|\ \  
+| |/  
+|/|   
+| *   f481695 - (1 year, 3 months ago) Merge branch 'BEI-1076' of bitbucket.org:moladinTech/cost-management-system into BEI-1076 - pirmanabd (origin/BEI-1076)
+| |\  
+| | *   d03941a - (1 year, 3 months ago) Merged main into BEI-1076 - Pirman Abdurohman
+| | |\  
+| |_|/  
+|/| |   
+* | |   72d1a4d - (1 year, 3 months ago) Merged in bei/1065 (pull request #15) - Maulana Ibrahim
+|\ \ \  
+| * \ \   25b3886 - (1 year, 3 months ago) Merge remote-tracking branch 'remotes/origin/main' into bei/1065 - Maulana Ibrahim (origin/bei/1065)
+| |\ \ \  
+| |/ / /  
+|/| | |   
+| * | | 068e43c - (1 year, 3 months ago) [BEI-1065]: update title - Maulana Ibrahim
+| * | | 3f3df8b - (1 year, 3 months ago) [BEI-1065] Update style - tjatur
+| * | | b87c000 - (1 year, 3 months ago) [BEI-1065]: server side pagination and some adjustment - Maulana Ibrahim
+| * | | dfdc7a2 - (1 year, 3 months ago) [BEI-1065] Update style - tjatur
+| * | | 8ac8673 - (1 year, 3 months ago) feat(BEI-1065): CRUD Service Owner Menu - Maulana Ibrahim
+| | * | d497c7d - (1 year, 3 months ago) feat(BEI-1076): Configuring API Documentation - pirmanabd
+| | |/  
+| | * e273832 - (1 year, 3 months ago) feat(BEI-1076): Configuring API Documentation - pirmanabd
+| |/  
+|/|   
+* | a039157 - (1 year, 3 months ago) Initial NinjaAPI - tjatur
+* |   d7b38ff - (1 year, 3 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - tjatur
+|\ \  
+| * | 21d0922 - (1 year, 3 months ago) fix(debug): change setting debug - pirmanabd (tag: PROD_1.0.0-rc.6_2)
+| * |   6a29c25 - (1 year, 3 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd (tag: PROD_1.0.0-rc.6)
+| |\ \  
+| * | | de0b3eb - (1 year, 3 months ago) fix(debug): change setting debug - pirmanabd
+* | | | 9942229 - (1 year, 3 months ago) [BugFix] Remove filtering date on index_weith - tjatur (origin/Bugfix-IndexWeight)
+| |/ /  
+|/| |   
+* | | f418f8d - (1 year, 3 months ago) add param 'period' in kubecost/report - Maulana Ibrahim
+* | | 50b62ac - (1 year, 3 months ago) update slack message kubecost cronjob - Maulana Ibrahim
+|/ /  
+* | 4fee20e - (1 year, 3 months ago) fix(loginPage): change label to placeholder - pirmanabd
+* |   823157f - (1 year, 3 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\ \  
+| * | 9df26aa - (1 year, 3 months ago) Update worker concurent to 3 - tjatur
+| * | 466170d - (1 year, 3 months ago) fix Jenkinsfile release - pajri oktara (tag: PROD_1.0.0-rc.5_3)
+| |/  
+| * b1c8d03 - (1 year, 3 months ago) fix Jenkinsfile release - pajri oktara
+| * 90a2340 - (1 year, 3 months ago) fix Jenkinsfile release - pajri oktara
+* | c524c81 - (1 year, 3 months ago) fix(loginPage): autofill - pirmanabd
+|/  
+*   5b51fdc - (1 year, 3 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd (tag: PROD_1.0.0-rc.5_2)
+|\  
+| * 273f35b - (1 year, 3 months ago) update jenkinsfile - Maulana Ibrahim
+| *   6887fb9 - (1 year, 3 months ago) Merged in bei/963 (pull request #11) - Maulana Ibrahim
+| |\  
+| | *   7bc2b38 - (1 year, 3 months ago) Merged main into bei/963 - Maulana Ibrahim (origin/bei/963)
+| | |\  
+| | |/  
+| |/|   
+| * | 605638e - (1 year, 3 months ago) README.md edited online with Bitbucket - Pirman Abdurohman
+| | * a208d7d - (1 year, 3 months ago) update jenkinsfile to build cronjob image - Maulana Ibrahim
+| | * 23c6506 - (1 year, 3 months ago) create endpoint /api/kubecost/check-status and update cronjob script - Maulana Ibrahim
+| | * bc54d25 - (1 year, 3 months ago) feat(BEI-963): move cron to kubernetes cronjob - Maulana Ibrahim
+* | | fab27c5 - (1 year, 3 months ago) fix: Release preparation - pirmanabd
+|/ /  
+* |   902531e - (1 year, 3 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - tjatur
+|\ \  
+| * | a92d359 - (1 year, 3 months ago) feat(BEI-1033): Impl Logger and including Atlas and Support into report - pirmanabd
+* | | 5320ddf - (1 year, 3 months ago) add media dir - tjatur
+|/ /  
+* | 00a7027 - (1 year, 3 months ago) Preparing production - pirmanabd (tag: PROD_1.0.0-rc.5)
+* | e884db7 - (1 year, 3 months ago) Remove GTM - pirmanabd
+* |   3606686 - (1 year, 3 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd (tag: 1.0.0-rc.5)
+|\ \  
+| * \   0eb131d - (1 year, 3 months ago) Merged in 1.0.0-rc.4 (pull request #13) - Pirman Abdurohman (tag: 1.0.0-rc.4)
+| |\ \  
+* | \ \   cdcdc3e - (1 year, 3 months ago) Merge branch '1.0.0-rc.4' - pirmanabd
+|\ \ \ \  
+| * | | | 134b758 - (1 year, 3 months ago) feat(BEI-1067): Re-Styling dashboard - pirmanabd (origin/1.0.0-rc.4)
+| | |/ /  
+| |/| |   
+| * | |   e54a157 - (1 year, 3 months ago) feat(BEI-1033): Impl Logger and including Atlas and Support into report - pirmanabd
+| |\ \ \  
+| | * | | 5ff5cba - (1 year, 3 months ago) feat(BEI-1033): Including Atlas and Support into report - pirmanabd
+| * | | | 46f444d - (1 year, 3 months ago) feat(BEI-1033): Impl Logger and including Atlas and Support into report - pirmanabd
+| |/ / /  
+| * | | 46be235 - (1 year, 3 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system into 1.0.0-rc.4 - pirmanabd
+| |\| | 
+| | * |   9e60d5e - (1 year, 3 months ago) Merged in bei/1064 (pull request #12) - Maulana Ibrahim
+| | |\ \  
+| | | |/  
+| | |/|   
+| | | * 6dc55c4 - (1 year, 3 months ago) feat(BEI-1064): logout integration and dynamic active navbar - Maulana Ibrahim (origin/bei/1064)
+| | |/  
+| | * 950bba8 - (1 year, 3 months ago) update cronjob - Maulana Ibrahim
+| | *   7d4f7e4 - (1 year, 3 months ago) Merged in bei/1048 (pull request #9) - Pajri Oktara
+| | |\  
+| | | * 556af8a - (1 year, 3 months ago) add CI/CD Production - pajri oktara
+| | | * 74ac6a6 - (1 year, 3 months ago) add CI/CD Production - pajri oktara
+| | | * 6af68b0 - (1 year, 3 months ago) add CI/CD Production - pajri oktara
+| | * | c25058b - (1 year, 3 months ago) update style - tjatur
+| | * | 5924777 - (1 year, 3 months ago) add media dir - tjatur
+| | * | d7bbf9d - (1 year, 3 months ago) changes to variable args - tjatur
+| * | | 355033d - (1 year, 3 months ago) feat(BEI-1033): Including Atlas and Support into report - pirmanabd
+| |/ /  
+* / / ede0e8e - (1 year, 3 months ago) fix admin - pirmanabd
+|/ /  
+* | 2d52414 - (1 year, 3 months ago) fix(BEI-1033): Styling PDF - pirmanabd
+* | b04b1c8 - (1 year, 3 months ago) fix(BEI-1033): Styling PDF - pirmanabd
+* |   192f4f0 - (1 year, 3 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\ \  
+| * \   d3c337f - (1 year, 3 months ago) Merged in 1.0.0-rc.3 (pull request #8) - Pirman Abdurohman (tag: 1.0.0-rc.3)
+| |\ \  
+| | |/  
+| |/|   
+* | | 35d4aa4 - (1 year, 3 months ago) fix(BEI-1033): Styling PDF - pirmanabd
+| |/  
+|/|   
+* | 33bc421 - (1 year, 3 months ago) resolve conflict - pirmanabd (origin/1.0.0-rc.3)
+|\| 
+| * 95c08e5 - (1 year, 3 months ago) update cron insert-data - Maulana Ibrahim
+| * c2023e1 - (1 year, 3 months ago) install cronjob - Maulana Ibrahim
+| *   6361e6e - (1 year, 3 months ago) Merged in kubecost/cronjob (pull request #7) - Maulana Ibrahim
+| |\  
+| | * 0f169d3 - (1 year, 3 months ago) change timezone and enable django cronjob - Maulana Ibrahim (origin/kubecost/cronjob)
+| | * fce5aa7 - (1 year, 3 months ago) add cron check_kubecost_status - Maulana Ibrahim
+| | * b9adf48 - (1 year, 3 months ago) add try catch and slack alert - Maulana Ibrahim
+| | * bc7b936 - (1 year, 3 months ago) add cronjob to hit kubecost/insert-data daily - Maulana Ibrahim
+| * | f09db63 - (1 year, 3 months ago) update insert data kubecost to ignore duplicate - Maulana Ibrahim
+| * | 84487f3 - (1 year, 3 months ago) README.md edited online with Bitbucket - Tjatur Permadi
+| |/  
+* | 5060890 - (1 year, 3 months ago) feat(BEI-1033): Securing attachment & send to email - pirmanabd
+* | d0b9af5 - (1 year, 3 months ago) feat(BEI-1033): PDF attachment - pirmanabd
+* | 1a61bb3 - (1 year, 3 months ago) fix(BEI-1034): set TTL - pirmanabd
+* | 05f0f8c - (1 year, 3 months ago) feat(BEI-1034): monthly report - pirmanabd
+* | 723b6f4 - (1 year, 3 months ago) implement caching, dashboard, mail validation - pirmanabd
+|/  
+* 4765fdb - (1 year, 3 months ago) updating mailing template - pirmanabd
+* 2a9650b - (1 year, 3 months ago) updating mailing template - pirmanabd
+* cfea9e4 - (1 year, 3 months ago) templating dashboard - pirmanabd
+* 657eba0 - (1 year, 3 months ago) sorting bigquery data & integrate dashboard - pirmanabd
+*   d03a2e8 - (1 year, 3 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\  
+| *   62d55eb - (1 year, 3 months ago) Merged in kubecost/percentage (pull request #6) - Maulana Ibrahim
+| |\  
+| | * 10572d6 - (1 year, 3 months ago) add cost_difference & cost_status_percent - Maulana Ibrahim (origin/kubecost/percentage)
+| |/  
+* / e71161d - (1 year, 3 months ago) sorting bigquery data & integrate dashboard - pirmanabd
+|/  
+* 3f38af3 - (1 year, 3 months ago) update subject mail - pirmanabd
+* f0c96e0 - (1 year, 3 months ago) Update email send - tjatur
+*   a80604e - (1 year, 3 months ago) Merged in feat/login-page (pull request #5) - Maulana Ibrahim
+|\  
+| *   963144e - (1 year, 3 months ago) Merge remote-tracking branch 'remotes/origin/main' into feat/login-page - Maulana Ibrahim (origin/feat/login-page)
+| |\  
+| |/  
+|/|   
+* | 586b6ec - (1 year, 3 months ago) Remove unused import modules - tjatur
+* |   3b9e7ed - (1 year, 3 months ago) Merged in 1.0.0-rc.1 (pull request #4) - Pirman Abdurohman (tag: 1.0.0-rc.1)
+|\ \  
+| * \   447bf4a - (1 year, 3 months ago) Merge branch 'master' into 1.0.0-rc.1 - pirmanabd (origin/1.0.0-rc.1)
+| |\ \  
+| | * | 54621cb - (1 year, 3 months ago) update - pirmanabd
+| * | | d92a399 - (1 year, 3 months ago) Add runasync command - tjatur
+| * | | b717832 - (1 year, 3 months ago) Add middleware and decorator - tjatur
+| |/ /  
+| * | 9a37b07 - (1 year, 3 months ago) implement idlecost and user async validation - pirmanabd
+| * | 8dc0495 - (1 year, 3 months ago) update - pirmanabd
+| * | aafe252 - (1 year, 3 months ago) update percentage for kubecost - pirmanabd
+| * | 72b5402 - (1 year, 3 months ago) update minor - pirmanabd
+| * | 4bc4bb5 - (1 year, 3 months ago) update minor - pirmanabd
+| * | 0a756f0 - (1 year, 3 months ago) Integrate kubecost, add custom exception, add management command, add currency converter - pirmanabd
+|/ /  
+| * abed05a - (1 year, 3 months ago) add login page - Maulana Ibrahim
+|/  
+* 7fca215 - (1 year, 3 months ago) Integrate date with resusable function - tjatur
+* df51a18 - (1 year, 3 months ago) add - pirmanabd
+*   4d5f0d8 - (1 year, 3 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\  
+| * 1d4b161 - (1 year, 3 months ago) Add login pages - tjatur
+| * fa162a7 - (1 year, 3 months ago) restructure data - Maulana Ibrahim
+| * a2165b7 - (1 year, 3 months ago) restructure file - Maulana Ibrahim
+| * 6dbba50 - (1 year, 3 months ago) restructure file - Maulana Ibrahim
+* | 448abac - (1 year, 3 months ago) update - pirmanabd
+|/  
+* 4314979 - (1 year, 3 months ago) finalize - pirmanabd
+* 901f97b - (1 year, 3 months ago) update index - pirmanabd
+*   9240b30 - (1 year, 3 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\  
+| * a6e24c4 - (1 year, 3 months ago) update file structure - tjatur
+* | 5b01c5c - (1 year, 3 months ago) update index - pirmanabd
+|/  
+*   d1b385a - (1 year, 3 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\  
+| *   eb1aa1a - (1 year, 4 months ago) Merged in feat/kubecost-report (pull request #3) - Maulana Ibrahim
+| |\  
+| | * 916660d - (1 year, 4 months ago) finish kubecost data report - Maulana Ibrahim (origin/feat/kubecost-report)
+* | | bd92b12 - (1 year, 3 months ago) update mail - pirmanabd
+|/ /  
+* | 5dba4cb - (1 year, 4 months ago) Merged in feat/kubecost-report (pull request #2) - Maulana Ibrahim
+|\| 
+| * a1f36de - (1 year, 4 months ago) add kubecost-report endpoint and update tech-family length - Maulana Ibrahim
+|/  
+* 07a3ed2 - (1 year, 4 months ago) update jenksinfile - Maulana Ibrahim
+* 6b2edb2 - (1 year, 4 months ago) update jenksinfile - Maulana Ibrahim
+* 27db679 - (1 year, 4 months ago) typo underscore - Maulana Ibrahim
+* c08b1a0 - (1 year, 4 months ago) typo quote - Maulana Ibrahim
+* 6f74b1a - (1 year, 4 months ago) update base image and add step generate kubeconfig - Maulana Ibrahim
+* e57ca20 - (1 year, 4 months ago) update dockerfile - pirmanabd
+* 7d28b14 - (1 year, 4 months ago) update dockerfile - pirmanabd
+* 7d3cf58 - (1 year, 4 months ago) update dockerfile - pirmanabd
+* 14af896 - (1 year, 4 months ago) update dockerfile - pirmanabd
+* 8044ed9 - (1 year, 4 months ago) implement async - pirmanabd
+*   2303e0d - (1 year, 4 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\  
+| * f31030e - (1 year, 4 months ago) test revert gunicorn - Maulana Ibrahim
+| *   35068b1 - (1 year, 4 months ago) Merged in feat/kubecost (pull request #1) - Maulana Ibrahim
+| |\  
+| | * 0b91703 - (1 year, 4 months ago) add kubecost to django - Maulana Ibrahim (origin/feat/kubecost)
+| |/  
+* / 744b945 - (1 year, 4 months ago) implement async - pirmanabd
+|/  
+* 9295237 - (1 year, 4 months ago) implement async - pirmanabd
+* e964252 - (1 year, 4 months ago) sync index weight - pirmanabd
+*   166d788 - (1 year, 4 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\  
+| * 027a8ba - (1 year, 4 months ago) Update restructure - tjatur
+* | 99d88d3 - (1 year, 4 months ago) update - pirmanabd
+|/  
+* fd1868f - (1 year, 4 months ago) finalize migration function - pirmanabd
+* b953c16 - (1 year, 4 months ago) finalize migration function - pirmanabd
+* 29aef33 - (1 year, 4 months ago) update SA - pirmanabd
+* ca33720 - (1 year, 4 months ago) try to fix csrf - pirmanabd
+* c785aee - (1 year, 4 months ago) update ALLOWED_HOSTS - Maulana Ibrahim
+* 83ac711 - (1 year, 4 months ago) update jenkinsfile - Maulana Ibrahim
+* 9f7ed69 - (1 year, 4 months ago) update jenkinsfile - Maulana Ibrahim
+*   fbd7405 - (1 year, 4 months ago) Merge branch 'main' of bitbucket.org:moladinTech/cost-management-system - pirmanabd
+|\  
+| * 632c9da - (1 year, 4 months ago) update consulToken - Maulana Ibrahim
+| * c80e7cf - (1 year, 4 months ago) update keyJenkinsServiceAccount - Maulana Ibrahim
+| * 46348ba - (1 year, 4 months ago) add kubernetes manifest - Maulana Ibrahim
+| * 7c9fd76 - (1 year, 4 months ago)  add Jenkinsfile - Maulana Ibrahim
+| * 2f6baa1 - (1 year, 4 months ago)  add Jenkinsfile - Maulana Ibrahim
+| * 353329f - (1 year, 4 months ago) add django_crontab - Maulana Ibrahim
+* | 6feaa84 - (1 year, 4 months ago) define migration & models - pirmanabd
+|/  
+* dd9c358 - (1 year, 4 months ago) define migration & models - pirmanabd
+* c1fc996 - (1 year, 4 months ago) define migration & models - pirmanabd
+* 55fd4e9 - (1 year, 4 months ago) define migration - pirmanabd
+* e6d19a8 - (1 year, 4 months ago) add api sample integration - pirmanabd
+*   a298aea - (1 year, 4 months ago) merge - pirmanabd
+|\  
+| * 40f6f48 - (1 year, 4 months ago) Initial commit - Pirman Abdurohman
+* 0322f9d - (1 year, 4 months ago) initial templating and integrating DB - pirmanabd
+* 0f56bf7 - (1 year, 9 months ago) Update README.md - App Generator
+* 04c46f4 - (1 year, 9 months ago) Update README.md - App Generator
+* c373438 - (1 year, 9 months ago) Update README.md - App Generator
+* 41548dc - (1 year, 9 months ago) Update requirements.txt - App Generator
+* 733b68f - (1 year, 9 months ago) Update README.md - App Generator
+* 0897735 - (1 year, 9 months ago) Update README.md - App Generator
+* fab49ca - (1 year, 9 months ago) Update CHANGELOG.md - App Generator
+* 0075a43 - (1 year, 9 months ago) Release v1.0.7 - Improvements - App Generator
+* 40ab0b2 - (1 year, 10 months ago) Update README.md - App Generator
+* fceb868 - (1 year, 10 months ago) Release v1.0.6 - Bump Theme Version - App Generator
+* d2c4ae5 - (1 year, 10 months ago) Update CHANGELOG.md - App Generator
+* 50bb222 - (1 year, 10 months ago) Release v1.0.5 - ThemeAble Design, Ci/CD - App Generator
+* 93f424a - (1 year, 10 months ago) Codebase UPD - Theme-able, CI/CD flow - App Generator
+* 853e837 - (1 year, 10 months ago) CleanUP before Update - App Generator
+* 69b99af - (2 years ago) Update README.md - App Generator
+* f2dda10 - (2 years ago) Update README.md - App Generator
+* 1cf4290 - (2 years ago) Update README.md - App Generator
+* 887bf80 - (2 years ago) Update README.md - App Generator
+* 8d5328f - (2 years ago) Update README.md - App Generator
+* fcf0a62 - (2 years, 1 month ago) Update README.md - App Generator
+* 93a0bdd - (2 years, 1 month ago) Update views.py - App Generator
+* db356f5 - (2 years, 1 month ago) Update requirements.txt - App Generator
+* acb7d47 - (2 years, 1 month ago) Update README.md - App Generator
+* f3cc3ed - (2 years, 2 months ago) Update README.md - App Generator
+*   c16b8e8 - (2 years, 4 months ago) Merge pull request #1 from eroesch/master - App Generator
+|\  
+| * 3edcb5b - (2 years, 4 months ago) FIX: Upgraded django version req to meet security flag. - Etienne Roesch
+|/  
+* 49b59f1 - (2 years, 5 months ago) Update README.md - App Generator
+* ddca14b - (2 years, 5 months ago) Update README.md - App Generator
+* 53e17ef - (2 years, 6 months ago) Update README.md - App Generator
+* 3863dbc - (2 years, 6 months ago) Release v1.0.4 - App Generator
+* 019999b - (2 years, 6 months ago) Release v1.0.3 - App Generator
+* 98dd8ba - (2 years, 6 months ago) CleanUp before Update - App Generator
+* c8fdcf6 - (2 years, 7 months ago) Update README.md - App Generator
+* d1acfce - (2 years, 10 months ago) Fallback to Django==3.2.11 - App Generator
+* 7c63e1a - (2 years, 10 months ago) Release v1.0.2 - App Generator
+* f647330 - (2 years, 10 months ago) Release v1.0.1 - Bump Codebase Version - App Generator
+* 1124f8a - (2 years, 11 months ago) Update README.md - App Generator
+* af09a83 - (2 years, 11 months ago) Update README.md - App Generator
+* cf61404 - (2 years, 11 months ago) Update README.md - App Generator
+* 3935f6f - (2 years, 11 months ago) Update README.md - App Generator
+* da2e801 - (2 years, 11 months ago) Update README.md - App Generator
+* d6e8559 - (2 years, 11 months ago) Update README.md - App Generator
+* 94f5e58 - (2 years, 11 months ago) Update README.md - App Generator
+* a90275c - (2 years, 11 months ago) Update README.md - App Generator
+* 5faace3 - (2 years, 11 months ago) Update README.md - App Generator
+* eaed423 - (3 years ago) Minor Updates - App Generator
+* b2cbe5f - (3 years, 1 month ago) Correct product links - App Generator
+* 01e7978 - (3 years, 1 month ago) Release v1.0.0 - Material Kit v3.0.0 & Codebase v1.0.6 - App Generator
+* 3bbca46 - (3 years, 1 month ago) Initial release - App Generator
+* f512294 - (3 years, 1 month ago) Initial commit - App Generator
